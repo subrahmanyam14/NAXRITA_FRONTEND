@@ -1,7 +1,7 @@
 // src/layouts/AdminLayout.jsx
 import { Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import AdminSidebar from '../admin/components/AdminSidebar'; // 👈 Admin-specific sidebar
+import AdminSidebar from '../admin/components/AdminSidebar'; 
 import Header from '../shared/components/Header';
 import MainSidebar from '../shared/components/MainSidebar';
 import { useAuth } from '../contexts/AuthContext';
@@ -61,8 +61,8 @@ const AdminLayout = () => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Page Content */}
           <main className="flex-1 relative z-0 overflow-y-auto bg-white">
-            <div className="py-6">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div className="py-0">
+              <div className="max-w-full mx-auto px-4 sm:px-0 md:px-0">
                 <Outlet />
               </div>
             </div>

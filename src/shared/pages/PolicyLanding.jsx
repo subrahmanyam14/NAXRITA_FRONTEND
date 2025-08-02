@@ -16,104 +16,138 @@ import { FiAlertTriangle as ShieldExclamationIcon } from 'react-icons/fi';
 import { FiHome as BuildingOfficeIcon } from 'react-icons/fi';
 import { FiDollarSign as CurrencyDollarIcon } from 'react-icons/fi';
 import { FiCode as CodeBracketIcon } from 'react-icons/fi';
-import { FiFilter, FiChevronDown, FiCalendar, FiTag, FiStar, FiClock } from 'react-icons/fi';
+import { 
+  FiFilter, 
+  FiChevronDown, 
+  FiCalendar, 
+  FiTag, 
+  FiStar, 
+  FiClock,
+  FiChevronLeft,
+  FiChevronRight,
+  FiPlay,
+  FiPause,
+  FiMail
+} from 'react-icons/fi';
 
 // Import policies data
-import { policies, policyCategories } from '../../data/policies';
+import { policies, policyCategories, getPoliciesByCategory } from '../../data/policies';
 
-// Category icons with background images
+// Add auth context or user hook
+import { useAuth } from '../../contexts/AuthContext'; // Adjust path as needed
+
+// Category icons with updated dark theme colors
 const categoryIcons = {
   'key': { 
     icon: ShieldExclamationIcon, 
-    // color: 'from-red-50 to-pink-50', 
-    // bg: 'bg-red-50', 
-    text: 'text-red-700',
+    gradient: 'from-red-500 to-pink-600',
+    bg: 'bg-red-500/20', 
+    text: 'text-red-400',
     image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&h=300&fit=crop&crop=center'
   },
   'hr': { 
     icon: UserGroupIcon, 
-    // color: 'from-blue-500 to-indigo-600', 
-    bg: 'bg-blue-50', 
-    text: 'text-blue-700',
+    gradient: 'from-blue-500 to-indigo-600',
+    bg: 'bg-blue-500/20', 
+    text: 'text-blue-400',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=300&fit=crop&crop=center'
   },
   'code': { 
     icon: CodeBracketIcon, 
-    // color: 'from-purple-500 to-indigo-600', 
-    bg: 'bg-purple-50', 
-    text: 'text-purple-700',
+    gradient: 'from-purple-500 to-indigo-600',
+    bg: 'bg-purple-500/20', 
+    text: 'text-purple-400',
     image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop&crop=center'
   },
   'global': { 
     icon: GlobeAltIcon, 
-    // color: 'from-green-500 to-emerald-600', 
-    bg: 'bg-green-50', 
-    text: 'text-green-700',
+    gradient: 'from-green-500 to-emerald-600',
+    bg: 'bg-green-500/20', 
+    text: 'text-green-400',
     image: 'https://images.unsplash.com/photo-1519302959554-a75be0afc82a?w=400&h=300&fit=crop&crop=center'
   },
   'india': { 
     icon: BuildingOfficeIcon, 
-    // color: 'from-orange-500 to-red-600', 
-    bg: 'bg-orange-50', 
-    text: 'text-orange-700',
+    gradient: 'from-orange-500 to-red-600',
+    bg: 'bg-orange-500/20', 
+    text: 'text-orange-400',
     image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400&h=300&fit=crop&crop=center'
   },
   'it': { 
     icon: CogIcon, 
-    // color: 'from-gray-500 to-slate-600', 
-    bg: 'bg-gray-50', 
-    text: 'text-gray-700',
+    gradient: 'from-gray-500 to-slate-600',
+    bg: 'bg-gray-500/20', 
+    text: 'text-gray-400',
     image: 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?w=400&h=300&fit=crop&crop=center'
   },
   'finance': { 
     icon: CurrencyDollarIcon, 
-    // color: 'from-yellow-500 to-orange-600', 
-    bg: 'bg-yellow-50', 
-    text: 'text-yellow-700',
+    gradient: 'from-yellow-500 to-orange-600',
+    bg: 'bg-yellow-500/20', 
+    text: 'text-yellow-400',
     image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop&crop=center'
   },
   'safety': { 
     icon: ShieldCheckIcon, 
-    color: 'from-teal-500 to-cyan-600', 
-    bg: 'bg-teal-50', 
-    text: 'text-teal-700',
+    gradient: 'from-teal-500 to-cyan-600',
+    bg: 'bg-teal-500/20', 
+    text: 'text-teal-400',
     image: 'https://images.unsplash.com/photo-1585435557343-3b092031d4c1?w=400&h=300&fit=crop&crop=center'
   },
   'operations': { 
     icon: BeakerIcon, 
-    // color: 'from-pink-500 to-rose-600', 
-    bg: 'bg-pink-50', 
-    text: 'text-pink-700',
+    gradient: 'from-pink-500 to-rose-600',
+    bg: 'bg-pink-500/20', 
+    text: 'text-pink-400',
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop&crop=center'
   },
   'default': { 
     icon: DocumentTextIcon, 
-    // color: 'from-gray-400 to-gray-600', 
-    bg: 'bg-gray-50', 
-    text: 'text-gray-700',
+    gradient: 'from-gray-400 to-gray-600',
+    bg: 'bg-gray-500/20', 
+    text: 'text-gray-400',
     image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop&crop=center'
   }
 };
 
 // Professional Loader Component
 const PageLoader = () => (
-  <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-pulse mb-4">
-        <div className="w-16 h-16 mx-auto bg-indigo-600 rounded-full flex items-center justify-center">
-          <DocumentTextIcon className="w-10 h-10 text-white" />
+  <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-jakarta relative overflow-hidden">
+    {/* Cosmic Background */}
+    <div className="fixed inset-0 pointer-events-none">
+      {[...Array(100)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full animate-pulse"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${Math.random() * 3 + 1}px`,
+            height: `${Math.random() * 3 + 1}px`,
+            backgroundColor: ['#ffffff', '#2563eb', '#a3a3a3', '#6b7280'][Math.floor(Math.random() * 4)],
+            animationDelay: `${Math.random() * 3}s`,
+            animationDuration: `${3 + Math.random() * 2}s`
+          }}
+        />
+      ))}
+    </div>
+
+    <div className="text-center relative z-10">
+      <div className="animate-pulse mb-6">
+        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25">
+          <DocumentTextIcon className="w-12 h-12 text-white" />
         </div>
       </div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading Policies</h2>
-      <p className="text-gray-500 mb-6">Preparing your compliance dashboard...</p>
-      <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto mb-4">
-        <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 animate-pulse"></div>
+      <h2 className="text-3xl font-bold text-white mb-4">Loading Policies</h2>
+      <p className="text-[#a3a3a3] text-lg mb-8">Preparing your compliance dashboard...</p>
+      <div className="w-80 h-2 bg-[#161616] rounded-full overflow-hidden mx-auto mb-6 border border-[#2a2a2a]">
+        <div className="h-full bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] animate-pulse"></div>
       </div>
-      <div className="flex justify-center space-x-2">
+      <div className="flex justify-center space-x-3">
         {[0, 1, 2].map((i) => (
           <div 
             key={i}
-            className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" 
+            className="w-3 h-3 bg-[#2563eb] rounded-full animate-bounce shadow-lg shadow-blue-500/25" 
             style={{ animationDelay: `${i * 150}ms` }}
           />
         ))}
@@ -123,12 +157,24 @@ const PageLoader = () => (
 );
 
 export default function PolicyLanding() {
+  const { user } = useAuth(); // Get user from auth context
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [sortBy, setSortBy] = useState('relevance');
   const [dateFilter, setDateFilter] = useState('all');
+  
+  // Carousel states
+  const [categoryIndex, setCategoryIndex] = useState(0);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Helper function to get policy link based on user role
+  const getPolicyLink = (policyId) => {
+    const userRole = user?.role || 'employee';
+    return `/${userRole}/public/policies/${policyId}`;
+  };
 
   // Simulate loading delay
   useEffect(() => {
@@ -138,11 +184,7 @@ export default function PolicyLanding() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
-    return <PageLoader />;
-  }
-
-  // Add counts to categories
+  // Add counts to categories - Fixed the logic here
   const categories = [
     { id: 'all', name: 'All Policies' },
     ...policyCategories
@@ -153,7 +195,7 @@ export default function PolicyLanding() {
       : policies.filter(p => p.category === cat.id).length
   }));
 
-  // Filter policies
+  // Filter policies - Fixed the filtering logic
   const filteredPolicies = policies.filter(policy => {
     if (!policy || !policy.title) return false;
 
@@ -164,7 +206,8 @@ export default function PolicyLanding() {
       title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = selectedCategory === getPoliciesByCategory("all") || policy.category === selectedCategory;
+    // Fixed: Use selectedCategory instead of calling getPoliciesByCategory incorrectly
+    const matchesCategory = selectedCategory === 'all' || policy.category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -184,36 +227,127 @@ export default function PolicyLanding() {
     .filter(Boolean);
 
   const hasSearchQuery = searchQuery.trim().length > 0;
+  
+  // Auto-scroll categories carousel
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCategoryIndex(prev => (prev + 1) % Math.max(1, Math.ceil((categories.length - 1) / 4)));
+      setFeaturedIndex(prev => (prev + 1) % popularPolicies.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, categories.length, popularPolicies.length]);
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Modern Hero Section */}
-      <div className="bg-gradient-to-r from-purple-950 via-black to-purple-950 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-[#0a0a0a] font-jakarta relative overflow-hidden">
+      {/* Cosmic Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        {/* Starfield */}
+        <div className="absolute inset-0">
+          {[...Array(150)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 3 + 1}px`,
+                height: `${Math.random() * 3 + 1}px`,
+                backgroundColor: ['#ffffff', '#2563eb', '#a3a3a3', '#6b7280'][Math.floor(Math.random() * 4)],
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${3 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Floating Sparkles */}
+        <div className="absolute inset-0">
+          {[...Array(25)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-bounce"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 4}s`
+              }}
+            >
+              <div
+                className="rounded-full opacity-60"
+                style={{
+                  width: `${Math.random() * 4 + 2}px`,
+                  height: `${Math.random() * 4 + 2}px`,
+                  backgroundColor: ['#2563eb', '#22c55e', '#f59e0b', '#ffffff'][Math.floor(Math.random() * 4)],
+                  boxShadow: `0 0 10px currentColor`
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Animated Dots */}
+        <div className="absolute inset-0">
+          {[...Array(80)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 2 + 1}px`,
+                height: `${Math.random() * 2 + 1}px`,
+                backgroundColor: ['rgba(37, 99, 235, 0.3)', 'rgba(163, 163, 163, 0.2)', 'rgba(107, 114, 128, 0.1)'][Math.floor(Math.random() * 3)],
+                animationDelay: `${Math.random() * 4}s`,
+                animationDuration: `${4 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="relative z-10 bg-gradient-to-br from-[#111111] to-[#0a0a0a] border-b border-[#2a2a2a]">
+        <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
-              Policy Hub
-            </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-indigo-100">
-              Your comprehensive resource for company policies, procedures, and compliance guidelines.
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <img 
+                src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
+                alt="Nexrita Logo"
+                className="h-12 w-auto"
+                onError={(e) => {e.target.style.display = 'none';}}
+              />
+              <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
+                Policy Hub
+              </h1>
+            </div>
+            <p className="mt-6 max-w-3xl mx-auto text-xl text-[#a3a3a3] leading-relaxed">
+              Your comprehensive resource for company policies, procedures, and compliance guidelines in the cosmic workspace.
             </p>
             
             {/* Enhanced Search Bar */}
-            <div className="mt-10 max-w-4xl mx-auto">
-              <div className="relative flex items-center bg-white rounded-2xl shadow-2xl">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <SearchIcon className="h-6 w-6 text-gray-400" />
+            <div className="mt-12 max-w-4xl mx-auto">
+              <div className="relative flex items-center bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 border border-[#2a2a2a]">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <SearchIcon className="h-6 w-6 text-[#6b7280]" />
                 </div>
                 <input
                   type="text"
-                  className="block w-full pl-12 pr-32 py-4 border-0 rounded-2xl text-lg placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:ring-opacity-50"
+                  className="block w-full pl-16 pr-40 py-6 border-0 rounded-2xl text-lg text-white placeholder-[#6b7280] bg-transparent focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50"
                   placeholder="Search policies, procedures, guidelines..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button
                   onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                  className="absolute right-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition-colors flex items-center space-x-2"
+                  className="absolute right-3 px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl transition-all duration-300 flex items-center space-x-2 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
                 >
                   <FiFilter className="w-4 h-4" />
                   <span className="text-sm font-medium">Advanced</span>
@@ -222,14 +356,14 @@ export default function PolicyLanding() {
               
               {/* Advanced Search Panel */}
               {showAdvancedSearch && (
-                <div className="mt-4 bg-white rounded-xl shadow-lg p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="mt-6 bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-[#2a2a2a]">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Sort by</label>
+                      <label className="block text-sm font-medium text-[#a3a3a3] mb-3">Sort by</label>
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-xl text-white focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300"
                       >
                         <option value="relevance">Relevance</option>
                         <option value="date">Last Updated</option>
@@ -238,11 +372,11 @@ export default function PolicyLanding() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                      <label className="block text-sm font-medium text-[#a3a3a3] mb-3">Date Range</label>
                       <select
                         value={dateFilter}
                         onChange={(e) => setDateFilter(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-xl text-white focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300"
                       >
                         <option value="all">All Time</option>
                         <option value="week">Last Week</option>
@@ -251,11 +385,11 @@ export default function PolicyLanding() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                      <label className="block text-sm font-medium text-[#a3a3a3] mb-3">Category</label>
                       <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-xl text-white focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300"
                       >
                         {categories.map((cat) => (
                           <option key={cat.id} value={cat.id}>
@@ -272,63 +406,66 @@ export default function PolicyLanding() {
         </div>
       </div>
 
-      <main className="-mt-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Search Results - Show immediately when searching */}
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+        {/* Search Results */}
         {hasSearchQuery && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-12 border border-[#2a2a2a]">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Search Results</h2>
-                <p className="text-gray-600">About {filteredPolicies.length} results for "{searchQuery}"</p>
+                <h2 className="text-2xl font-bold text-white mb-2">Search Results</h2>
+                <p className="text-[#a3a3a3]">About {filteredPolicies.length} results for "{searchQuery}"</p>
               </div>
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
+                className="text-[#2563eb] hover:text-[#1d4ed8] font-medium transition-colors duration-300"
               >
                 Clear search
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               {filteredPolicies.length > 0 ? (
                 filteredPolicies.map((policy) => {
                   const categoryInfo = categoryIcons[policy.category] || categoryIcons.default;
                   const Icon = categoryInfo.icon;
                   
                   return (
-                    <div key={policy.id} className="border-b border-gray-100 pb-6 last:border-b-0">
+                    <div key={policy.id} className="border-b border-[#2a2a2a] pb-8 last:border-b-0">
                       <Link
-                        to={`/employee/public/policies/${policy.id}`}
-                        className="block group hover:bg-gray-50 rounded-lg p-4 -m-4 transition-colors"
+                        to={getPolicyLink(policy.id)} // Updated to use role-based link
+                        className="block group hover:bg-[#161616]/50 rounded-xl p-6 -m-6 transition-all duration-300 border border-transparent hover:border-[#404040]"
                       >
-                        <div className="flex items-start space-x-4">
-                          <div className={`p-3 rounded-xl ${categoryInfo.bg} flex-shrink-0`}>
-                            <Icon className={`w-6 h-6 ${categoryInfo.text}`} />
+                        <div className="flex items-start space-x-6">
+                          <div className={`p-4 rounded-xl ${categoryInfo.bg} backdrop-blur-sm flex-shrink-0 border border-[#404040]/50`}>
+                            <Icon className={`w-8 h-8 ${categoryInfo.text}`} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text}`}>
+                            <div className="flex items-center space-x-3 mb-2">
+                              <span className={`text-xs font-medium px-3 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text} border border-[#404040]/50`}>
                                 {policy.category}
                               </span>
-                              <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-500">Updated 2 days ago</span>
+                              <span className="text-xs text-[#6b7280]">•</span>
+                              <span className="text-xs text-[#6b7280]">Updated 2 days ago</span>
                             </div>
-                            <h3 className="text-xl font-semibold text-indigo-600 group-hover:text-indigo-800 mb-2">
+                            <h3 className="text-xl font-semibold text-[#2563eb] group-hover:text-[#1d4ed8] mb-3 transition-colors duration-300">
                               {policy.title}
                             </h3>
-                            <p className="text-gray-700 text-base mb-3 leading-relaxed">
+                            <p className="text-[#a3a3a3] text-base mb-4 leading-relaxed">
                               {policy.description}
                             </p>
-                            <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <div className="flex items-center space-x-6 text-sm text-[#6b7280]">
                               <span className="flex items-center">
-                                <FiTag className="w-4 h-4 mr-1" />
+                                <FiTag className="w-4 h-4 mr-2" />
                                 Policy #{policy.id}
                               </span>
                               <span className="flex items-center">
-                                <FiCalendar className="w-4 h-4 mr-1" />
+                                <FiCalendar className="w-4 h-4 mr-2" />
                                 Last reviewed: Jan 2025
                               </span>
-                              <span className="text-green-600 font-medium">✓ Active</span>
+                              <span className="text-[#22c55e] font-medium flex items-center">
+                                <span className="w-2 h-2 bg-[#22c55e] rounded-full mr-2"></span>
+                                Active
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -337,12 +474,12 @@ export default function PolicyLanding() {
                   );
                 })
               ) : (
-                <div className="text-center py-12">
-                  <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <SearchIcon className="w-12 h-12 text-gray-400" />
+                <div className="text-center py-16">
+                  <div className="w-32 h-32 mx-auto mb-6 bg-[#161616] rounded-full flex items-center justify-center border border-[#2a2a2a]">
+                    <SearchIcon className="w-16 h-16 text-[#6b7280]" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No policies found</h3>
-                  <p className="text-gray-600 mb-4">
+                  <h3 className="text-xl font-medium text-white mb-3">No policies found</h3>
+                  <p className="text-[#a3a3a3] mb-6 max-w-md mx-auto">
                     Try adjusting your search terms or browse by category below.
                   </p>
                   <button
@@ -350,7 +487,7 @@ export default function PolicyLanding() {
                       setSearchQuery('');
                       setSelectedCategory('all');
                     }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="px-6 py-3 bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white font-medium rounded-xl hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-blue-500/25"
                   >
                     Reset Filters
                   </button>
@@ -360,161 +497,210 @@ export default function PolicyLanding() {
           </div>
         )}
 
-        {/* Category Filter Cards - Only show when not searching */}
+        {/* Category Carousel */}
         {!hasSearchQuery && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {categories.map((cat) => {
-                const categoryInfo = categoryIcons[cat.id] || categoryIcons.default;
-                const Icon = categoryInfo.icon;
-                const isSelected = selectedCategory === cat.id;
-                
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`relative overflow-hidden rounded-2xl h-32 transition-all duration-300 transform hover:scale-105 ${
-                      isSelected ? 'ring-4 ring-indigo-500 ring-opacity-50' : ''
-                    }`}
-                  >
-                    {/* Background Image */}
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${categoryInfo.image})` }}
-                    />
-                    {/* Overlay */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${categoryInfo.color} opacity-80`}></div>
-                    {/* Content */}
-                    <div className="relative h-full flex flex-col items-center justify-center text-white p-4">
-                      <Icon className="w-8 h-8 mb-2 drop-shadow-lg" />
-                      <h3 className="font-semibold text-sm text-center leading-tight drop-shadow-md">{cat.name}</h3>
-                      <span className="text-xs opacity-90 mt-1 drop-shadow-md">{cat.count} policies</span>
-                    </div>
-                    {isSelected && (
-                      <div className="absolute top-2 right-2">
-                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
-                          <FiStar className="w-3 h-3 text-indigo-600" />
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white">Browse by Category</h2>
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className="p-3 rounded-xl bg-[#161616] border border-[#404040] text-[#a3a3a3] hover:text-white hover:border-[#2563eb] transition-all duration-300"
+                >
+                  {isAutoPlaying ? <FiPause size={18} /> : <FiPlay size={18} />}
+                </button>
+                <button 
+                  onClick={() => setCategoryIndex(prev => Math.max(0, prev - 1))}
+                  className="p-3 rounded-xl bg-[#161616] border border-[#404040] text-[#a3a3a3] hover:text-white hover:border-[#2563eb] transition-all duration-300"
+                >
+                  <FiChevronLeft size={18} />
+                </button>
+                <button 
+                  onClick={() => setCategoryIndex(prev => Math.min(Math.ceil((categories.length - 1) / 4), prev + 1))}
+                  className="p-3 rounded-xl bg-[#161616] border border-[#404040] text-[#a3a3a3] hover:text-white hover:border-[#2563eb] transition-all duration-300"
+                >
+                  <FiChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="relative overflow-hidden rounded-2xl">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out gap-6"
+                style={{ transform: `translateX(-${categoryIndex * 100}%)` }}
+              >
+                {Array.from({ length: Math.ceil(categories.length / 4) }, (_, chunkIndex) => (
+                  <div key={chunkIndex} className="grid grid-cols-4 gap-6 w-full flex-shrink-0">
+                    {categories.slice(chunkIndex * 4, (chunkIndex * 4) + 4).map((cat) => {
+                      const categoryInfo = categoryIcons[cat.id] || categoryIcons.default;
+                      const Icon = categoryInfo.icon;
+                      const isSelected = selectedCategory === cat.id;
+                      
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={`relative overflow-hidden rounded-2xl h-48 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 group ${
+                            isSelected ? 'ring-2 ring-[#2563eb] shadow-lg shadow-blue-500/25' : ''
+                          }`}
+                        >
+                          {/* Background Image */}
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{ backgroundImage: `url(${categoryInfo.image})` }}
+                          />
+                          {/* Gradient Overlay */}
+                          <div className={`absolute inset-0 bg-gradient-to-br ${categoryInfo.gradient} opacity-80 group-hover:opacity-90 transition-opacity duration-300`}></div>
+                          {/* Content */}
+                          <div className="relative h-full flex flex-col justify-end p-6 text-white">
+                            <div className="mb-4">
+                              <Icon className="w-10 h-10 drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                            </div>
+                            <h3 className="font-semibold text-base text-left leading-tight drop-shadow-md mb-1">
+                              {cat.name}
+                            </h3>
+                            <span className="text-sm opacity-90 drop-shadow-md text-left">
+                              {cat.count} policies
+                            </span>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-4 right-4">
+                              <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/30">
+                                <FiStar className="w-4 h-4 text-white" fill="currentColor" />
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Popular Policies - Only show when not searching */}
+        {/* Featured Policies Carousel */}
         {!hasSearchQuery && (
-          <div className="mb-12 mt-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Policies</h2>
-              <Link to="/policies/all" className="text-indigo-600 hover:text-indigo-800 font-medium">
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white">Featured Policies</h2>
+              <Link to="/policies/all" className="text-[#2563eb] hover:text-[#1d4ed8] font-medium transition-colors duration-300">
                 View all →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {popularPolicies.map((policy) => {
-                const categoryInfo = categoryIcons[policy.category] || categoryIcons.default;
-                const Icon = categoryInfo.icon;
-                
-                return (
-                  <Link
-                    key={policy.id}
-                    to={`/employee/public/policies/${policy.id}`}
-                    className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
-                  >
-                    <div className={`h-3 bg-gradient-to-r ${categoryInfo.color}`}></div>
-                    <div className="p-6">
-                      <div className="flex items-center mb-4">
-                        <div className={`p-3 rounded-xl ${categoryInfo.bg}`}>
-                          <Icon className={`w-6 h-6 ${categoryInfo.text}`} />
+            <div className="relative overflow-hidden rounded-2xl">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out gap-6"
+                style={{ transform: `translateX(-${featuredIndex * 25}%)` }}
+              >
+                {popularPolicies.map((policy) => {
+                  const categoryInfo = categoryIcons[policy.category] || categoryIcons.default;
+                  const Icon = categoryInfo.icon;
+                  
+                  return (
+                    <Link
+                      key={policy.id}
+                      to={getPolicyLink(policy.id)} // Updated to use role-based link
+                      className="group bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-[#2a2a2a] hover:border-[#404040] flex-shrink-0 w-80 hover:-translate-y-2"
+                    >
+                      <div className={`h-2 bg-gradient-to-r ${categoryInfo.gradient}`}></div>
+                      <div className="p-8">
+                        <div className="flex items-center mb-6">
+                          <div className={`p-4 rounded-xl ${categoryInfo.bg} backdrop-blur-sm border border-[#404040]/50`}>
+                            <Icon className={`w-8 h-8 ${categoryInfo.text}`} />
+                          </div>
+                          <div className="ml-4 flex-1">
+                            <span className={`text-xs font-medium px-3 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text} border border-[#404040]/50`}>
+                              {policy.category}
+                            </span>
+                          </div>
                         </div>
-                        <div className="ml-3 flex-1">
-                          <span className={`text-xs font-medium px-2 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text}`}>
-                            {policy.category}
+                        <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-[#2563eb] transition-colors duration-300">
+                          {policy.title}
+                        </h3>
+                        <p className="text-[#a3a3a3] text-sm mb-6 leading-relaxed line-clamp-3">
+                          {policy.description}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-[#6b7280]">
+                          <span className="flex items-center">
+                            <FiClock className="w-3 h-3 mr-1" />
+                            {policy.lastUpdated}
+                          </span>
+                          <span className="flex items-center">
+                            <span className="mr-1">👁️</span>
+                            {policy.views}
                           </span>
                         </div>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                        {policy.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{policy.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span className="flex items-center">
-                          <FiClock className="w-3 h-3 mr-1" />
-                          {policy.lastUpdated}
-                        </span>
-                        <span className="flex items-center">
-                          👁️ {policy.views}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Filtered Results by Category - Only show when category is selected but no search */}
+        {/* Filtered Results by Category */}
         {!hasSearchQuery && selectedCategory !== 'all' && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-[#1e1e1e]/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-12 border border-[#2a2a2a]">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-white mb-2">
                   {categories.find(c => c.id === selectedCategory)?.name || 'Category'} Policies
                 </h2>
-                <p className="text-gray-600">{filteredPolicies.length} policies found</p>
+                <p className="text-[#a3a3a3]">{filteredPolicies.length} policies found</p>
               </div>
               <button
                 onClick={() => setSelectedCategory('all')}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
+                className="text-[#2563eb] hover:text-[#1d4ed8] font-medium transition-colors duration-300"
               >
                 Show all categories
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               {filteredPolicies.map((policy) => {
                 const categoryInfo = categoryIcons[policy.category] || categoryIcons.default;
                 const Icon = categoryInfo.icon;
                 
                 return (
-                  <div key={policy.id} className="border-b border-gray-100 pb-6 last:border-b-0">
+                  <div key={policy.id} className="border-b border-[#2a2a2a] pb-8 last:border-b-0">
                     <Link
-                      to={`/employee/public/policies/${policy.id}`}
-                      className="block group hover:bg-gray-50 rounded-lg p-4 -m-4 transition-colors"
+                      to={getPolicyLink(policy.id)} // Updated to use role-based link
+                      className="block group hover:bg-[#161616]/50 rounded-xl p-6 -m-6 transition-all duration-300 border border-transparent hover:border-[#404040]"
                     >
-                      <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-xl ${categoryInfo.bg} flex-shrink-0`}>
-                          <Icon className={`w-6 h-6 ${categoryInfo.text}`} />
+                      <div className="flex items-start space-x-6">
+                        <div className={`p-4 rounded-xl ${categoryInfo.bg} backdrop-blur-sm flex-shrink-0 border border-[#404040]/50`}>
+                          <Icon className={`w-8 h-8 ${categoryInfo.text}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text}`}>
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span className={`text-xs font-medium px-3 py-1 rounded-full ${categoryInfo.bg} ${categoryInfo.text} border border-[#404040]/50`}>
                               {policy.category}
                             </span>
-                            <span className="text-xs text-gray-500">•</span>
-                            <span className="text-xs text-gray-500">Updated 2 days ago</span>
+                            <span className="text-xs text-[#6b7280]">•</span>
+                            <span className="text-xs text-[#6b7280]">Updated 2 days ago</span>
                           </div>
-                          <h3 className="text-xl font-semibold text-indigo-600 group-hover:text-indigo-800 mb-2">
+                          <h3 className="text-xl font-semibold text-[#2563eb] group-hover:text-[#1d4ed8] mb-3 transition-colors duration-300">
                             {policy.title}
                           </h3>
-                          <p className="text-gray-700 text-base mb-3 leading-relaxed">
+                          <p className="text-[#a3a3a3] text-base mb-4 leading-relaxed">
                             {policy.description}
                           </p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <div className="flex items-center space-x-6 text-sm text-[#6b7280]">
                             <span className="flex items-center">
-                              <FiTag className="w-4 h-4 mr-1" />
+                              <FiTag className="w-4 h-4 mr-2" />
                               Policy #{policy.id}
                             </span>
                             <span className="flex items-center">
-                              <FiCalendar className="w-4 h-4 mr-1" />
+                              <FiCalendar className="w-4 h-4 mr-2" />
                               Last reviewed: Jan 2025
                             </span>
-                            <span className="text-green-600 font-medium">✓ Active</span>
+                            <span className="text-[#22c55e] font-medium flex items-center">
+                              <span className="w-2 h-2 bg-[#22c55e] rounded-full mr-2"></span>
+                              Active
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -526,24 +712,25 @@ export default function PolicyLanding() {
           </div>
         )}
 
-        {/* Help Section - Only show when not searching */}
+        {/* Help Section */}
         {!hasSearchQuery && (
-          <div className="mt-12 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8">
+          <div className="bg-gradient-to-br from-[#1e1e1e]/80 to-[#161616]/80 backdrop-blur-sm rounded-2xl p-12 border border-[#2a2a2a]">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Need Additional Help?</h2>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-white mb-6">Need Additional Help?</h2>
+              <p className="text-[#a3a3a3] text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
                 Can't find the policy you're looking for? Our HR team is available to assist you with any questions or provide additional resources.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <a
-                  href="mailto:hr@company.com"
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+                  href="mailto:hr@nexrita.com"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white font-medium rounded-xl hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
                 >
+                  <FiMail className="w-5 h-5 mr-2" />
                   Contact HR Team
                 </a>
                 <Link
                   to="/policies/request"
-                  className="inline-flex items-center px-6 py-3 border border-indigo-600 text-base font-medium rounded-lg text-indigo-600 bg-white hover:bg-indigo-50 transition-colors"
+                  className="inline-flex items-center px-8 py-4 border border-[#404040] text-[#a3a3a3] hover:text-white bg-[#161616]/50 hover:bg-[#1e1e1e] font-medium rounded-xl hover:border-[#2563eb] transition-all duration-300"
                 >
                   Request New Policy
                 </Link>
@@ -552,6 +739,34 @@ export default function PolicyLanding() {
           </div>
         )}
       </main>
+
+      {/* Custom Animations */}
+      <style jsx>{`
+        @keyframes cosmicFloat {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes cosmicPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        .animate-cosmic-float {
+          animation: cosmicFloat 8s ease-in-out infinite;
+        }
+        
+        .animate-cosmic-pulse {
+          animation: cosmicPulse 4s ease-in-out infinite;
+        }
+
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 }

@@ -40,13 +40,13 @@ export default function Header({ isPublic = false }) {
   return (
     <>
       {/* Header */}
-      <header className="bg-white shadow-sm z-30 sticky top-0 h-14 flex items-center">
-        <div className="px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+      <header className="bg-[#0a0a0a] shadow-lg border-b border-[#2a2a2a] z-30 sticky top-0 h-[72px] flex items-center font-jakarta">
+        <div className="px-8 w-full flex items-center justify-between">
           {/* Left: Menu Button + Label + Brand */}
-          <div className="flex items-center space-x-3 flex-shrink-0">
+          <div className="flex items-center space-x-4 flex-shrink-0">
             <button
               type="button"
-              className="flex items-center space-x-1 p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition"
+              className="flex items-center space-x-2 p-3 rounded-lg text-[#a3a3a3] hover:bg-[#1e1e1e] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 ease-out border border-[#404040] hover:border-[#2563eb] hover:shadow-lg hover:shadow-blue-500/10"
               onClick={toggleSidebar}
               aria-label="Toggle sidebar"
             >
@@ -55,76 +55,95 @@ export default function Header({ isPublic = false }) {
               ) : (
                 <FiMenu className="h-5 w-5" />
               )}
-              <span className="text-sm font-medium text-gray-700">Menu</span>
+              <span className="text-sm font-medium">Menu</span>
             </button>
-  
-            <Link to="/" className="text-lg font-semibold text-indigo-600">
-              NexRita
+
+            {/* Brand with Logo */}
+            <Link 
+              to="/" 
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300"
+            >
+              <img 
+                src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
+                alt="Nexrita Logo"
+                className="h-8 w-auto"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+
             </Link>
           </div>
 
           {/* Center: Search Bar */}
-          <div className="mx-4 flex-1 max-w-md">
-            <div className="relative">
+          <div className="mx-6 flex-1 max-w-lg">
+            <div className="relative group">
               <input
                 type="text"
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-200"
+                placeholder="Search employees, departments, tasks..."
+                className="w-full pl-12 pr-4 py-3 text-sm rounded-xl bg-[#161616] border border-[#404040] text-white placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300 hover:border-[#666666] hover:shadow-md hover:shadow-black/20"
               />
-              <FiSearch className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
+              <FiSearch className="absolute left-4 top-3.5 h-4 w-4 text-[#6b7280] group-focus-within:text-[#2563eb] transition-colors duration-300 pointer-events-none" />
+              <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_20px_rgba(37,99,235,0.2)]"></div>
             </div>
           </div>
 
           {/* Right: Icons & User */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {/* Chat */}
             <button
               type="button"
-              className="p-2 rounded-full text-gray-600 hover:text-indigo-600 hover:bg-gray-100 relative transition duration-200 focus:outline-none"
+              className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
-              <FiMessageCircle className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full"></span>
+              <FiMessageCircle className="h-5 w-5" />
+              <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-[#2563eb] rounded-full animate-pulse"></span>
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(37,99,235,0.1)]"></div>
             </button>
 
             {/* Notifications */}
             <button
               type="button"
-              className="p-2 rounded-full text-gray-600 hover:text-indigo-600 hover:bg-gray-100 relative transition duration-200 focus:outline-none"
+              className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
-              <FiBell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+              <FiBell className="h-5 w-5" />
+              <span className="absolute top-1.5 right-1.5 h-5 w-5 bg-[#ef4444] rounded-full flex items-center justify-center text-white text-xs font-medium">
                 1
               </span>
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(239,68,68,0.1)]"></div>
             </button>
 
             {/* Email */}
             <button
               type="button"
-              className="p-2 rounded-full text-gray-600 hover:text-indigo-600 hover:bg-gray-100 relative transition duration-200 focus:outline-none"
+              className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
-              <FiMail className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+              <FiMail className="h-5 w-5" />
+              <span className="absolute top-1.5 right-1.5 h-5 w-5 bg-[#22c55e] rounded-full flex items-center justify-center text-white text-xs font-medium">
                 3
               </span>
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(34,197,94,0.1)]"></div>
             </button>
 
             {/* User: Show Login or Profile */}
             {isLoggedIn ? (
-              <Menu as="div" className="relative ml-3">
+              <Menu as="div" className="relative ml-4">
                 <MenuButton
-                  className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded-md p-1"
+                  className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 rounded-xl p-2 border border-[#404040] hover:border-[#2563eb] bg-[#161616] hover:bg-[#1e1e1e] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
                   aria-label="User menu"
                 >
-                  <div className="h-8 w-8 rounded-full  flex items-center justify-center border border-gray-600">
-                    <FiUser className="h-5 w-5 text-gray-900" />
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] flex items-center justify-center border-2 border-[#404040] hover:border-[#2563eb] transition-all duration-300 shadow-lg">
+                    <FiUser className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-gray-800">{userName}</span>
+                  <div className="hidden sm:block text-left">
+                    <div className="text-sm font-semibold text-white">{userName}</div>
+                    <div className="text-xs text-[#6b7280] capitalize">{user?.role || 'User'}</div>
+                  </div>
                 </MenuButton>
 
                 <MenuItems
-                  className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 text-sm focus:outline-none transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+                  className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-[#1e1e1e] shadow-xl border border-[#2a2a2a] py-2 text-sm focus:outline-none transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 shadow-[0_10px_25px_rgba(0,0,0,0.9)]"
                 >
-                  {profileNavigation.map((item) => {
+                  {profileNavigation.map((item, index) => {
                     const Icon = item.icon;
                     return (
                       <MenuItem key={item.name}>
@@ -138,11 +157,19 @@ export default function Header({ isPublic = false }) {
                               }
                             }}
                             className={`${
-                              focus ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'
-                            } flex items-center px-4 py-2`}
+                              focus 
+                                ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20' 
+                                : 'text-[#a3a3a3] hover:text-white'
+                            } flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-300 ${
+                              index === profileNavigation.length - 1 
+                                ? 'border-t border-[#2a2a2a] mt-2' 
+                                : ''
+                            }`}
                           >
-                            <Icon className="mr-3 h-4 w-4 text-gray-500" />
-                            {item.name}
+                            <Icon className={`mr-3 h-4 w-4 ${
+                              focus ? 'text-white' : 'text-[#6b7280]'
+                            }`} />
+                            <span className="font-medium">{item.name}</span>
                           </Link>
                         )}
                       </MenuItem>
@@ -153,9 +180,9 @@ export default function Header({ isPublic = false }) {
             ) : (
               <Link
                 to="/login"
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition duration-200"
+                className="px-6 py-2.5 text-sm font-semibold bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 border border-[#2563eb]"
               >
-                Login
+                Sign In
               </Link>
             )}
           </div>

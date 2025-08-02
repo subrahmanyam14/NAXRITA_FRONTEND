@@ -30,6 +30,7 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const sidebarRef = useRef(null);
   const [expandedSections, setExpandedSections] = useState({});
+  const [activeTab, setActiveTab] = useState('Menu');
 
   const handleCloseSidebar = () => {
     if (typeof setSidebarOpen === 'function') {
@@ -52,12 +53,12 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       href: user?.role === 'admin' ? '/admin/home' : '/employee/home',
       roles: ['admin', 'employee'],
     },
-      {
-          name: 'Policies',
-          icon: FiBookOpen,
-          href: user?.role === 'admin' ? '/admin/public' : '/employee/public',
-          roles: ['admin', 'employee'],
-        },
+    {
+      name: 'Policies',
+      icon: FiBookOpen,
+      href: user?.role === 'admin' ? '/admin/public' : '/employee/public',
+      roles: ['admin', 'employee'],
+    },
     {
       name: 'Personal',
       icon: FiUser,
@@ -185,8 +186,8 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
     <Fragment>
       {/* Black Background Overlay */}
       <div
-        className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out  p-2 z-40 ${
-          sidebarOpen ? 'opacity-50 visible' : 'opacity-0 invisible'
+        className={`fixed inset-0 bg-black/80 backdrop-blur-sm transition-all duration-300 ease-in-out z-40 no-scrollbar ${
+          sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
         onClick={handleCloseSidebar}
         aria-hidden="true"
@@ -195,17 +196,27 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Sidebar Panel */}
       <div
         ref={sidebarRef}
-        className={`fixed inset-y-0 left-0 h-screen rounded-lg border-slate-500 border-2 z-50 py-1 w-80 bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-4' : '-translate-x-full '
+        className={`fixed inset-y-0 left-0 h-screen z-50 w-[320px] bg-[#111111] shadow-[0_10px_15px_-3px_rgba(0,0,0,0.8)] flex flex-col transform transition-transform duration-300 ease-in-out border-r border-[#2a2a2a] font-jakarta no-scrollbar ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header with Tabs */}
-        <div className="px-4 pt-0 pb-0 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900"></h1>
+        {/* Header with Brand and Close Button */}
+        <div className="px-6 pt-6 pb-4 border-b border-[#2a2a2a] bg-[#0a0a0a] no-scrollbar">
+          <div className="flex items-center justify-between mb-6 no-scrollbar">
+            <div className="flex items-center space-x-3 no-scrollbar">
+              <img 
+                src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
+                alt="Nexrita Logo"
+                className="h-8 w-auto"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+              {/* <h1 className="text-xl font-bold text-white tracking-tight">Nexrita</h1> */}
+            </div>
             <button
               type="button"
-              className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+              className="p-2 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] transition-all duration-300 border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20"
               onClick={handleCloseSidebar}
               aria-label="Close sidebar"
             >
@@ -214,52 +225,69 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex space-x-0 mb-0">
-            <button className="px-4 py-2 text-sm font-normal text-blue-600 border-b-2 border-blue-600 bg-transparent">
-              Menu
-            </button>
-            <button className="px-4 py-2 text-sm font-nromal text-gray-500 hover:text-gray-700 bg-transparent">
-              Shortcuts
-            </button>
+          <div className="flex space-x-1 bg-[#161616] rounded-lg p-1 border border-[#2a2a2a] no-scrollbar">
+            {['Menu', 'Shortcuts'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-300 ${
+                  activeTab === tab
+                    ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20'
+                    : 'text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 px-0 py-0 overflow-y-auto">
-          <div className="space-y-0">
+        <nav className="flex-1 px-4 py-4 overflow-y-auto   no-scrollbar">
+          <div className="space-y-1 no-scrollbar">
             {filteredNav.map((item) => {
               const isExpanded = expandedSections[item.name];
               const isActive = location.pathname === item.href;
               
               return (
-                <div key={item.name}>
+                <div key={item.name} className="group">
                   {/* Main Navigation Item */}
                   {item.expandable ? (
                     <button
                       onClick={() => toggleSection(item.name)}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-xs font-normal text-left transition-colors duration-200 hover:bg-gray-50 ${
-                        isExpanded ? 'bg-gray-100' : ''
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-left rounded-xl transition-all duration-300 group-hover:shadow-md group-hover:shadow-black/20 no-scrollbar ${
+                        isExpanded 
+                          ? 'bg-[#1e1e1e] text-white border border-[#404040] no-scrollbar' 
+                          : 'text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] hover:border-[#404040] border border-transparent no-scrollbar'
                       }`}
                     >
-                      <div className="flex items-center">
-                        <item.icon className="mr-3 h-5 w-5 text-gray-500" />
-                        <span className="text-gray-900">{item.name}</span>
+                      <div className="flex items-center no-scrollbar">
+                        <item.icon className={`mr-3 h-5 w-5 transition-colors duration-300 ${
+                          isExpanded ? 'text-[#2563eb]' : 'text-[#6b7280] group-hover:text-[#2563eb]'
+                        }`} />
+                        <span>{item.name}</span>
                       </div>
-                      {isExpanded ? (
-                        <HiChevronUp className="h-4 w-4 text-gray-400 transition-transform duration-200" />
-                      ) : (
-                        <HiChevronDown className="h-4 w-4 text-gray-400 transition-transform duration-200" />
-                      )}
+                      <div className={`transition-transform duration-300 no-scrollbar ${isExpanded ? 'rotate-180' : ''}`}>
+                        <HiChevronDown className={`h-4 w-4 transition-colors duration-300 ${
+                          isExpanded ? 'text-[#2563eb]' : 'text-[#6b7280]'
+                        }`} />
+                      </div>
                     </button>
                   ) : (
                     <Link
                       to={item.href}
-                      className={`flex items-center px-4 py-3 text-xs font-medium transition-colors duration-200 hover:bg-gray-50 ${
-                        isActive ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' : 'text-gray-900'
+                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 group hover:shadow-md hover:shadow-black/20 border ${
+                        isActive 
+                          ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-lg shadow-blue-500/20' 
+                          : 'text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] hover:border-[#404040] border-transparent'
                       }`}
                       onClick={handleCloseSidebar}
                     >
-                      <item.icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                      <item.icon className={`mr-3 h-5 w-5 transition-colors duration-300 ${
+                        isActive 
+                          ? 'text-white' 
+                          : 'text-[#6b7280] group-hover:text-[#2563eb]'
+                      }`} />
                       {item.name}
                     </Link>
                   )}
@@ -267,23 +295,30 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   {/* Sub Items */}
                   {item.expandable && (
                     <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      className={`overflow-hidden transition-all duration-500 ease-in-out no-scrollbar ${
+                        isExpanded ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      <div className="bg-gray-50">
+                      <div className="ml-4 space-y-1 border-l-2 border-[#2a2a2a] pl-4 no-scrollbar">
                         {item.subItems?.filter(subItem => subItem.roles.includes(user?.role || '')).map((subItem) => {
                           const isSubActive = location.pathname === subItem.href;
                           return (
                             <Link
                               key={subItem.name}
                               to={subItem.href}
-                              className={`block px-12 py-2.5 text-xs transition-colors duration-200 hover:bg-gray-100 ${
-                                isSubActive ? 'text-blue-700 bg-blue-50 font-medium' : 'text-gray-600'
+                              className={`block px-4 py-2.5 text-sm rounded-lg transition-all duration-300 hover:shadow-md hover:shadow-black/10 border ${
+                                isSubActive 
+                                  ? 'text-white bg-[#2563eb] border-[#2563eb] font-medium shadow-lg shadow-blue-500/20' 
+                                  : 'text-[#6b7280] hover:text-white hover:bg-[#1e1e1e] hover:border-[#404040] border-transparent'
                               }`}
                               onClick={handleCloseSidebar}
                             >
-                              {subItem.name}
+                              <span className="relative">
+                                {subItem.name}
+                                {isSubActive && (
+                                  <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1 h-4 bg-[#2563eb] rounded-full"></div>
+                                )}
+                              </span>
                             </Link>
                           );
                         })}
@@ -297,21 +332,33 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </nav>
 
         {/* Bottom Action Buttons */}
-        <div className="p-4 border-t border-gray-200 bg-white">
-          <div className="flex space-x-2">
-            <button className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+        <div className="p-6 border-t border-[#2a2a2a] bg-[#0a0a0a]">
+          {/* <div className="flex space-x-3">
+            <button className="flex-1 flex items-center justify-center px-4 py-3 border border-[#404040] rounded-xl text-sm font-medium text-[#a3a3a3] bg-[#161616] hover:text-white hover:bg-[#1e1e1e] hover:border-[#2563eb] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
               <FiPlus className="h-4 w-4 mr-2" />
               Add
             </button>
-            <button className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+            <button className="flex-1 flex items-center justify-center px-4 py-3 border border-[#404040] rounded-xl text-sm font-medium text-[#a3a3a3] bg-[#161616] hover:text-white hover:bg-[#1e1e1e] hover:border-[#2563eb] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
               <FiEdit3 className="h-4 w-4 mr-2" />
               Edit
             </button>
-          </div>
+          </div> */}
+          
+          {/* User Info */}
+          {user && (
+            <div className="mt-4 p-4 bg-[#161616] rounded-xl border border-[#2a2a2a]">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] flex items-center justify-center border-2 border-[#404040]">
+                  <FiUser className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-white truncate">{user.name || 'User'}</div>
+                  <div className="text-xs text-[#6b7280] capitalize">{user.role || 'Employee'}</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* User Profile Footer */}
-       
       </div>
     </Fragment>
   );

@@ -697,8 +697,11 @@ export const policies = [
 ];
 
 // Helper function to get policies by category
+// Fixed getPoliciesByCategory function
 export const getPoliciesByCategory = (categoryId) => {
-  if (categoryId === 'all') return policies;
+  if (categoryId === 'all') {
+    return policies; // Return all policies when 'all' is selected
+  }
   return policies.filter(policy => policy.category === categoryId);
 };
 
