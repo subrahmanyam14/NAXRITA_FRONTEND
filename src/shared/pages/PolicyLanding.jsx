@@ -18,8 +18,9 @@ import { FiDollarSign as CurrencyDollarIcon } from 'react-icons/fi';
 import { FiCode as CodeBracketIcon } from 'react-icons/fi';
 import { FiFilter, FiChevronDown, FiCalendar, FiTag, FiStar, FiClock } from 'react-icons/fi';
 
+
 // Import policies data
-import { policies, policyCategories } from '../../data/policies';
+import { policies, policyCategories, getPoliciesByCategory } from '../../data/policies';
 
 // Category icons with background images
 const categoryIcons = {
