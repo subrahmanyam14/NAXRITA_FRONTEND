@@ -25,7 +25,7 @@ const PublicEmployeeLayout = () => {
 </div>
       <main className="container mx-auto px-0 py-0">
         <div className="max-w-full mx-auto">
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-0">
            
           </p>
           <Outlet />
