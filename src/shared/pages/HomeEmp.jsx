@@ -232,7 +232,7 @@ const HomeEmployee = () => {
                 <div className="mt-8 sm:mt-8 sm:flex sm:justify-center lg:justify-start gap-4">
                   <button className="group relative flex items-center justify-center px-8 py-4 border border-transparent font-jakarta text-lg font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-2xl backdrop-blur-sm">
                     <span className="relative z-10">Go to Dashboard</span>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                   <button className="group flex items-center justify-center px-8 py-4 border border-gray-600 text-lg font-medium rounded-full text-gray-300 bg-gray-800/50 hover:bg-gray-700/50 hover:text-white transition-all duration-300 hover:scale-105 backdrop-blur-sm border-opacity-50 hover:border-gray-500">
                     View Policies
