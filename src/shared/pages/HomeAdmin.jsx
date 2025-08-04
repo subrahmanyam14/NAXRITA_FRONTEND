@@ -225,7 +225,7 @@ const AdminHomepage = () => {
       {/* Content */}
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="bg-black/80 backdrop-blur-sm border-b border-gray-800">
+        <div className="bg-black/80 backdrop-blur-sm border-b border-gray-800 hidden">
           <div className="max-w-7xl mx-auto px-8 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
