@@ -26,7 +26,7 @@ import AdminSummary from './admin/pages/AdminSummary';
 import ManageEmployees from './admin/pages/ManageEmployees';
 import EmployeePerformance from './admin/pages/EmployeePerformance';
 import AdminProfile from './admin/pages/AdminProfile';
-
+import EmployeeBirthdays from './admin/pages/EmployeeBirthDays'
 // Employee Pages
 import Summary from './employee/pages/EmployeeSummary';
 import MyTasks from './employee/pages/MyTasks';
@@ -120,7 +120,7 @@ const App = () => {
             <Route path="admin/compensation" element={<AdminCompensationPage />} />
             <Route path="admin/contact" element={<AdminContactPage />} />
             
-            
+            <Route path ="admin/birtdays" element ={<EmployeeBirthdays/>}
             <Route path="admin/career" element={<AdminCareerPage />} />
             <Route path="admin/overview" element={<PerformanceDashboard />} />
             <Route path="admin/employees" element={<ManageEmployees />} />

@@ -12,7 +12,7 @@ import {
   DollarSign,
   Settings,
   Download,
-  ChevronDown,
+  ChevronDown,Cake ,
   ChevronUp
 } from 'lucide-react';
 
@@ -20,11 +20,13 @@ const navigation = [
   { name: 'Summary', href: '/admin/summary', icon: Home },
   { name: 'Overview', href: '/admin/overview', icon: Briefcase },
   { name: 'Career', href: '/admin/career', icon: User },
+   { name: 'Birthdays', href: '/admin/birthdays', icon: Cake },
   { name: 'Employee Management', href: '/admin/employees', icon: User },
   { name: 'Performance', href: '/admin/performance', icon: BarChart3 },
   { name: 'Personal', href: '/admin/profile', icon: FileText },
   { name: 'Contact', href: '/admin/contact', icon: Clock },
   { name: 'Compensation', href: '/admin/compensation', icon: DollarSign },
+  
 ];
 
 // Cosmic Background Component
