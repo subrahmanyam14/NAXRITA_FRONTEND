@@ -415,7 +415,7 @@ const MyTasks = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       <div className="relative z-10 p-8">
         <div className="max-w-7xl mx-auto">

@@ -317,7 +317,7 @@ const AdminCareerPage = () => {
       }}
     >
       {/* Cosmic Background */}
-      <CosmicBackground intensity="full" />
+      {/* <CosmicBackground intensity="full" /> */}
 
       {/* Header */}
       <div 

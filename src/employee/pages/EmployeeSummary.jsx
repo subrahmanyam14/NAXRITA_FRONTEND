@@ -450,7 +450,7 @@ const EmployeeProfile = () => {
         className="flex items-center justify-center min-h-screen"
         style={{ background: '#0a0a0a' }}
       >
-        <CosmicBackground />
+        {/* <CosmicBackground /> */}
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -461,7 +461,7 @@ const EmployeeProfile = () => {
       className="min-h-screen"
       style={{ background: '#0a0a0a', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
     >
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       {/* <Sidebar /> */}
       <Header />
       

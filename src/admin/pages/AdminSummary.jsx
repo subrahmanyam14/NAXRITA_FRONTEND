@@ -387,7 +387,7 @@ const AdminSummary = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black relative overflow-hidden">
-        <StarfieldBackground />
+        {/* <StarfieldBackground /> */}
         <div className="max-w-7xl mx-auto p-3 lg:p-6 relative z-10">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-700 rounded w-1/3 mb-2"></div>
@@ -417,7 +417,7 @@ const AdminSummary = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <StarfieldBackground />
+      {/* <StarfieldBackground /> */}
       
       <div className="max-w-7xl mx-auto p-3 lg:p-6 relative z-10">
         {/* Enhanced Header */}
@@ -700,7 +700,7 @@ const AdminSummary = () => {
           <div className="space-y-4">
             {/* Department Distribution Chart */}
             <div className="lg:col-span-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <SparkleEffect>
+            {/* <SparkleEffect> */}
               <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-5 shadow-lg border border-gray-700">
                 <h3 className="text-lg font-semibold text-white mb-4">Team Distribution</h3>
                 <div className="h-48">
@@ -740,10 +740,10 @@ const AdminSummary = () => {
                   ))}
                 </div>
               </div>
-            </SparkleEffect>
+            {/* </SparkleEffect> */}
 
             {/* Upcoming Events */}
-            <SparkleEffect>
+            {/* <SparkleEffect> */}
               <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl  py-1 px-2 shadow-lg border border-gray-700">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="text-lg font-semibold text-white">Upcoming Events</h3>
@@ -781,10 +781,10 @@ const AdminSummary = () => {
                   ))}
                 </div>
               </div>
-            </SparkleEffect>
+            {/* </SparkleEffect> */}
             </div>
             {/* Key Metrics with Progress */}
-            <SparkleEffect>
+            {/* <SparkleEffect> */}
               <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-5 shadow-lg border border-gray-700">
                 <h3 className="text-lg font-semibold text-white mb-4">Key Performance Indicators</h3>
                 <div className="space-y-4">
@@ -820,7 +820,7 @@ const AdminSummary = () => {
                   })}
                 </div>
               </div>
-            </SparkleEffect>
+            {/* </SparkleEffect> */}
 
             
            

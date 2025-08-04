@@ -310,7 +310,7 @@ const AdminContactPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#ffffff] relative">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       {/* Header */}
       <div className="relative z-10 bg-[#0a0a0a]/90 backdrop-blur-[10px] border-b border-[#2a2a2a]">
@@ -442,7 +442,7 @@ const AdminContactPage = () => {
               {/* Quick Actions */}
               <div className="relative bg-gradient-to-br from-[#2563eb]/10 to-[#6366f1]/10 backdrop-blur-[10px] rounded-xl p-6 border border-[#2563eb]/30 overflow-hidden">
                 {/* Background sparkles for this card */}
-                <div className="absolute inset-0">
+                {/* <div className="absolute inset-0">
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
@@ -459,7 +459,7 @@ const AdminContactPage = () => {
                       }}
                     />
                   ))}
-                </div>
+                </div> */}
                 
                 <div className="relative z-10">
                   <h3 className="text-xl font-semibold text-[#ffffff] mb-6">Quick Actions</h3>
@@ -814,7 +814,7 @@ const AdminContactPage = () => {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="relative bg-[#1e1e1e]/90 backdrop-blur-[20px] rounded-xl p-8 w-full max-w-lg border border-[#2a2a2a] shadow-[0_20px_40px_rgba(0,0,0,0.9)]">
             {/* Modal sparkles */}
-            <div className="absolute inset-0 rounded-xl overflow-hidden">
+            {/* <div className="absolute inset-0 rounded-xl overflow-hidden">
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
@@ -831,7 +831,7 @@ const AdminContactPage = () => {
                   }}
                 />
               ))}
-            </div>
+            </div> */}
             
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6">

@@ -300,7 +300,7 @@ const PerformanceDashboard = () => {
   return (
     <div className="min-h-screen bg-black text-white font-['Plus_Jakarta_Sans'] relative overflow-hidden">
       {/* Animated starfield background */}
-      <div id="starfield" className="fixed inset-0 pointer-events-none z-0"></div>
+      {/* <div id="starfield" className="fixed inset-0 pointer-events-none z-0"></div> */}
       
    
       <div className={`transition-all duration-300 `}>

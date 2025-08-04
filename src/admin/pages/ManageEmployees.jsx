@@ -986,7 +986,7 @@ const EmployeeManagement = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       {/* Main Content */}
       <div className="relative z-10 p-6 ml-0 "> {/* Assuming sidebar width of 280px (18rem) */}

@@ -412,9 +412,9 @@ const EmployeeDashboard = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
       {/* Animated Background Elements */}
-      <StarfieldBackground />
+      {/* <StarfieldBackground />
       <AnimatedDots />
-      <SparkleOverlay />
+      <SparkleOverlay /> */}
       
       {/* Main Content */}
       <div className="relative z-20 p-8 space-y-8 max-w-full mx-auto">

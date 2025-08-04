@@ -274,9 +274,9 @@ const EmployeeContactPage = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
       {/* Animated Background */}
-      <StarfieldBackground />
+      {/* <StarfieldBackground />
       <SparkleEffect />
-      
+       */}
       {/* Main Content */}
       <div className="relative z-10 p-8" style={{ fontFamily: 'Plus Jakarta Sans' }}>
         <div className="max-w-7xl mx-auto">

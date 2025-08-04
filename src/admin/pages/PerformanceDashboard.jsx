@@ -443,7 +443,7 @@ const PerformanceDashboard = () => {
       <style dangerouslySetInnerHTML={{ __html: cosmicStyles }} />
       <div className=" bg-[#0a0a0a] text-white">
         {/* Cosmic Background */}
-        <CosmicBackground />
+        {/* <CosmicBackground /> */}
         
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />

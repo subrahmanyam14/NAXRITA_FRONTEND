@@ -367,11 +367,7 @@ export default function PolicyLanding() {
             <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-blue-200 to-blue-400 bg-clip-text text-transparent text-glow sm:text-6xl mb-6">
               Policy Hub
             </h1>
-            {/* <p className="mt-6 max-w-3xl mx-auto text-xl text-gray-300 leading-relaxed">
-              Your comprehensive resource for company policies, procedures, and compliance guidelines.
-            </p> */}
-            
-            {/* Enhanced Google-style Search Bar */}
+          
             <div className="mt-12 max-w-4xl mx-auto">
               <div className="relative flex items-center bg-black/80 backdrop-blur-sm rounded-2xl shadow-glow border border-gray-800 hover:border-blue-500/50 transition-all duration-300">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">

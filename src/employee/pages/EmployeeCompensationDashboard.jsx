@@ -249,7 +249,7 @@ export default function EmployeeCompensationDashboard() {
       className="min-h-screen bg-[#0a0a0a] relative"
       style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
     >
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       <div className="relative z-10 p-8 max-w-[1440px] mx-auto space-y-8">
         

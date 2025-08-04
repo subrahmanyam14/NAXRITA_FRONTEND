@@ -262,7 +262,7 @@ const naxritaAdminProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative font-['Plus_Jakarta_Sans',system-ui,sans-serif]">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       {/* Notification Toast */}
       {notification.show && (
