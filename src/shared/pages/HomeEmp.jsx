@@ -181,7 +181,7 @@ const HomeEmployee = () => {
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Starfield */}
-        {Array.from({ length: 150 }).map((_, i) => (
+        {/* {Array.from({ length: 150 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full opacity-60"
@@ -194,10 +194,10 @@ const HomeEmployee = () => {
               animation: `twinkle ${3 + Math.random() * 2}s ease-in-out infinite alternate`,
             }}
           />
-        ))}
+        ))} */}
         
         {/* Floating Sparkles */}
-        {Array.from({ length: 25 }).map((_, i) => (
+        {/* {Array.from({ length: 25 }).map((_, i) => (
           <div
             key={`sparkle-${i}`}
             className="absolute rounded-full opacity-40"
@@ -211,7 +211,7 @@ const HomeEmployee = () => {
               animationDelay: `${Math.random() * 8}s`,
             }}
           />
-        ))}
+        ))} */}
       </div>
 
       {/* Hero Section - Dark Theme */}

@@ -403,7 +403,7 @@ const AdminCompensationPage = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       <MainSidebar isCollapsed={sidebarCollapsed} setIsCollapsed={setSidebarCollapsed} />
       

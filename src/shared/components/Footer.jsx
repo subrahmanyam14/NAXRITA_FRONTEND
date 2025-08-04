@@ -59,76 +59,15 @@ const Footer = () => {
   return (
     <footer className="relative bg-[#0a0a0a] border-t border-[#2a2a2a] font-jakarta overflow-hidden">
       {/* Cosmic Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Starfield */}
-        <div className="absolute inset-0">
-          {[...Array(100)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 2 + 1}px`,
-                height: `${Math.random() * 2 + 1}px`,
-                backgroundColor: ['#ffffff', '#2563eb', '#a3a3a3', '#6b7280'][Math.floor(Math.random() * 4)],
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${3 + Math.random() * 2}s`,
-                opacity: Math.random() * 0.6 + 0.2
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Floating Sparkles */}
-        <div className="absolute inset-0">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-bounce"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 8}s`,
-                animationDuration: `${6 + Math.random() * 4}s`
-              }}
-            >
-              <Star
-                size={Math.random() * 8 + 4}
-                className="text-[#2563eb] opacity-40"
-                fill="currentColor"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Animated Dots */}
-        <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 3 + 1}px`,
-                height: `${Math.random() * 3 + 1}px`,
-                backgroundColor: ['rgba(37, 99, 235, 0.2)', 'rgba(163, 163, 163, 0.1)', 'rgba(107, 114, 128, 0.08)'][Math.floor(Math.random() * 3)],
-                animationDelay: `${Math.random() * 4}s`,
-                animationDuration: `${4 + Math.random() * 2}s`
-              }}
-            />
-          ))}
-        </div>
-      </div>
+     
 
       <div className="relative z-10">
         {/* Newsletter Section */}
-        <div className="bg-gradient-to-r from-[#111111] to-[#1a1a1a] border-b border-[#2a2a2a]">
+        {/* <div className="bg-gradient-to-r from-[#111111] to-[#1a1a1a] border-b border-[#2a2a2a]">
           <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               <div className="text-center lg:text-left">
-                <h3 className="text-2xl font-bold text-white mb-2">Stay Updated with Nexrita</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">Stay Updated with naxrita</h3>
                 <p className="text-[#a3a3a3] text-lg">Get the latest insights on HR technology and workforce management.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
@@ -147,33 +86,33 @@ const Footer = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Main Footer Content */}
-        <div className="max-w-7xl mx-auto px-6 py-16">
+        {/* <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
-            {/* Company Info */}
+      
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
                 <img 
                   src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                  alt="Nexrita Logo"
+                  alt="naxrita Logo"
                   className="h-10 w-auto"
                   onError={(e) => {e.target.style.display = 'none';}}
                 />
-                <h2 className="text-2xl font-bold text-white tracking-tight">Nexrita</h2>
+                <h2 className="text-2xl font-bold text-white tracking-tight">naxrita</h2>
               </div>
               <p className="text-[#a3a3a3] text-sm leading-relaxed mb-6">
                 Empowering organizations with innovative HR technology solutions. We help businesses manage their workforce efficiently while fostering growth and success.
-              </p>
+              </p> */}
               
               {/* Contact Info */}
-              <div className="space-y-3 mb-6">
+              {/* <div className="space-y-3 mb-6">
                 <div className="flex items-center space-x-3 text-sm text-[#a3a3a3]">
                   <div className="p-2 bg-[#161616] rounded-lg border border-[#2a2a2a]">
                     <Mail size={14} className="text-[#2563eb]" />
                   </div>
-                  <span>contact@nexrita.com</span>
+                  <span>contact@naxrita.com</span>
                 </div>
                 <div className="flex items-center space-x-3 text-sm text-[#a3a3a3]">
                   <div className="p-2 bg-[#161616] rounded-lg border border-[#2a2a2a]">
@@ -187,10 +126,10 @@ const Footer = () => {
                   </div>
                   <span>San Francisco, CA</span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Social Links */}
-              <div className="flex space-x-3">
+              {/* <div className="flex space-x-3">
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
                   return (
@@ -205,10 +144,10 @@ const Footer = () => {
                   );
                 })}
               </div>
-            </div>
+            </div> */}
 
             {/* Links Sections */}
-            <div>
+            {/* <div>
               <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Company</h3>
               <ul className="space-y-3">
                 {footerLinks.company.map((link) => (
@@ -223,9 +162,9 @@ const Footer = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Services</h3>
               <ul className="space-y-3">
                 {footerLinks.services.map((link) => (
@@ -240,9 +179,9 @@ const Footer = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Resources</h3>
               <ul className="space-y-3">
                 {footerLinks.resources.map((link) => (
@@ -257,9 +196,9 @@ const Footer = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Legal</h3>
               <ul className="space-y-3">
                 {footerLinks.legal.map((link) => (
@@ -275,10 +214,10 @@ const Footer = () => {
                 ))}
               </ul>
             </div>
-          </div>
+          </div> */}
 
           {/* Certifications & Trust Badges */}
-          <div className="border-t border-[#2a2a2a] pt-8 mb-8">
+          {/* <div className="border-t border-[#2a2a2a] pt-8 mb-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center space-x-6">
                 <div className="text-center">
@@ -311,25 +250,21 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Bottom Bar */}
-          <div className="border-t border-[#2a2a2a] pt-8">
+          <div className="border-t border-[#2a2a2a] py-4 px-2">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-6 text-sm text-[#6b7280]">
-                <p>&copy; {currentYear} Nexrita. All rights reserved.</p>
+                <p>&copy; {currentYear} naxrita. All rights reserved.</p>
                 <span className="hidden md:inline">•</span>
-                <p className="hidden md:inline">Leading the charge with CMMI DEV Level-3 ISO 9001 and ISO 27001 Certifications</p>
+               </div>
+              <div className="flex items-center space-x-6 text-sm text-[#6b7280]"> <p className="hidden md:inline">Leading the charge with CMMI DEV Level-3 ISO 9001 and ISO 27001 Certifications</p>
               </div>
-              
-              <div className="flex items-center space-x-2 text-sm text-[#a3a3a3]">
-                <span>Made with</span>
-                <Heart size={14} className="text-red-500 fill-current animate-pulse" />
-                <span>for the future of work</span>
-              </div>
+               
             </div>
           </div>
-        </div>
+
       </div>
 
       {/* Custom Animations */}

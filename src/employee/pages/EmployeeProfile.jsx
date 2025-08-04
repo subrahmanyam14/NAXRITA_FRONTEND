@@ -140,7 +140,7 @@ const api = {
     return {
       id: 'EMP2024001',
       name: 'Sarah Chen',
-      email: 'sarah.chen@nexrita.com',
+      email: 'sarah.chen@naxrita.com',
       phone: '+1 (555) 987-6543',
       address: '456 Innovation Drive, Silicon Valley, CA 94043',
       location: 'San Francisco HQ',
@@ -276,7 +276,7 @@ const CosmicProfileDashboard = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
       {/* Animated Background */}
-      <StarfieldBackground />
+      {/* <StarfieldBackground /> */}
       
       {/* Custom CSS for animations */}
       <style jsx>{`

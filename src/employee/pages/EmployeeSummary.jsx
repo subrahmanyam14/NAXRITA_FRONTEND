@@ -98,11 +98,11 @@ const EmployeeProfile = () => {
           <div className={`flex items-center space-x-3 ${sidebarCollapsed ? 'hidden' : ''}`}>
             <img 
               src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-              alt="Nexrita" 
+              alt="naxrita" 
               className="h-8 w-auto"
             />
             <span className="text-white text-lg font-medium" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-              Nexrita
+              naxrita
             </span>
           </div>
           <button 
@@ -450,7 +450,7 @@ const EmployeeProfile = () => {
         className="flex items-center justify-center min-h-screen"
         style={{ background: '#0a0a0a' }}
       >
-        <CosmicBackground />
+        {/* <CosmicBackground /> */}
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -461,7 +461,7 @@ const EmployeeProfile = () => {
       className="min-h-screen"
       style={{ background: '#0a0a0a', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
     >
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       {/* <Sidebar /> */}
       <Header />
       

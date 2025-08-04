@@ -18,7 +18,7 @@ const adminApi = {
       return {
         id: 'ADM2024001',
         name: 'Sarah Wilson',
-        email: 'sarah.wilson@nexrita.com',
+        email: 'sarah.wilson@naxrita.com',
         phone: '+1 (555) 987-6543',
         address: '789 Executive Plaza, Corporate District, NY 10001',
         location: 'Corporate HQ - Executive Floor 42',
@@ -181,7 +181,7 @@ const CosmicBackground = () => {
   );
 };
 
-const NexritaAdminProfile = () => {
+const naxritaAdminProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -262,7 +262,7 @@ const NexritaAdminProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative font-['Plus_Jakarta_Sans',system-ui,sans-serif]">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       {/* Notification Toast */}
       {notification.show && (
@@ -285,7 +285,7 @@ const NexritaAdminProfile = () => {
                 <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-light text-[#ffffff]">Nexrita Executive Dashboard</h1>
+                <h1 className="text-xl font-light text-[#ffffff]">naxrita Executive Dashboard</h1>
                 <p className="text-xs font-thin text-[#2563eb]">Administrative Control Center</p>
               </div>
             </div>
@@ -927,4 +927,4 @@ const NexritaAdminProfile = () => {
   );
 };
 
-export default NexritaAdminProfile;
+export default naxritaAdminProfile;

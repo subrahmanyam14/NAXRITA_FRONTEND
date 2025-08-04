@@ -986,7 +986,7 @@ const EmployeeManagement = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       {/* Main Content */}
       <div className="relative z-10 p-6 ml-0 "> {/* Assuming sidebar width of 280px (18rem) */}
@@ -1000,7 +1000,7 @@ const EmployeeManagement = () => {
               <div className="flex items-center mb-2">
                 {/* <img 
                   src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                  alt="Nexrita Logo" 
+                  alt="naxrita Logo" 
                   className="h-8 w-auto mr-3"
                 /> */}
                 <div>

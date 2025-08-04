@@ -386,7 +386,7 @@ const EmployeePerformance = () => {
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Animated Background */}
-      <AnimatedBackground />
+      {/* <AnimatedBackground /> */}
       
       <div className="relative z-10 p-4">
         <div className="max-w-7xl mx-auto">
@@ -773,7 +773,7 @@ const EmployeePerformance = () => {
           {activeTab === 'analytics' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Performance Trends */}
-              <SparkleTrail>
+              {/* <SparkleTrail> */}
                 <div className="bg-gray-900/80 backdrop-blur-xl rounded-xl p-5 border border-gray-700 hover:border-gray-600 transition-all duration-300">
                   <h3 className="text-sm font-semibold text-white mb-4">Department Performance Comparison</h3>
                   <div className="space-y-4">
@@ -801,10 +801,10 @@ const EmployeePerformance = () => {
                     })}
                   </div>
                 </div>
-              </SparkleTrail>
+              {/* </SparkleTrail> */}
 
               {/* Goal Completion Rates */}
-              <SparkleTrail>
+              {/* <SparkleTrail> */}
                 <div className="bg-gray-900/80 backdrop-blur-xl rounded-xl p-5 border border-gray-700 hover:border-gray-600 transition-all duration-300">
                   <h3 className="text-sm font-semibold text-white mb-4">Goal Completion Rates</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -826,11 +826,11 @@ const EmployeePerformance = () => {
                     })}
                   </div>
                 </div>
-              </SparkleTrail>
+              {/* </SparkleTrail> */}
 
               {/* Performance Metrics Overview */}
               <div className="lg:col-span-2">
-                <SparkleTrail>
+                {/* <SparkleTrail> */}
                   <div className="bg-gray-900/80 backdrop-blur-xl rounded-xl p-5 border border-gray-700 hover:border-gray-600 transition-all duration-300">
                     <h3 className="text-sm font-semibold text-white mb-4">Performance Metrics Overview</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -876,7 +876,7 @@ const EmployeePerformance = () => {
                       ))}
                     </div>
                   </div>
-                </SparkleTrail>
+                {/* </SparkleTrail> */}
               </div>
             </div>
           )}

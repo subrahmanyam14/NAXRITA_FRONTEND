@@ -249,7 +249,7 @@ export default function EmployeeCompensationDashboard() {
       className="min-h-screen bg-[#0a0a0a] relative"
       style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
     >
-      <CosmicBackground />
+      {/* <CosmicBackground /> */}
       
       <div className="relative z-10 p-8 max-w-[1440px] mx-auto space-y-8">
         
@@ -565,7 +565,7 @@ export default function EmployeeCompensationDashboard() {
         <div className="bg-gradient-to-r from-[#111111] to-[#1a1a1a] rounded-xl shadow-[0_10px_15px_-3px_rgba(0,0,0,0.8)] p-8 text-center border border-[#2a2a2a]">
           <p className="text-[#a3a3a3] font-light text-sm">
             Your compensation data is confidential and updated quarterly. 
-            For questions, contact <span className="font-medium text-[#ffffff]">HR@nexrita.com</span>
+            For questions, contact <span className="font-medium text-[#ffffff]">HR@naxrita.com</span>
           </p>
           <div className="flex justify-center space-x-8 mt-6">
             <div className="text-center">
