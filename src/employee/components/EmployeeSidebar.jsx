@@ -45,7 +45,7 @@ const CosmicBackground = ({ intensity = 'full' }) => {
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Starfield */}
-      <div className="absolute inset-0">
+      {/* <div className="absolute inset-0">
         {Array.from({ length: counts.stars }).map((_, i) => (
           <div
             key={`star-${i}`}
@@ -60,10 +60,10 @@ const CosmicBackground = ({ intensity = 'full' }) => {
             }}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Floating Sparkles */}
-      <div className="absolute inset-0">
+      {/* <div className="absolute inset-0">
         {Array.from({ length: counts.sparkles }).map((_, i) => (
           <div
             key={`sparkle-${i}`}
@@ -78,7 +78,7 @@ const CosmicBackground = ({ intensity = 'full' }) => {
             }}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Animated Dots */}
       {/* <div className="absolute inset-0">
@@ -99,7 +99,7 @@ const CosmicBackground = ({ intensity = 'full' }) => {
       </div> */}
 
       {/* Nebula Clouds */}
-      <div className="absolute inset-0">
+      {/* <div className="absolute inset-0">
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={`nebula-${i}`}
@@ -115,7 +115,7 @@ const CosmicBackground = ({ intensity = 'full' }) => {
             }}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
