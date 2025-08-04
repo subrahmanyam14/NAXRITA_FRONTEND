@@ -1,12 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  User, MapPin, Phone, Mail, Briefcase, Calendar, 
-  Edit3, Upload, Download, Trash2, Eye, Plus,
-  Save, X, Camera, Award, Clock, Users, FileText,
-  Settings, Star, Target, CheckCircle, AlertCircle,
-  Zap, Badge, BookOpen, Building2, Menu, Bell,
-  ChevronLeft, ChevronRight, Home, BarChart3
+import {
+  AlertCircle,
+  Award,
+  Badge,
+  Bell,
+  Briefcase,
+  Building2,
+  Calendar,
+  Camera,
+  CheckCircle,
+  ChevronLeft, ChevronRight,
+  Clock,
+  Edit3,
+  Eye,
+  Mail,
+  MapPin, Phone,
+  Plus,
+  Save,
+  Star, Target,
+  User,
+  X,
+  Zap
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 // Animated Background Component
 const StarfieldBackground = () => {
@@ -71,7 +86,7 @@ const AnnouncementCarousel = ({ items }) => {
   
   return (
     <div 
-      className="relative bg-[#1e1e1e] rounded-xl p-6 backdrop-blur-lg border border-[#2a2a2a] overflow-hidden"
+      className="relative bg-[#1e1e1e] rounded-xl p-6 backdrop-blur-lg border border-[#2a2a2a] overflow-hidden hidden"
       onMouseEnter={() => setIsAutoPlay(false)}
       onMouseLeave={() => setIsAutoPlay(true)}
     >
@@ -454,7 +469,7 @@ const CosmicProfileDashboard = () => {
           </div>
 
           {/* Announcements Carousel */}
-          <AnnouncementCarousel items={announcements} />
+          <AnnouncementCarousel items={announcements} className="hidden" />
 
           {/* Navigation Tabs */}
           <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-2 backdrop-blur-lg">

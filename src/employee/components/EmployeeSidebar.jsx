@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useEffect } from 'react';
 import {
-  Home,
-  User,
-  Briefcase,
   BarChart3,
-  FileText,
+  Briefcase,
+  ChevronDown,
+  ChevronUp,
   Clock,
   DollarSign,
   Download,
+  FileText,
+  Home,
   Settings,
-  ChevronDown,
-  ChevronUp
+  User
 } from 'lucide-react';
+import { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const navigation = [
@@ -152,12 +152,12 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0c4a6e] text-white border-r border-gray-700 backdrop-blur-md ${
+        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 relative overflow-hidden`}
         style={{
           // background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #161616 100%)',
-          background:'#1a1a1a',
+          background:'#0a0a0a',
           borderRight: '1px solid #2a2a2a',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.8)',
         }}

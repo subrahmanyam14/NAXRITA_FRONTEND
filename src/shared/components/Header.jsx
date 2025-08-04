@@ -16,7 +16,7 @@ import MainSidebar from './MainSidebar';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Header({ isPublic = false }) {
-  const { user: contextUser, logout } = useAuth();
+  const { user: contextUser ,logout  } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -36,6 +36,24 @@ export default function Header({ isPublic = false }) {
     { name: 'Settings', icon: FiSettings, href: '/settings' },
     { name: 'Sign out', icon: FiLogOut, onClick: logout },
   ];
+  // In your AuthContext
+// const logout = () => {
+//   const confirmLogout = window.confirm('Are you sure you want to sign out?');
+  
+//   if (confirmLogout) {
+//     // Clear user state
+//     setUser(null);
+    
+//     // Clear localStorage
+//     localStorage.removeItem('user');
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('refreshToken');
+    
+//     // Redirect to login
+//     window.location.href = '/login';
+//   }
+// };
+
 
   return (
     <>

@@ -159,16 +159,16 @@ const AdminSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed  lg:static inset-y-0 left-0 z-30 flex flex-col w-72 transform transition-all duration-500 ease-in-out bg-gradient-to-b from-black via-gray-950 to-black text-white border-r border-gray-800 ${
+        className={`fixed  lg:static inset-y-0 left-0 z-30 flex flex-col w-72 transform transition-all duration-500 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-800 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 shadow-2xl`}
         style={{
-          background: 'linear-gradient(135deg, #000000 0%, #111111 50%, #000000 100%)',
+          background: '#0a0a0a',
           boxShadow: '0 0 50px rgba(37, 99, 235, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
         }}
       >
         {/* Cosmic Background for Sidebar */}
-        <CosmicBackground intensity="moderate" />
+        {/* <CosmicBackground intensity="moderate" /> */}
         
         <div className="flex-1 flex flex-col h-full relative z-10 no-scrollbar">
           {/* Header with Company Branding */}

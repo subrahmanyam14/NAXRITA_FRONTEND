@@ -24,11 +24,25 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
+  // In your AuthContext
+const logout = () => {
+  const confirmLogout = window.confirm('Are you sure you want to sign out?');
+  
+  if (confirmLogout) {
+    // Clear user state
     setUser(null);
-    localStorage.removeItem('user'); // 🔁 Not 'hr_user'
+    
+    // Clear localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    
+    // Redirect to login
     navigate('/login');
-  };
+    // window.location.href = '/login';
+  }
+};
+
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>

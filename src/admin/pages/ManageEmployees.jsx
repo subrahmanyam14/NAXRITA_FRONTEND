@@ -1,1424 +1,996 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  Upload, 
-  Download, 
-  Search, 
-  Filter, 
-  X,
-  UserPlus,
-  FileDown,
-  Copy,
-  Eye,
-  RefreshCw,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Users,
-  Building,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Star
-} from 'lucide-react';
-import { toast, ToastContainer } from 'react-toastify';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
+import { FaEdit, FaRegEye, FaTimes, FaDownload, FaUpload  } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddEmp from '../components/AddEmp';
+import * as XLSX from 'xlsx';
+import { RefreshCw , ListFilter ,Search } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
-// Custom dark theme toast styles
-const toastConfig = {
-  position: "top-right",
-  autoClose: 3000,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: true,
-  draggable: true,
-  progress: undefined,
-  theme: "dark",
-  style: {
-    background: '#1e1e1e',
-    color: '#ffffff',
-    borderRadius: '12px',
-    border: '1px solid #2a2a2a',
-    backdropFilter: 'blur(10px)',
-    height: '20vh', // 20% of viewport height
-  }
-};
 
-// Dummy API functions
-const api = {
-  async fetchEmployees() {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return dummyEmployees;
-  },
-  
-  async addEmployee(employee) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const newEmployee = { ...employee, id: Date.now().toString() };
-    dummyEmployees.push(newEmployee);
-    return newEmployee;
-  },
-  
-  async updateEmployee(id, updates) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = dummyEmployees.findIndex(emp => emp.id === id);
-    if (index !== -1) {
-      dummyEmployees[index] = { ...dummyEmployees[index], ...updates };
-      return dummyEmployees[index];
-    }
-    throw new Error('Employee not found');
-  },
-  
-  async deleteEmployee(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = dummyEmployees.findIndex(emp => emp.id === id);
-    if (index !== -1) {
-      dummyEmployees.splice(index, 1);
-      return true;
-    }
-    throw new Error('Employee not found');
-  },
-  
-  async bulkUpload(employees) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    employees.forEach(emp => {
-      dummyEmployees.push({ ...emp, id: Date.now().toString() + Math.random() });
-    });
-    return employees;
-  }
-};
+const EmpManagement = () => {
+    const fileInp = useRef(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false);
+    const [departmentFilter, setDepartmentFilter] = useState('');
+    const [jobTitleFilter, setJobTitleFilter] = useState('');
+    const [hireDateFilter, setHireDateFilter] = useState('');
+    const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [isEditable, setIsEditable] = useState(false);
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [startIndex, setStartIndex] = useState(0);
+    const entriesPerPage = 10;
 
-// Dummy data with announcements for carousel
-let dummyEmployees = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@company.com',
-    phone: '+1 234 567 8901',
-    employeeId: 'EMP001',
-    department: 'Engineering',
-    designation: 'Senior Developer',
-    status: 'active',
-    joinDate: '2023-01-15',
-    salary: 85000,
-    address: '123 Main St, New York, NY',
-    emergencyContact: '+1 234 567 8902'
-  },
-  {
-    id: '2',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@company.com',
-    phone: '+1 234 567 8903',
-    employeeId: 'EMP002',
-    department: 'Marketing',
-    designation: 'Marketing Manager',
-    status: 'active',
-    joinDate: '2023-03-20',
-    salary: 72000,
-    address: '456 Oak Ave, Los Angeles, CA',
-    emergencyContact: '+1 234 567 8904'
-  },
-  {
-    id: '3',
-    firstName: 'Mike',
-    lastName: 'Johnson',
-    email: 'mike.johnson@company.com',
-    phone: '+1 234 567 8905',
-    employeeId: 'EMP003',
-    department: 'Sales',
-    designation: 'Sales Executive',
-    status: 'on-leave',
-    joinDate: '2022-08-10',
-    salary: 65000,
-    address: '789 Pine St, Chicago, IL',
-    emergencyContact: '+1 234 567 8906'
-  }
-];
-
-// Announcements for carousel
-const announcements = [
-  {
-    id: 1,
-    title: "Welcome New Team Members",
-    content: "We're excited to welcome 5 new talented individuals to our growing team this month!",
-    type: "welcome",
-    date: "2024-01-15"
-  },
-  {
-    id: 2,
-    title: "Q1 Performance Reviews",
-    content: "Performance review cycle begins next week. Please prepare your self-assessments.",
-    type: "important",
-    date: "2024-01-10"
-  },
-  {
-    id: 3,
-    title: "Company Holiday Schedule",
-    content: "Updated holiday calendar for 2024 is now available in the employee portal.",
-    type: "info",
-    date: "2024-01-05"
-  }
-];
-
-const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance'];
-const designations = ['Senior Developer', 'Marketing Manager', 'Sales Executive', 'HR Specialist', 'Accountant'];
-
-// Animated Background Component
-const CosmicBackground = () => {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      {/* Starfield */}
-      <div className="starfield">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="star"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-            }}
-          />
-        ))}
-      </div>
-      
-      {/* Sparkles */}
-      <div className="sparkles">
-        {[...Array(25)].map((_, i) => (
-          <div
-            key={i}
-            className="sparkle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 8}s`,
-              animationDuration: `${6 + Math.random() * 4}s`,
-            }}
-          />
-        ))}
-      </div>
-      
-      {/* Floating Dots with Connections */}
-      <div className="floating-dots">
-        {[...Array(80)].map((_, i) => (
-          <div
-            key={i}
-            className="floating-dot"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 15}s`,
-              animationDuration: `${10 + Math.random() * 10}s`,
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Auto-scrolling Carousel Component
-const AnnouncementCarousel = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % announcements.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % announcements.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + announcements.length) % announcements.length);
-  };
-
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'welcome': return 'from-green-600 to-emerald-600';
-      case 'important': return 'from-red-600 to-rose-600';
-      default: return 'from-blue-600 to-indigo-600';
-    }
-  };
-
-  return (
-    <div className="relative bg-gray-900/80 backdrop-blur-lg rounded-xl border border-gray-700/50 p-6 overflow-hidden group hover:border-blue-500/50 transition-all duration-300">
-      <div className="absolute inset-0 bg-gradient-to-r opacity-10" style={{
-        backgroundImage: `linear-gradient(45deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)`
-      }} />
-      
-      <div className="relative z-10">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-          <Star className="w-5 h-5 mr-2 text-blue-400" />
-          Company Announcements
-        </h3>
-        
-        <div className="relative h-24 overflow-hidden rounded-lg">
-          {announcements.map((announcement, index) => (
-            <div
-              key={announcement.id}
-              className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
-                index === currentSlide ? 'translate-x-0' : 
-                index < currentSlide ? '-translate-x-full' : 'translate-x-full'
-              }`}
-            >
-              <div className={`h-full bg-gradient-to-r ${getTypeColor(announcement.type)} p-4 rounded-lg`}>
-                <h4 className="text-white font-medium mb-1">{announcement.title}</h4>
-                <p className="text-gray-100 text-sm opacity-90">{announcement.content}</p>
-                <span className="text-xs text-gray-200 opacity-70 mt-1 block">{announcement.date}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex space-x-2">
-            {announcements.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'bg-blue-400 w-6' : 'bg-gray-600'
-                }`}
-              />
-            ))}
-          </div>
-          
-          <div className="flex space-x-2">
-            <button
-              onClick={prevSlide}
-              className="p-1 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="p-1 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const EmployeeManagement = () => {
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
-
-  // Load employees on component mount
-  useEffect(() => {
-    loadEmployees();
-  }, []);
-
-  const loadEmployees = async () => {
-    try {
-      setLoading(true);
-      const data = await api.fetchEmployees();
-      setEmployees(data);
-      toast.success('Employees loaded successfully! ✨', toastConfig);
-    } catch (error) {
-      toast.error('Failed to load employees ❌', toastConfig);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Filter employees
-  const filteredEmployees = employees.filter(emp => {
-    const matchesSearch = searchTerm === '' || 
-      `${emp.firstName} ${emp.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDepartment = selectedDepartment === 'all' || emp.department === selectedDepartment;
-    const matchesStatus = selectedStatus === 'all' || emp.status === selectedStatus;
-    
-    return matchesSearch && matchesDepartment && matchesStatus;
-  });
-
-  // Handle employee selection
-  const toggleEmployeeSelection = (employeeId) => {
-    setSelectedEmployees(prev => 
-      prev.includes(employeeId)
-        ? prev.filter(id => id !== employeeId)
-        : [...prev, employeeId]
-    );
-  };
-
-  // Handle select all
-  const toggleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedEmployees(filteredEmployees.map(emp => emp.id));
-    } else {
-      setSelectedEmployees([]);
-    }
-  };
-
-  // Handle delete
-  const handleDelete = async (employeeId) => {
-    if (window.confirm('Are you sure you want to delete this employee?')) {
-      try {
-        await api.deleteEmployee(employeeId);
-        setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
-        toast.success('Employee deleted successfully! 🗑️', toastConfig);
-      } catch (error) {
-        toast.error('Failed to delete employee ❌', toastConfig);
-      }
-    }
-  };
-
-  // Handle bulk actions
-  const handleBulkAction = async (action) => {
-    try {
-      if (action === 'delete') {
-        if (window.confirm(`Are you sure you want to delete ${selectedEmployees.length} employees?`)) {
-          for (const id of selectedEmployees) {
-            await api.deleteEmployee(id);
-          }
-          setEmployees(prev => prev.filter(emp => !selectedEmployees.includes(emp.id)));
-          toast.success(`${selectedEmployees.length} employees deleted successfully! 🗑️`, toastConfig);
+    // Dummy fallback data
+    const dummyEmployees = [
+        {
+            EmployeeID: 'EMP001',
+            ProfilePhoto: '/assets/profile.png',
+            FullName: 'John Doe',
+            EmailAddress: 'john.doe@nexrita.com',
+            DOJ: '2024-01-15',
+            JoiningDate: '2024-01-15',
+            DeptName: 'IT Department',
+            JobTitle: 'Junior_Software_Engineer',
+            EmploymentType: 'Permanent',
+            ActiveStatus: 'Active',
+            Gender: 'Male',
+            DateOfBirth: '1995-06-15',
+            HireDate: '2024-01-15',
+            Address: '123 Main St, City',
+            ContactNumber: '9876543210',
+            SecondaryContact: '9876543211',
+            Graduation: 'UG',
+            TotalExperience: '3',
+            Skill1: 'React',
+            Skill2: 'Node.js',
+            Skill3: 'MongoDB',
+            Resignation: null,
+            ResignationDate: null,
+            Role: 'Employee'
+        },
+        {
+            EmployeeID: 'EMP002',
+            ProfilePhoto: '/assets/profile.png',
+            FullName: 'Jane Smith',
+            EmailAddress: 'jane.smith@nexrita.com',
+            DOJ: '2023-12-01',
+            JoiningDate: '2023-12-01',
+            DeptName: 'HR Department',
+            JobTitle: 'HR_Admin_Executive',
+            EmploymentType: 'Permanent',
+            ActiveStatus: 'Active',
+            Gender: 'Female',
+            DateOfBirth: '1992-03-20',
+            HireDate: '2023-12-01',
+            Address: '456 Oak Ave, City',
+            ContactNumber: '9876543212',
+            SecondaryContact: '9876543213',
+            Graduation: 'PG',
+            TotalExperience: '5',
+            Skill1: 'Recruitment',
+            Skill2: 'Employee Relations',
+            Skill3: 'Training',
+            Resignation: null,
+            ResignationDate: null,
+            Role: 'HR'
         }
-      } else {
-        toast.success(`Bulk ${action} completed for ${selectedEmployees.length} employees! ⚡`, toastConfig);
-      }
-      setSelectedEmployees([]);
-    } catch (error) {
-      toast.error(`Failed to perform bulk ${action} ❌`, toastConfig);
-    }
-  };
+    ];
 
-  // Handle file upload
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const mockEmployees = [
-          {
-            firstName: 'Alice',
-            lastName: 'Brown',
-            email: 'alice.brown@company.com',
-            phone: '+1 234 567 8907',
-            employeeId: 'EMP004',
-            department: 'HR',
-            designation: 'HR Specialist',
-            status: 'active',
-            joinDate: '2024-01-01',
-            salary: 60000,
-            address: '321 Elm St, Boston, MA',
-            emergencyContact: '+1 234 567 8908'
-          }
-        ];
-        
-        await api.bulkUpload(mockEmployees);
-        await loadEmployees();
-        toast.success(`${mockEmployees.length} employees uploaded successfully! 📊`, toastConfig);
-      } catch (error) {
-        toast.error('Failed to upload employees ❌', toastConfig);
-      }
-    }
-  };
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
 
-  // Handle view employee
-  const handleViewEmployee = (employee) => {
-    setSelectedEmployee(employee);
-    setEditForm(employee);
-    setShowViewModal(true);
-    setIsEditing(false);
-  };
+    const employeeId = localStorage.getItem('employee');
+    const employee = employeeId ? JSON.parse(employeeId) : null;
+    const employeeid = employee?.EmployeeID;
 
-  // Handle edit employee
-  const handleEditEmployee = () => {
-    setIsEditing(true);
-  };
+    useEffect(() => {
+        setFilteredEmployees(applyFilters(employees));
+    }, [searchQuery, departmentFilter, jobTitleFilter, hireDateFilter, employmentTypeFilter, employees]);
 
-  // Handle save employee
-  const handleSaveEmployee = async () => {
-    try {
-      const updatedEmployee = await api.updateEmployee(selectedEmployee.id, editForm);
-      setEmployees(prev => prev.map(emp => emp.id === selectedEmployee.id ? updatedEmployee : emp));
-      setSelectedEmployee(updatedEmployee);
-      setIsEditing(false);
-      toast.success('Employee updated successfully! ✅', toastConfig);
-    } catch (error) {
-      toast.error('Failed to update employee ❌', toastConfig);
-    }
-  };
-
-  // Status badge component with glow effect
-  const StatusBadge = ({ status }) => {
-    const statusConfig = {
-      active: { 
-        bg: 'bg-gradient-to-r from-green-500/20 to-emerald-500/20', 
-        text: 'text-green-400', 
-        icon: CheckCircle,
-        glow: 'shadow-lg shadow-green-500/25'
-      },
-      inactive: { 
-        bg: 'bg-gradient-to-r from-red-500/20 to-rose-500/20', 
-        text: 'text-red-400', 
-        icon: XCircle,
-        glow: 'shadow-lg shadow-red-500/25'
-      },
-      'on-leave': { 
-        bg: 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20', 
-        text: 'text-yellow-400', 
-        icon: Clock,
-        glow: 'shadow-lg shadow-yellow-500/25'
-      },
-      probation: { 
-        bg: 'bg-gradient-to-r from-orange-500/20 to-orange-600/20', 
-        text: 'text-orange-400', 
-        icon: AlertCircle,
-        glow: 'shadow-lg shadow-orange-500/25'
-      }
+    const fetchEmployees = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/employee/getemployee`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            const mappedData = response.data.map(emp => ({
+                EmployeeID: emp.EmployeeID,
+                ProfilePhoto: emp.ProfilePhoto || '/assets/profile.png',
+                FullName: emp.FullName,
+                EmailAddress: emp.EmailAddress,
+                DOJ: emp.DOJ,
+                JoiningDate: emp.JoiningDate || emp.DOJ,
+                DeptName: emp.DeptName,
+                JobTitle: emp.JobTitle,
+                EmploymentType: emp.EmploymentType || 'Permanent',
+                ActiveStatus: emp.ActiveStatus ? 'Active' : 'Inactive',
+                Gender: emp.Gender,
+                DateOfBirth: emp.DateOfBirth,
+                HireDate: emp.HireDate,
+                Address: emp.Address,
+                ContactNumber: emp.ContactNumber,
+                SecondaryContact: emp.SecondaryContact,
+                Graduation: emp.Graduation,
+                TotalExperience: emp.TotalExperience,
+                Skill1: emp.Skill1,
+                Skill2: emp.Skill2,
+                Skill3: emp.Skill3,
+                Resignation: emp.Resignation,
+                ResignationDate: emp.ResignationDate,
+                Role: emp.Role
+            }));
+            setEmployees(mappedData);
+        } catch (error) {
+            console.error('Error fetching employees:', error);
+            setEmployees(dummyEmployees);
+            toast.error('Failed to fetch employees. Using offline data.');
+        }
     };
-    
-    const config = statusConfig[status] || statusConfig.inactive;
-    const IconComponent = config.icon;
-    
-    return (
-      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text} ${config.glow} border border-current/20 backdrop-blur-sm`}>
-        <IconComponent className="w-3 h-3 mr-1" />
-        {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-      </span>
-    );
-  };
 
-  // Add Employee Modal with dark theme
-  const AddEmployeeModal = () => {
-    const [newEmployee, setNewEmployee] = useState({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      employeeId: '',
-      department: '',
-      designation: '',
-      status: 'active',
-      joinDate: '',
-      salary: '',
-      address: '',
-      emergencyContact: ''
-    });
+    const fetchEmployeeById = async (EmployeeID) => {
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_URL}/employee/getemployeebyid/${EmployeeID}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            setSelectedEmployee(res.data[0]);
+        } catch (error) {
+            console.error('Error fetching employee by ID:', error);
+            const fallbackEmployee = employees.find(emp => emp.EmployeeID === EmployeeID) || 
+                                   dummyEmployees.find(emp => emp.EmployeeID === EmployeeID);
+            setSelectedEmployee(fallbackEmployee);
+        }
+    };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-        const employee = await api.addEmployee(newEmployee);
-        setEmployees(prev => [...prev, employee]);
-        setShowAddModal(false);
-        setNewEmployee({
-          firstName: '', lastName: '', email: '', phone: '',
-          employeeId: '', department: '', designation: '', status: 'active',
-          joinDate: '', salary: '', address: '', emergencyContact: ''
+    const applyFilters = (employees) => {
+        return employees.filter(employee => {
+            const name = employee.FullName || '';
+            const empId = employee.EmployeeID || '';
+            const department = employee.DeptName || '';
+            const jobTitle = employee.JobTitle || '';
+            const hireDate = employee.DOJ || '';
+            const employmentType = employee.EmploymentType || '';
+
+            const matchesDepartment = departmentFilter ? department.toLowerCase() === departmentFilter.toLowerCase() : true;
+            const matchesJobTitle = jobTitleFilter ? jobTitle.toLowerCase() === jobTitleFilter.toLowerCase() : true;
+            const matchesHireDate = hireDateFilter ? new Date(hireDate) >= new Date(hireDateFilter) : true;
+            const matchesEmploymentType = employmentTypeFilter ? employmentType.toLowerCase() === employmentTypeFilter.toLowerCase() : true;
+            const matchesSearch =
+                name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                empId.toLowerCase().includes(searchQuery.toLowerCase());
+
+            return matchesDepartment && matchesJobTitle && matchesHireDate && matchesEmploymentType && matchesSearch;
         });
-        toast.success('Employee added successfully! 🎉', toastConfig);
-      } catch (error) {
-        toast.error('Failed to add employee ❌', toastConfig);
-      }
     };
 
-    if (!showAddModal) return null;
+    const handleFilterApply = () => {
+        setFilteredEmployees(applyFilters(employees));
+        setIsFilterPopupOpen(false);
+        toast.success('Filters applied successfully!');
+    };
 
-    return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-900/95 backdrop-blur-xl rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700/50 shadow-2xl">
-          <div className="sticky top-0 bg-gray-900/95 backdrop-blur-xl border-b border-gray-700/50 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Add New Employee</h2>
-            <button 
-              onClick={() => setShowAddModal(false)}
-              className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">First Name *</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.firstName}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, firstName: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Last Name *</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.lastName}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, lastName: e.target.value }))}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Email *</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.email}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Phone</label>
-                <input
-                  type="tel"
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.phone}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, phone: e.target.value }))}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Employee ID *</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.employeeId}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, employeeId: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Join Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.joinDate}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, joinDate: e.target.value }))}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Department *</label>
-                <select
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.department}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, department: e.target.value }))}
-                >
-                  <option value="">Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Designation *</label>
-                <select
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.designation}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, designation: e.target.value }))}
-                >
-                  <option value="">Select Designation</option>
-                  {designations.map(desig => (
-                    <option key={desig} value={desig}>{desig}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Status</label>
-                <select
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.status}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, status: e.target.value }))}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="on-leave">On Leave</option>
-                  <option value="probation">Probation</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Salary</label>
-                <input
-                  type="number"
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                  value={newEmployee.salary}
-                  onChange={(e) => setNewEmployee(prev => ({ ...prev, salary: e.target.value }))}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-2">Address</label>
-              <textarea
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                rows={2}
-                value={newEmployee.address}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, address: e.target.value }))}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-2">Emergency Contact</label>
-              <input
-                type="tel"
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                value={newEmployee.emergencyContact}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, emergencyContact: e.target.value }))}
-              />
-            </div>
-            
-            <div className="flex justify-end space-x-3 pt-6">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-6 py-2.5 text-sm font-medium text-gray-300 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
-              >
-                Add Employee
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
+    const handleFilterClear = () => {
+        setDepartmentFilter('');
+        setJobTitleFilter('');
+        setHireDateFilter('');
+        setEmploymentTypeFilter('');
+        setFilteredEmployees(employees);
+        setIsFilterPopupOpen(false);
+        toast.info('Filters cleared!');
+    };
 
-  // View/Edit Employee Modal with dark theme
-  const ViewEmployeeModal = () => {
-    if (!showViewModal || !selectedEmployee) return null;
+    const openFilterPopup = () => {
+        setIsFilterPopupOpen(true);
+    };
 
-    return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-900/95 backdrop-blur-xl rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700/50 shadow-2xl">
-          <div className="sticky top-0 bg-gray-900/95 backdrop-blur-xl border-b border-gray-700/50 px-6 py-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-white">
-                {selectedEmployee.firstName} {selectedEmployee.lastName}
-              </h2>
-              <p className="text-sm text-gray-400">{selectedEmployee.employeeId}</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              {!isEditing && (
-                <button
-                  onClick={handleEditEmployee}
-                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
-                >
+    const closeFilterPopup = () => {
+        setIsFilterPopupOpen(false);
+    };
 
-                  <Pencil className="w-5 h-5" />
-                </button>
-              )}
-              <button 
-                onClick={() => setShowViewModal(false)}
-                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <img 
-                className="w-16 h-16 rounded-full border-2 border-blue-500/50 shadow-lg shadow-blue-500/25" 
-                src={`https://ui-avatars.com/api/?name=${selectedEmployee.firstName}+${selectedEmployee.lastName}&background=2563eb&color=ffffff&size=64`} 
-                alt={`${selectedEmployee.firstName} ${selectedEmployee.lastName}`} 
-              />
-              <div>
-                <h3 className="text-lg font-medium text-white">
-                  {selectedEmployee.firstName} {selectedEmployee.lastName}
-                </h3>
-                <p className="text-sm text-gray-400">{selectedEmployee.designation}</p>
-                <StatusBadge status={selectedEmployee.status} />
-              </div>
-            </div>
+    const openModal = async (EmployeeID) => {
+        const employeeId = typeof EmployeeID === 'object' ? EmployeeID.EmployeeID : EmployeeID;
+        await fetchEmployeeById(employeeId);
+        setIsEditable(false);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedEmployee(null);
+        setIsEditable(false);
+    };
+
+    const handleChange = (e) => {
+        setSelectedEmployee(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    const formatDate = (isoDate) => {
+        if (!isoDate) return '';
+        const date = new Date(isoDate);
+        return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+    };
+
+    const saveChanges = async () => {
+        try {
+            const formattedEmployee = {
+                ...selectedEmployee,
+                HireDate: formatDate(selectedEmployee.HireDate),
+                DateOfBirth: formatDate(selectedEmployee.DateOfBirth),
+                DOJ: formatDate(selectedEmployee.DOJ),
+                JoiningDate: formatDate(selectedEmployee.JoiningDate),
+            };
             
-            {isEditing ? (
-              <form onSubmit={(e) => { e.preventDefault(); handleSaveEmployee(); }} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">First Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.firstName}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Last Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.lastName}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Email</label>
-                    <input
-                      type="email"
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.email}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Department</label>
-                    <select
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.department}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, department: e.target.value }))}
-                    >
-                      {departments.map(dept => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Designation</label>
-                    <select
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.designation}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, designation: e.target.value }))}
-                    >
-                      {designations.map(desig => (
-                        <option key={desig} value={desig}>{desig}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Status</label>
-                    <select
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.status}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="on-leave">On Leave</option>
-                      <option value="probation">Probation</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-300 mb-2">Salary</label>
-                    <input
-                      type="number"
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      value={editForm.salary}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, salary: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-2">Address</label>
-                  <textarea
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                    rows={2}
-                    value={editForm.address}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                  />
-                </div>
-                
-                <div className="flex justify-end space-x-3 pt-6">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="px-6 py-2.5 text-sm font-medium text-gray-300 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Email</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <Phone className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Phone</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.phone}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <Building className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Department</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.department}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <Users className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Designation</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.designation}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <Calendar className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Join Date</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.joinDate}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <MapPin className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Address</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.address}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <Phone className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs text-gray-400">Emergency Contact</p>
-                        <p className="text-sm font-medium text-white">{selectedEmployee.emergencyContact}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-4 h-4 text-center text-blue-400">$</div>
-                      <div>
-                        <p className="text-xs text-gray-400">Salary</p>
-                        <p className="text-sm font-medium text-white">${selectedEmployee.salary?.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+            await axios.put(`${process.env.REACT_APP_URL}/employee/editemployee/${formattedEmployee.EmployeeID}`, formattedEmployee, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black relative overflow-hidden">
-        <CosmicBackground />
-        <div className="relative z-10 flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
-        </div>
-      </div>
-    );
-  }
+            const updatedEmployees = employees.map(emp =>
+                emp.EmployeeID === formattedEmployee.EmployeeID ? formattedEmployee : emp
+            );
+            setEmployees(updatedEmployees);
+            toast.success("Employee updated successfully!");
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error updating employee:', error);
+            toast.error('Error updating employee!');
+        }
+    };
 
-  return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* <CosmicBackground /> */}
-      
-      {/* Main Content */}
-      <div className="relative z-10 p-6 ml-0 "> {/* Assuming sidebar width of 280px (18rem) */}
-        <ToastContainer {...toastConfig} />
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setLoading(true);
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_URL}/employee/empRegs`, formData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            toast.success(response.data.message);
+            fetchEmployees();
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            toast.error('Error uploading file!');
+        } finally {
+            setLoading(false);
+        }
+
+        fileInp.current.value = '';
+    };
+
+    // Export to Excel function
+    const exportToExcel = () => {
+        const exportData = filteredEmployees.map((emp, index) => ({
+            'S.No': index + 1,
+            'Employee ID': emp.EmployeeID,
+            'Full Name': emp.FullName,
+            'Email': emp.EmailAddress,
+            'Gender': emp.Gender,
+            'Date of Birth': formatDate(emp.DateOfBirth),
+            'Joining Date': formatDate(emp.JoiningDate || emp.DOJ),
+            'Department': emp.DeptName,
+            'Job Title': emp.JobTitle?.replace(/_/g, ' '),
+            'Employment Type': emp.EmploymentType,
+            'Contact Number': emp.ContactNumber,
+            'Secondary Contact': emp.SecondaryContact,
+            'Address': emp.Address,
+            'Graduation': emp.Graduation,
+            'Total Experience': emp.TotalExperience,
+            'Skill 1': emp.Skill1,
+            'Skill 2': emp.Skill2,
+            'Skill 3': emp.Skill3,
+            'Status': emp.ActiveStatus,
+            'Role': emp.Role
+        }));
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(exportData);
         
-        {/* Header with carousel */}
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
-          <div className="lg:col-span-2 bg-gray-900/80 backdrop-blur-lg rounded-xl border border-gray-700/50 p-6 hover:border-blue-500/50 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl opacity-50" />
-            <div className="relative">
-              <div className="flex items-center mb-2">
-                {/* <img 
-                  src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                  alt="naxrita Logo" 
-                  className="h-8 w-auto mr-3"
-                /> */}
-                <div>
-                  <h1 className="text-2xl font-bold text-white">Employee Management</h1>
-                  <p className="text-sm text-gray-400 mt-1">Manage your organization's employees and their details</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <AnnouncementCarousel />
-        </div>
+        // Auto-width columns
+        const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+            wch: Math.max(key.length, 15)
+        }));
+        ws['!cols'] = colWidths;
 
-        {/* Action Buttons */}
-        <div className="bg-gray-900/80 backdrop-blur-lg rounded-xl border border-gray-700/50 p-4 mb-6">
-          <div className="flex flex-wrap gap-3 justify-end">
-            <button
-              onClick={loadEmployees}
-              className="inline-flex items-center px-4 py-2.5 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:border-gray-500 transition-all duration-200"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Employee
-            </button>
-            <label className="inline-flex items-center px-4 py-2.5 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:border-gray-500 cursor-pointer transition-all duration-200">
-              <Upload className="w-4 h-4 mr-2" />
-              Import Excel
-              <input type="file" className="sr-only" onChange={handleFileUpload} accept=".xlsx,.xls,.csv" />
-            </label>
-            <button className="inline-flex items-center px-4 py-2.5 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:border-gray-500 transition-all duration-200">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </button>
-          </div>
-        </div>
+        XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+        XLSX.writeFile(wb, `employees_${new Date().toISOString().split('T')[0]}.xlsx`);
+        toast.success('Employee data exported successfully!');
+    };
 
-        {/* Bulk Actions */}
-        {selectedEmployees.length > 0 && (
-          <div className="bg-blue-900/50 backdrop-blur-lg border border-blue-600/50 rounded-xl p-4 mb-6 flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-sm text-blue-200">
-                {selectedEmployees.length} employee{selectedEmployees.length !== 1 ? 's' : ''} selected
-              </span>
-              <button 
-                onClick={() => setSelectedEmployees([])}
-                className="ml-3 text-blue-300 hover:text-white transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => handleBulkAction('activate')}
-                className="px-3 py-1.5 text-xs font-medium text-green-300 bg-green-900/30 rounded-md hover:bg-green-800/40 transition-colors"
-              >
-                Activate
-              </button>
-              <button
-                onClick={() => handleBulkAction('deactivate')}
-                className="px-3 py-1.5 text-xs font-medium text-yellow-300 bg-yellow-900/30 rounded-md hover:bg-yellow-800/40 transition-colors"
-              >
-                Deactivate
-              </button>
-              <button
-                onClick={() => handleBulkAction('export')}
-                className="px-3 py-1.5 text-xs font-medium text-blue-300 bg-blue-900/30 rounded-md hover:bg-blue-800/40 transition-colors"
-              >
-                Export
-              </button>
-              <button
-                onClick={() => handleBulkAction('delete')}
-                className="px-3 py-1.5 text-xs font-medium text-red-300 bg-red-900/30 rounded-md hover:bg-red-800/40 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        )}
+    const handleNextClick = () => {
+        if (startIndex + entriesPerPage < filteredEmployees.length) {
+            setStartIndex(startIndex + entriesPerPage);
+        }
+    };
 
-        {/* Search and Filters */}
-        <div className="bg-gray-900/80 backdrop-blur-lg rounded-xl border border-gray-700/50 p-4 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search employees..."
-                className="pl-10 pr-4 py-2.5 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 backdrop-blur-sm transition-all duration-200"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+    const handlePrevClick = () => {
+        if (startIndex > 0) {
+            setStartIndex(startIndex - entriesPerPage);
+        }
+    };
+
+    const visibleEmployees = filteredEmployees.slice(startIndex, startIndex + entriesPerPage);
+    const endIndex = Math.min(startIndex + entriesPerPage, filteredEmployees.length);
+
+    return (
+        <div className="min-h-screen bg-black text-white p-4 md:p-6">
+            <ToastContainer 
+                position="top-right"
+                theme="dark"
+                toastClassName="bg-gray-900 text-white"
+            />
             
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2.5 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:border-gray-500 transition-all duration-200"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Filters
-            </button>
-          </div>
-          
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-700/50">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-2">Department</label>
-                  <select
-                    className="w-full px-3 py-2.5 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                    value={selectedDepartment}
-                    onChange={(e) => setSelectedDepartment(e.target.value)}
-                  >
-                    <option value="all">All Departments</option>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-2">Status</label>
-                  <select
-                    className="w-full px-3 py-2.5 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="on-leave">On Leave</option>
-                    <option value="probation">Probation</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-end space-x-2">
-                  <button
-                    onClick={() => {
-                      setSelectedDepartment('all');
-                      setSelectedStatus('all');
-                    }}
-                    className="px-4 py-2.5 text-sm font-medium text-gray-300 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-700 hover:border-gray-500 transition-all duration-200"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
+            {/* Header */}
+            <div className="text-center mb-8">
+                <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-orange-500 via-white to-blue-500 bg-clip-text text-transparent mb-4">
+                    Employee Management
+                </h1>
+                <p className="text-gray-400 text-lg">Manage your workforce efficiently</p>
             </div>
-          )}
-        </div>
 
-        {/* Employees Table */}
-        <div className="bg-gray-900/80 backdrop-blur-lg rounded-xl border border-gray-700/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700/50">
-              <thead className="bg-gray-800/50">
-                <tr>
-                  <th className="w-12 px-6 py-4">
+            {/* Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-6 items-center justify-between">
+                {/* Search Bar */}
+                <div className="relative flex-1 max-w-md">
                     <input
-                      type="checkbox"
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                      checked={selectedEmployees.length > 0 && selectedEmployees.length === filteredEmployees.length}
-                      onChange={toggleSelectAll}
+                        type="text"
+                        placeholder="Search by Name or ID..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Employee
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Department
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Designation
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-900/50 divide-y divide-gray-700/50">
-                {filteredEmployees.length > 0 ? (
-                  filteredEmployees.map((employee) => (
-                    <tr 
-                      key={employee.id} 
-                      className={`${
-                        selectedEmployees.includes(employee.id) 
-                          ? 'bg-blue-900/30 border-blue-500/30' 
-                          : 'hover:bg-gray-800/50'
-                      } transition-all duration-200`}
-                    >
-                      <td className="w-12 px-6 py-4">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                          checked={selectedEmployees.includes(employee.id)}
-                          onChange={() => toggleEmployeeSelection(employee.id)}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <img 
-                            className="w-10 h-10 rounded-full border-2 border-blue-500/30" 
-                            src={`https://ui-avatars.com/api/?name=${employee.firstName}+${employee.lastName}&background=2563eb&color=ffffff&size=40`} 
-                            alt={`${employee.firstName} ${employee.lastName}`} 
-                          />
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-white">
-                              {employee.firstName} {employee.lastName}
-                            </div>
-                            <div className="text-xs text-gray-400">{employee.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {employee.employeeId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {employee.department}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {employee.designation}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={employee.status} />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            onClick={() => handleViewEmployee(employee)}
-                            className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-lg transition-all duration-200"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedEmployee(employee);
-                              setEditForm(employee);
-                              setIsEditing(true);
-                              setShowViewModal(true);
-                            }}
-                            className="p-2 text-green-400 hover:text-green-300 hover:bg-green-900/30 rounded-lg transition-all duration-200"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(employee.id)}
-                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all duration-200"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
-                      <div className="text-gray-400">
-                        <Users className="mx-auto h-12 w-12 text-gray-600 mb-4" />
-                        <h3 className="text-sm font-medium text-gray-300 mb-1">No employees found</h3>
-                        <p className="text-xs text-gray-500">Try adjusting your search or filter criteria</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Pagination */}
-          {filteredEmployees.length > 0 && (
-            <div className="bg-gray-800/50 px-4 py-3 border-t border-gray-700/50 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button className="relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-300 bg-gray-800 hover:bg-gray-700 transition-colors">
-                    Previous
-                  </button>
-                  <button className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-300 bg-gray-800 hover:bg-gray-700 transition-colors">
-                    Next
-                  </button>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <Search className="w-5 h-5" />
+                    </div>
                 </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs text-gray-400">
-                      Showing <span className="font-medium text-white">1</span> to{' '}
-                      <span className="font-medium text-white">{Math.min(10, filteredEmployees.length)}</span> of{' '}
-                      <span className="font-medium text-white">{filteredEmployees.length}</span> results
-                    </p>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-600 bg-gray-800 text-xs font-medium text-gray-300 hover:bg-gray-700 transition-colors">
-                        Previous
-                      </button>
-                      <button className="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-blue-900/50 text-xs font-medium text-blue-300">
-                        1
-                      </button>
-                      <button className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-600 bg-gray-800 text-xs font-medium text-gray-300 hover:bg-gray-700 transition-colors">
-                        Next
-                      </button>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Modals */}
-        <AddEmployeeModal />
-        <ViewEmployeeModal />
-      </div>
-    </div>
-  );
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3">
+                    <button 
+                        onClick={fetchEmployees}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg transition-all duration-300 hover:scale-105"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                        <span className="hidden sm:inline">Refresh</span>
+                    </button>
+                    
+                    <button 
+                        onClick={openFilterPopup}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg transition-all duration-300 hover:scale-105"
+                    >
+                   <ListFilter className="w-4 h-4" />
+                        <span className="hidden sm:inline">Filter</span>
+                    </button>
+                    
+                    
+        <AddEmp />
+  
+                    <button 
+                        onClick={() => fileInp.current.click()}
+                        className="flex items-center  border-gray-50 gap-2 px-4 py-2 bg-clip-text text-transparent bg-green-700 hover:bg-green-600 rounded-lg transition-all duration-300 hover:scale-105"
+                    >
+                        <FaUpload />
+                        <span className="hidden sm:inline">Import Excel</span>
+                    </button>
+                    
+                    <button 
+                        onClick={exportToExcel}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded-lg transition-all duration-300 hover:scale-105"
+                    >
+                        <FaDownload />
+                        <span className="hidden sm:inline">Export Excel</span>
+                    </button>
+                    
+                    <input 
+                        type="file" 
+                        accept=".xlsx, .xls" 
+                        ref={fileInp} 
+                        onChange={handleFileUpload} 
+                        className="hidden" 
+                    />
+                </div>
+            </div>
+
+            {/* Table Container */}
+            <div className="bg-gray-950 border border-gray-700 rounded-lg overflow-hidden mb-6">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead className="bg-gray-900 border- border-gray-700">
+                            <tr>
+                                <th className="sticky left-0 z-20 bg-gray-900 px-4 py-3 text-left font-semibold text-gray-200  w-16">
+                                    S.No.
+                                </th>
+                                <th className="sticky left-16 z-20 bg-gray-900 px-4 py-3 text-left font-semibold text-gray-200  w-32">
+                                    Employee ID
+                                </th>
+                                <th className="sticky left-48 z-20 bg-gray-900 px-4 py-3 text-left font-semibold text-gray-200  w-48">
+                                    Full Name
+                                </th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-32">Joining Date</th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-32">Department</th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-40">Job Title</th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-32">Employment Type</th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-24">Status</th>
+                                <th className="px-4 py-3 text-left font-semibold text-gray-200 w-24">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {visibleEmployees.map((employee, index) => (
+                                <tr 
+                                    key={employee.EmployeeID} 
+                                    className="border-b border-gray-700 hover:bg-gray-800 transition-colors duration-200"
+                                >
+                                    <td className="sticky left-0 z-10 bg-gray-950 hover:bg-gray-800 px-4 py-3  font-medium">
+                                        {startIndex + index + 1}
+                                    </td>
+                                    <td className="sticky left-16 z-10 bg-gray-950 hover:bg-gray-800 px-4 py-3 font-medium text-blue-400">
+                                        {employee.EmployeeID}
+                                    </td>
+                                    <td className="sticky left-48 z-10 bg-gray-950 hover:bg-gray-800 px-4 py-3  font-medium">
+                                        {employee.FullName}
+                                    </td>
+                                    <td className="px-4 py-3 text-gray-300">
+                                        {formatDate(employee.JoiningDate || employee.DOJ)}
+                                    </td>
+                                    <td className="px-4 py-3 text-gray-300">{employee.DeptName}</td>
+                                    <td className="px-4 py-3 text-gray-300">
+                                        {employee.JobTitle?.replace(/_/g, ' ')}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                            employee.EmploymentType === 'Permanent' 
+                                                ? 'bg-blue-900 text-blue-200 border border-blue-700'
+                                                : employee.EmploymentType === 'Internship'
+                                                ? 'bg-yellow-900 text-yellow-200 border border-yellow-700'
+                                                : 'bg-purple-900 text-purple-200 border border-purple-700'
+                                        }`}>
+                                            {employee.EmploymentType || 'Permanent'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                            employee.ActiveStatus === 'Active' 
+                                                ? 'bg-green-900 text-green-200 border border-green-700'
+                                                : 'bg-red-900 text-red-200 border border-red-700'
+                                        }`}>
+                                            {employee.ActiveStatus}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <button 
+                                            onClick={() => openModal(employee.EmployeeID)}
+                                            className="p-2 bg-blue-700 hover:bg-blue-600 rounded-lg transition-all duration-200 hover:scale-110"
+                                            title="View Employee"
+                                        >
+                                            <FaRegEye className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {visibleEmployees.length === 0 && (
+                                <tr>
+                                    <td colSpan="9" className="px-4 py-12 text-center">
+                                        <div className="text-gray-400">
+                                            <div className="text-4xl mb-4">🌌</div>
+                                            <p className="text-lg">No employees found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="text-gray-400 text-sm">
+                    Showing {startIndex + 1} to {endIndex} of {filteredEmployees.length} entries
+                </div>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={handlePrevClick} 
+                        disabled={startIndex === 0}
+                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded-lg transition-all duration-300"
+                    >
+                        ← Previous
+                    </button>
+                    <button 
+                        onClick={handleNextClick} 
+                        disabled={endIndex >= filteredEmployees.length}
+                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded-lg transition-all duration-300"
+                    >
+                        Next →
+                    </button>
+                </div>
+            </div>
+
+            {/* Filter Modal */}
+            {isFilterPopupOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-700">
+                            <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                Filter Options
+                            </h3>
+                            <button 
+                                onClick={closeFilterPopup}
+                                className="p-2 bg-red-700 hover:bg-red-600 rounded-lg transition-all duration-200"
+                            >
+                                <FaTimes className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Department:</label>
+                                <select 
+                                    value={departmentFilter} 
+                                    onChange={(e) => setDepartmentFilter(e.target.value)}
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">All Departments</option>
+                                    <option value="HR Department">HR Department</option>
+                                    <option value="IT Department">IT Department</option>
+                                    <option value="BA Department">BA Department</option>
+                                    <option value="Management">Management</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Job Title:</label>
+                                <select 
+                                    value={jobTitleFilter} 
+                                    onChange={(e) => setJobTitleFilter(e.target.value)}
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">All Job Titles</option>
+                                    <option value="Vice President">Vice President</option>
+                                    <option value="Junior_Software_Engineer">Junior Software Engineer</option>
+                                    <option value="Business_Associate">Business Associate</option>
+                                    <option value="Lead_Manager">Lead Manager</option>
+                                    <option value="Talent_Acquisition_Executive">Talent Acquisition Executive</option>
+                                    <option value="Talent_Acquisition_IT_Recruiter">Talent Acquisition IT Recruiter</option>
+                                    <option value="Campus_Hiring_Executive">Campus Hiring Executive</option>
+                                    <option value="HR_Admin_Executive">HR Admin Executive</option>
+                                    <option value="HR_Business_Partner">HR Business Partner</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Employment Type:</label>
+                                <select 
+                                    value={employmentTypeFilter} 
+                                    onChange={(e) => setEmploymentTypeFilter(e.target.value)}
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="Permanent">Permanent</option>
+                                    <option value="Internship">Internship</option>
+                                    <option value="Contractor">Contractor</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Hire Date From:</label>
+                                <input
+                                    type="date"
+                                    value={hireDateFilter}
+                                    onChange={(e) => setHireDateFilter(e.target.value)}
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 p-6 border-t border-gray-700">
+                            <button 
+                                onClick={handleFilterApply} 
+                                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300"
+                            >
+                                Apply Filters
+                            </button>
+                            <button 
+                                onClick={handleFilterClear} 
+                                className="px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-all duration-300"
+                            >
+                                Clear All
+                            </button>
+                            <button 
+                                onClick={closeFilterPopup} 
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Employee Details Modal */}
+           {isModalOpen && selectedEmployee && createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+     
+
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-700 sticky top-0 bg-gray-900 z-10">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                {isEditable ? 'Edit Employee' : 'Employee Details'}
+                            </h3>
+                            <button 
+                                onClick={closeModal}
+                                className="p-2 bg-red-700 hover:bg-red-600 rounded-lg transition-all duration-200"
+                            >
+                                <FaTimes className="w-5 h-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-6">
+                            {/* Employee Profile Section */}
+                            <div className="flex flex-col md:flex-row items-center gap-6 mb-8 p-6 bg-gray-800 rounded-lg border border-gray-700">
+                                <div className="relative">
+                                    <img 
+                                        src={selectedEmployee.ProfilePhoto || '/assets/profile.png'} 
+                                        alt={selectedEmployee.FullName}
+                                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-blue-500"
+                                    />
+                                </div>
+                                <div className="text-center md:text-left">
+                                    <h4 className="text-2xl font-bold bg-gradient-to-r from-orange-400 via-white to-blue-400 bg-clip-text text-transparent mb-2">
+                                        {selectedEmployee.FullName}
+                                    </h4>
+                                    <p className="text-blue-400 font-semibold text-lg mb-1">
+                                        {selectedEmployee.JobTitle?.replace(/_/g, ' ')}
+                                    </p>
+                                    <p className="text-gray-400">{selectedEmployee.DeptName}</p>
+                                </div>
+                            </div>
+
+                            {/* Employee Details Grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Personal Information */}
+                                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                                    <h5 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
+                                        Personal Information
+                                    </h5>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Employee ID:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.EmployeeID || ''}
+                                                name="EmployeeID"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Full Name:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.FullName || ''}
+                                                name="FullName"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Gender:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Gender || ''}
+                                                name="Gender"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Date of Birth:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.DateOfBirth || ''}
+                                                name="DateOfBirth"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                placeholder="dd-mm-yyyy"
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Email:</label>
+                                            <input
+                                                type="email"
+                                                value={selectedEmployee.EmailAddress || ''}
+                                                name="EmailAddress"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Contact Number:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.ContactNumber || ''}
+                                                name="ContactNumber"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Secondary Contact:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.SecondaryContact || ''}
+                                                name="SecondaryContact"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Address:</label>
+                                            <textarea
+                                                value={selectedEmployee.Address || ''}
+                                                name="Address"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                rows="3"
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Employment Information */}
+                                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                                    <h5 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
+                                        Employment Information
+                                    </h5>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Joining Date:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.JoiningDate || selectedEmployee.DOJ || ''}
+                                                name="JoiningDate"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                placeholder="dd-mm-yyyy"
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Hire Date:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.HireDate || ''}
+                                                name="HireDate"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                placeholder="dd-mm-yyyy"
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Employment Type:</label>
+                                            {isEditable ? (
+                                                <select
+                                                    value={selectedEmployee.EmploymentType || 'Permanent'}
+                                                    name="EmploymentType"
+                                                    onChange={handleChange}
+                                                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                >
+                                                    <option value="Permanent">Permanent</option>
+                                                    <option value="Internship">Internship</option>
+                                                    <option value="Contractor">Contractor</option>
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={selectedEmployee.EmploymentType || 'Permanent'}
+                                                    readOnly
+                                                    className="w-full px-3 py-2 bg-gray-600 border border-gray-600 rounded-lg text-gray-300"
+                                                />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Department:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.DeptName || ''}
+                                                name="DeptName"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Job Title:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.JobTitle || ''}
+                                                name="JobTitle"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Status:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.ActiveStatus || ''}
+                                                name="ActiveStatus"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                placeholder="0 for inactive & 1 for active"
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Role:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Role || ''}
+                                                name="Role"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Professional Information */}
+                                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                                    <h5 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
+                                        Professional Information
+                                    </h5>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Graduation:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Graduation || ''}
+                                                name="Graduation"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Total Experience:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.TotalExperience || ''}
+                                                name="TotalExperience"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 1:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Skill1 || ''}
+                                                name="Skill1"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 2:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Skill2 || ''}
+                                                name="Skill2"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 3:</label>
+                                            <input
+                                                type="text"
+                                                value={selectedEmployee.Skill3 || ''}
+                                                name="Skill3"
+                                                readOnly={!isEditable}
+                                                onChange={handleChange}
+                                                className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                            />
+                                        </div>
+                                        {selectedEmployee.Resignation && (
+                                            <>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Resignation:</label>
+                                                    <input
+                                                        type="text"
+                                                        value={selectedEmployee.Resignation || ''}
+                                                        name="Resignation"
+                                                        readOnly={!isEditable}
+                                                        onChange={handleChange}
+                                                        className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Resignation Date:</label>
+                                                    <input
+                                                        type="text"
+                                                        value={selectedEmployee.ResignationDate || ''}
+                                                        name="ResignationDate"
+                                                        readOnly={!isEditable}
+                                                        onChange={handleChange}
+                                                        placeholder="yyyy-mm-dd"
+                                                        className={`w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditable ? 'bg-gray-600 text-gray-300' : ''}`}
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 p-6 border-t border-gray-700 bg-gray-900 sticky bottom-0">
+                            <button 
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                                    isEditable 
+                                        ? 'bg-red-700 hover:bg-red-600' 
+                                        : 'bg-green-700 hover:bg-green-600'
+                                }`}
+                                onClick={() => setIsEditable(!isEditable)}
+                            >
+                                <FaEdit />
+                                {isEditable ? 'Cancel Edit' : 'Edit Employee'}
+                            </button>
+                            {isEditable && (
+                                <button 
+                                    onClick={saveChanges} 
+                                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300"
+                                >
+                                    Save Changes
+                                </button>
+                            )}
+                            <button 
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300" 
+                                onClick={closeModal}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                   {/* Your existing employee modal content */}
+    </div>,
+    document.body
+)}
+           
+        </div>
+    );
 };
 
-// Required CSS for animations (add this to your global CSS)
-const styles = `
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.8; }
-}
-
-@keyframes float {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-}
-
-@keyframes drift {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, -50px); }
-}
-
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: #ffffff;
-  border-radius: 50%;
-  animation: twinkle 3s ease-in-out infinite alternate;
-}
-
-.sparkle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #2563eb;
-  border-radius: 50%;
-  animation: float 8s linear infinite;
-}
-
-.floating-dot {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: rgba(37, 99, 235, 0.3);
-  border-radius: 50%;
-  animation: pulse 4s ease-in-out infinite, drift 15s linear infinite;
-}
-
-.starfield, .sparkles, .floating-dots {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* Custom scrollbar for dark theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #404040;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555555;
-}
-
-/* Reduce motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .star, .sparkle, .floating-dot {
-    animation: none;
-  }
-}
-`;
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
-}
-
-export default EmployeeManagement;
+export default EmpManagement;
