@@ -206,13 +206,13 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
             <div className="flex items-center space-x-3 no-scrollbar">
               <img 
                 src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                alt="Nexrita Logo"
+                alt="naxrita Logo"
                 className="h-8 w-auto"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
               />
-              {/* <h1 className="text-xl font-bold text-white tracking-tight">Nexrita</h1> */}
+              {/* <h1 className="text-xl font-bold text-white tracking-tight">naxrita</h1> */}
             </div>
             <button
               type="button"

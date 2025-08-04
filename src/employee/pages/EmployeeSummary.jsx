@@ -98,11 +98,11 @@ const EmployeeProfile = () => {
           <div className={`flex items-center space-x-3 ${sidebarCollapsed ? 'hidden' : ''}`}>
             <img 
               src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-              alt="Nexrita" 
+              alt="naxrita" 
               className="h-8 w-auto"
             />
             <span className="text-white text-lg font-medium" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-              Nexrita
+              naxrita
             </span>
           </div>
           <button 

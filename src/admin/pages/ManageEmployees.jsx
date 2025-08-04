@@ -1000,7 +1000,7 @@ const EmployeeManagement = () => {
               <div className="flex items-center mb-2">
                 {/* <img 
                   src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                  alt="Nexrita Logo" 
+                  alt="naxrita Logo" 
                   className="h-8 w-auto mr-3"
                 /> */}
                 <div>

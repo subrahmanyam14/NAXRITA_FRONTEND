@@ -232,7 +232,7 @@ const EmployeeContactPage = () => {
       icon: User,
       bgColor: 'bg-gradient-to-br from-[#2563eb] to-[#1d4ed8]',
       details: [
-        { icon: Mail, text: 'hr@nexrita.com' },
+        { icon: Mail, text: 'hr@naxrita.com' },
         { icon: Phone, text: '+1 (555) 123-4567' },
         { icon: Clock, text: 'Mon-Fri, 9:00-17:00' }
       ]
@@ -243,7 +243,7 @@ const EmployeeContactPage = () => {
       icon: MessageSquare,
       bgColor: 'bg-gradient-to-br from-[#22c55e] to-[#16a34a]',
       details: [
-        { icon: Mail, text: 'support@nexrita.com' },
+        { icon: Mail, text: 'support@naxrita.com' },
         { icon: Phone, text: '+1 (555) 123-4568' },
         { icon: Clock, text: '24/7 Support Available' }
       ]
@@ -254,7 +254,7 @@ const EmployeeContactPage = () => {
       icon: Building2,
       bgColor: 'bg-gradient-to-br from-[#a855f7] to-[#9333ea]',
       details: [
-        { icon: Mail, text: 'finance@nexrita.com' },
+        { icon: Mail, text: 'finance@naxrita.com' },
         { icon: Phone, text: '+1 (555) 123-4569' },
         { icon: Clock, text: 'Mon-Fri, 8:30-17:30' }
       ]

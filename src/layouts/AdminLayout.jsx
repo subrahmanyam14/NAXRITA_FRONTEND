@@ -43,11 +43,12 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-950">
       {/* Header (Fixed at Top) */}
       <Header
         isPublic={false}
-        setMainSidebarOpen={setMainSidebarOpen} // Opens global MainSidebar
+        setMainSidebarOpen={setMainSidebarOpen} // Opens global MainSidebar 
+        className="sticky top-0 z-1000"
       />
 
       <div className="flex flex-1 overflow-hidden">

@@ -153,7 +153,7 @@ const AdminContactPage = () => {
     {
       id: 1,
       type: 'Email',
-      address: 'support@nexrita.com',
+      address: 'support@naxrita.com',
       icon: Mail,
       status: 'Active',
       responses: 45,
@@ -229,10 +229,10 @@ const AdminContactPage = () => {
   ];
 
   const departments = [
-    { name: 'Sales', email: 'sales@nexrita.com', phone: '+1 (555) 123-4567', manager: 'John Smith', inquiries: 45 },
-    { name: 'Support', email: 'support@nexrita.com', phone: '+1 (555) 123-4568', manager: 'Jane Doe', inquiries: 67 },
-    { name: 'HR', email: 'hr@nexrita.com', phone: '+1 (555) 123-4569', manager: 'Mike Wilson', inquiries: 23 },
-    { name: 'Business', email: 'business@nexrita.com', phone: '+1 (555) 123-4570', manager: 'Lisa Brown', inquiries: 34 }
+    { name: 'Sales', email: 'sales@naxrita.com', phone: '+1 (555) 123-4567', manager: 'John Smith', inquiries: 45 },
+    { name: 'Support', email: 'support@naxrita.com', phone: '+1 (555) 123-4568', manager: 'Jane Doe', inquiries: 67 },
+    { name: 'HR', email: 'hr@naxrita.com', phone: '+1 (555) 123-4569', manager: 'Mike Wilson', inquiries: 23 },
+    { name: 'Business', email: 'business@naxrita.com', phone: '+1 (555) 123-4570', manager: 'Lisa Brown', inquiries: 34 }
   ];
 
   const businessHours = [
@@ -242,10 +242,10 @@ const AdminContactPage = () => {
   ];
 
   const socialChannels = [
-    { name: 'LinkedIn', handle: '@nexrita', followers: '12.5k', color: 'blue' },
-    { name: 'Twitter', handle: '@nexrita_inc', followers: '8.3k', color: 'sky' },
-    { name: 'Facebook', handle: 'Nexrita Inc', followers: '15.2k', color: 'indigo' },
-    { name: 'Instagram', handle: '@nexrita_official', followers: '6.8k', color: 'pink' }
+    { name: 'LinkedIn', handle: '@naxrita', followers: '12.5k', color: 'blue' },
+    { name: 'Twitter', handle: '@naxrita_inc', followers: '8.3k', color: 'sky' },
+    { name: 'Facebook', handle: 'naxrita Inc', followers: '15.2k', color: 'indigo' },
+    { name: 'Instagram', handle: '@naxrita_official', followers: '6.8k', color: 'pink' }
   ];
 
   const getPriorityColor = (priority) => {

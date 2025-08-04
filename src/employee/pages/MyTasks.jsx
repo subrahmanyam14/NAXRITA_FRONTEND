@@ -426,7 +426,7 @@ const MyTasks = () => {
                 <div className="flex items-center space-x-4 mb-6">
                   <img 
                     src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                    alt="Nexrita" 
+                    alt="naxrita" 
                     className="h-10 w-auto"
                   />
                   <div className="h-8 w-px bg-[#2a2a2a]"></div>

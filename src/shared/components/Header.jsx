@@ -40,7 +40,7 @@ export default function Header({ isPublic = false }) {
   return (
     <>
       {/* Header */}
-      <header className="bg-[#0a0a0a] shadow-lg border-b border-[#2a2a2a] z-30 sticky top-0 h-[72px] flex items-center font-jakarta">
+      <header className="bg-black shadow-lg border-b border-[#2a2a2a] z-30 sticky top-0 h-[72px] flex items-center font-jakarta">
         <div className="px-8 w-full flex items-center justify-between">
           {/* Left: Menu Button + Label + Brand */}
           <div className="flex items-center space-x-4 flex-shrink-0">
@@ -65,7 +65,7 @@ export default function Header({ isPublic = false }) {
             >
               <img 
                 src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                alt="Nexrita Logo"
+                alt="naxrita Logo"
                 className="h-8 w-auto"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -81,7 +81,7 @@ export default function Header({ isPublic = false }) {
               <input
                 type="text"
                 placeholder="Search employees, departments, tasks..."
-                className="w-full pl-12 pr-4 py-3 text-sm rounded-xl bg-[#161616] border border-[#404040] text-white placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300 hover:border-[#666666] hover:shadow-md hover:shadow-black/20"
+                className="w-full pl-12 pr-4 py-3 text-sm rounded-full bg-black border border-[#404040] text-white placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 focus:border-[#2563eb] transition-all duration-300 hover:border-[#666666] hover:shadow-md hover:shadow-black/20"
               />
               <FiSearch className="absolute left-4 top-3.5 h-4 w-4 text-[#6b7280] group-focus-within:text-[#2563eb] transition-colors duration-300 pointer-events-none" />
               <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_20px_rgba(37,99,235,0.2)]"></div>
@@ -128,7 +128,7 @@ export default function Header({ isPublic = false }) {
             {isLoggedIn ? (
               <Menu as="div" className="relative ml-4">
                 <MenuButton
-                  className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 rounded-xl p-2 border border-[#404040] hover:border-[#2563eb] bg-[#161616] hover:bg-[#1e1e1e] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
+                  className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/50 rounded-xl p-2 border border-[#404040] hover:border-[#2563eb] bg-black hover:bg-[#1e1e1e] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
                   aria-label="User menu"
                 >
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] flex items-center justify-center border-2 border-[#404040] hover:border-[#2563eb] transition-all duration-300 shadow-lg">
