@@ -305,7 +305,7 @@ export default function naxritaLogin() {
                 <img 
                   src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
                   alt="naxrita Logo"
-                  className="h-20 w-auto mb-4 transform transition-all duration-500 group-hover:scale-110 filter drop-shadow-2xl"
+                  className="h-40 w-auto mb-4 transform transition-all duration-500 group-hover:scale-110 filter drop-shadow-2xl"
                   style={{
                     filter: 'drop-shadow(0 0 20px rgba(37, 99, 235, 0.6))',
                     animation: 'glow-pulse 3s ease-in-out infinite alternate'
@@ -315,31 +315,15 @@ export default function naxritaLogin() {
                     e.target.nextElementSibling.style.display = 'block';
                   }}
                 />
-                <div 
+                {/* <div 
                   style={{ display: 'none' }}
                   className="h-20 w-32 bg-gradient-to-r from-[#2563eb] to-[#ffffff] rounded-lg flex items-center justify-center text-2xl font-bold text-white shadow-glow"
                 >
                   NAXRITA
-                </div>
+                </div> */}
               </div>
               
-              {/* Primary Heading with Gradient */}
-              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[#ffffff] via-[#2563eb] to-[#ffffff] bg-clip-text text-transparent font-['Plus_Jakarta_Sans']">
-                Access Your HR Portal
-              </h1>
-              
-              {/* Secondary Text */}
-              <p className="text-xl text-[#a3a3a3] font-medium mb-4 font-['Plus_Jakarta_Sans']">
-                Advanced Workforce Management Platform
-              </p>
-              
-              <p className="text-base text-[#6b7280] font-normal opacity-90 mb-6 leading-relaxed max-w-md font-['Plus_Jakarta_Sans']">
-                AI-powered workforce optimization with intelligent automation and analytics for the modern enterprise
-              </p>
-              
-              <p className="text-sm text-[#a3a3a3] font-light opacity-75 leading-relaxed max-w-lg font-['Plus_Jakarta_Sans']">
-                naxrita combines cutting-edge artificial intelligence with intuitive design to revolutionize how organizations manage their most valuable asset - their people. Experience seamless HR operations with our comprehensive digital ecosystem.
-              </p>
+             
             </div>
           </div>
         </div>

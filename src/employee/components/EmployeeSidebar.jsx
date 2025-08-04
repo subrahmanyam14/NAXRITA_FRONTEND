@@ -152,7 +152,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#1a1a1a] text-white border-r border-gray-700 backdrop-blur-md ${
+        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0c4a6e] text-white border-r border-gray-700 backdrop-blur-md ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 relative overflow-hidden`}
         style={{

@@ -165,37 +165,37 @@ const AdminHomepage = () => {
   }, [isAutoPlayingSuggestions, timelySuggestions.length]);
 
   // Generate stars for background
-  const generateStars = (count) => {
-    return Array.from({ length: count }, (_, i) => (
-      <div
-        key={i}
-        className="absolute animate-twinkle"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 3}s`,
-          animationDuration: `${2 + Math.random() * 2}s`
-        }}
-      >
-        <Star 
-          size={Math.random() > 0.5 ? 2 : 1} 
-          className="text-white opacity-30" 
-        />
-      </div>
-    ));
-  };
+  // const generateStars = (count) => {
+  //   return Array.from({ length: count }, (_, i) => (
+  //     <div
+  //       key={i}
+  //       className="absolute animate-twinkle"
+  //       style={{
+  //         left: `${Math.random() * 100}%`,
+  //         top: `${Math.random() * 100}%`,
+  //         animationDelay: `${Math.random() * 3}s`,
+  //         animationDuration: `${2 + Math.random() * 2}s`
+  //       }}
+  //     >
+  //       <Star 
+  //         size={Math.random() > 0.5 ? 2 : 1} 
+  //         className="text-white opacity-30" 
+  //       />
+  //     </div>
+  //   ));
+  // };
 
   return (
     <div className="bg-black min-h-screen font-jakarta relative overflow-hidden">
       {/* Animated Background */}
-      <div className="fixed inset-0 z-0">
+      {/* <div className="fixed inset-0 z-0"> */}
         {/* Starfield */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           {generateStars(150)}
-        </div>
+        </div> */}
         
         {/* Floating Sparkles */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           {Array.from({ length: 25 }, (_, i) => (
             <div
               key={i}
@@ -212,15 +212,15 @@ const AdminHomepage = () => {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Nebula Clouds */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-96 h-96 bg-blue-600 opacity-5 rounded-full blur-3xl animate-drift"></div>
           <div className="absolute bottom-20 right-10 w-80 h-80 bg-gray-600 opacity-3 rounded-full blur-3xl animate-drift-reverse"></div>
           <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-400 opacity-4 rounded-full blur-3xl animate-pulse-slow"></div>
         </div>
-      </div>
+      </div> */}
 
       {/* Content */}
       <div className="relative z-10">
