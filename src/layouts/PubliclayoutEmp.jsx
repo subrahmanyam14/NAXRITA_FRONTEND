@@ -1,7 +1,7 @@
 // src/layouts/PublicEmployeeLayout.jsx
 import { Outlet } from 'react-router-dom';
 import Header from '../shared/components/Header';
-
+import Footer from '../shared/components/Footer';
 const PublicEmployeeLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -25,17 +25,13 @@ const PublicEmployeeLayout = () => {
 </div>
       <main className="container mx-auto px-0 py-0">
         <div className="max-w-full mx-auto">
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-0">
            
           </p>
           <Outlet />
         </div>
       </main>
-      <footer className="bg-white border-t border-gray-200 py-6">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>© {new Date().getFullYear()} HR Portal. Employee Public View.</p>
-        </div>
-      </footer>
+     <Footer/>
     </div>
   );
 };

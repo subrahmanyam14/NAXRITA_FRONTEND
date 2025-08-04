@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Star, 
@@ -34,6 +34,130 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+
+// Cosmic Background Component
+const CosmicBackground = ({ intensity = 'full' }) => {
+  const [particles, setParticles] = useState([]);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  useEffect(() => {
+    if (reduceMotion) return;
+
+    const getParticleCount = () => {
+      switch (intensity) {
+        case 'subtle': return { stars: 80, sparkles: 15, dots: 40 };
+        case 'moderate': return { stars: 120, sparkles: 20, dots: 60 };
+        case 'full': return { stars: 150, sparkles: 25, dots: 80 };
+        default: return { stars: 150, sparkles: 25, dots: 80 };
+      }
+    };
+
+    const counts = getParticleCount();
+    
+    const newParticles = [
+      ...Array.from({ length: counts.stars }, (_, i) => ({
+        id: `star-${i}`,
+        type: 'star',
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        delay: Math.random() * 3,
+        duration: Math.random() * 2 + 2,
+      })),
+      ...Array.from({ length: counts.sparkles }, (_, i) => ({
+        id: `sparkle-${i}`,
+        type: 'sparkle',
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 6 + 2,
+        delay: Math.random() * 8,
+        duration: Math.random() * 4 + 6,
+      })),
+      ...Array.from({ length: counts.dots }, (_, i) => ({
+        id: `dot-${i}`,
+        type: 'dot',
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        delay: Math.random() * 4,
+        duration: Math.random() * 3 + 3,
+      })),
+    ];
+
+    setParticles(newParticles);
+  }, [intensity, reduceMotion]);
+
+  if (reduceMotion) return null;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Starfield */}
+      {particles.filter(p => p.type === 'star').map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute rounded-full bg-white opacity-20 animate-pulse"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+          }}
+        />
+      ))}
+
+      {/* Floating Sparkles */}
+      {particles.filter(p => p.type === 'sparkle').map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute rounded-full bg-blue-500 opacity-30 animate-bounce"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+          }}
+        />
+      ))}
+
+      {/* Animated Dots */}
+      {particles.filter(p => p.type === 'dot').map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute rounded-full bg-blue-400 opacity-10 animate-pulse"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
+          }}
+        />
+      ))}
+
+      {/* Nebula Clouds */}
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={`nebula-${i}`}
+          className="absolute rounded-full blur-3xl opacity-5 animate-pulse"
+          style={{
+            left: `${Math.random() * 80}%`,
+            top: `${Math.random() * 80}%`,
+            width: `${Math.random() * 200 + 100}px`,
+            height: `${Math.random() * 200 + 100}px`,
+            background: i % 2 === 0 ? '#2563eb' : '#6b7280',
+            animationDelay: `${Math.random() * 20}s`,
+            animationDuration: `${Math.random() * 10 + 20}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const AdminCareerPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -110,7 +234,7 @@ const AdminCareerPage = () => {
       id: 1,
       name: 'Sarah Chen',
       role: 'Senior Developer',
-      image: 'https://ui-avatars.com/api/?name=Sarah+Chen&background=random',
+      image: 'https://ui-avatars.com/api/?name=Sarah+Chen&background=2563eb&color=ffffff',
       quote: 'The growth opportunities here are incredible. I joined as a junior and now lead my own team.',
       rating: 5,
       department: 'Engineering'
@@ -119,7 +243,7 @@ const AdminCareerPage = () => {
       id: 2,
       name: 'Michael Rodriguez',
       role: 'Product Manager',
-      image: 'https://ui-avatars.com/api/?name=Michael+Rodriguez&background=random',
+      image: 'https://ui-avatars.com/api/?name=Michael+Rodriguez&background=2563eb&color=ffffff',
       quote: 'Amazing work culture and supportive colleagues. Best decision I made for my career.',
       rating: 5,
       department: 'Product'
@@ -139,48 +263,106 @@ const AdminCareerPage = () => {
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
-      case 'High': return 'bg-red-100 text-red-700 border-red-200';
-      case 'Medium': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'Low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'High': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'Medium': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      case 'Low': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
 
   const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-    <div className="bg-white rounded-xl p-4 border border-slate-200 hover:shadow-lg transition-shadow">
+    <div 
+      className="group relative rounded-xl p-6 border transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+      style={{
+        background: 'rgba(30, 30, 30, 0.8)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid #2a2a2a',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+      }}
+    >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-medium text-slate-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-slate-900">{value}</p>
-          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+          <p 
+            className="text-sm font-medium text-gray-400 mb-2 tracking-wide"
+            style={{ fontFamily: 'Plus Jakarta Sans, Inter, system-ui, sans-serif' }}
+          >
+            {title}
+          </p>
+          <p 
+            className="text-3xl font-bold text-white mb-1"
+            style={{ fontFamily: 'Plus Jakarta Sans, Inter, system-ui, sans-serif' }}
+          >
+            {value}
+          </p>
+          {subtitle && (
+            <p className="text-sm text-gray-500 font-medium">{subtitle}</p>
+          )}
         </div>
-        <div className={`p-3 rounded-lg bg-${color}-100`}>
-          <Icon className={`h-5 w-5 text-${color}-600`} />
+        <div 
+          className={`p-4 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300`}
+        >
+          <Icon className="h-6 w-6 text-blue-400" />
         </div>
       </div>
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div 
+      className="min-h-screen relative overflow-x-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #161616 50%, #0a0a0a 100%)',
+        fontFamily: 'Plus Jakarta Sans, Inter, system-ui, sans-serif'
+      }}
+    >
+      {/* Cosmic Background */}
+      <CosmicBackground intensity="full" />
+
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div 
+        className="relative z-10 border-b"
+        style={{
+          background: 'rgba(26, 26, 26, 0.9)',
+          backdropFilter: 'blur(20px)',
+          borderColor: '#2a2a2a',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Career Page Management</h1>
-              <p className="text-sm text-slate-600 mt-1">Manage job postings, applications, and company branding</p>
+              <h1 
+                className="text-3xl font-bold text-white mb-2 tracking-tight"
+                style={{ 
+                  fontFamily: 'Plus Jakarta Sans, Inter, system-ui, sans-serif',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                Career Page Management
+              </h1>
+              <p className="text-base text-gray-300 font-medium">
+                Manage job postings, applications, and company branding
+              </p>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
               <button 
                 onClick={() => setShowJobForm(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="group relative flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl  transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-blue-500/25 hover:shadow-2xl transform "
+                // style={{ backdropFilter: 'blur(10px)' }}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-5 w-5" />
                 <span>Post New Job</span>
+                {/* <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div> */}
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium">
-                <Download className="h-4 w-4" />
+              <button 
+                className="group relative flex items-center space-x-3 px-6 py-3 border text-gray-300 rounded-xl hover:text-white hover:border-blue-500 transition-all duration-300 text-sm font-semibold"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(10px)',
+                  borderColor: '#404040',
+                }}
+              >
+                <Download className="h-5 w-5" />
                 <span>Export Data</span>
               </button>
             </div>
@@ -188,21 +370,32 @@ const AdminCareerPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         {/* Navigation Tabs */}
-        <div className="mb-6">
-          <nav className="flex space-x-1 bg-white p-1 rounded-xl border border-slate-200">
+        <div className="mb-8">
+          <nav 
+            className="flex space-x-2 p-2 rounded-2xl border"
+            style={{
+              background: 'rgba(30, 30, 30, 0.8)',
+              backdropFilter: 'blur(20px)',
+              borderColor: '#2a2a2a',
+            }}
+          >
             {['overview', 'jobs', 'content', 'analytics'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors capitalize ${
+                className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 capitalize relative ${
                   activeTab === tab
-                    ? 'bg-blue-100 text-blue-700 shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                 }`}
               >
-                {tab}
+                
+                {activeTab === tab && (
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 opacity-80"></div>
+                )}
+                <span className="relative z-10">{tab}</span>
               </button>
             ))}
           </nav>
@@ -211,7 +404,7 @@ const AdminCareerPage = () => {
         {activeTab === 'overview' && (
           <>
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <StatCard
                 icon={Users}
                 title="Active Jobs"
@@ -243,22 +436,37 @@ const AdminCareerPage = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               {/* Recent Jobs */}
-              <div className="lg:col-span-2 bg-white rounded-xl p-5 border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-900">Recent Job Postings</h3>
-                  <ChevronRight className="h-5 w-5 text-slate-400" />
+              <div 
+                className="lg:col-span-2 rounded-2xl p-6 border transition-all duration-300 hover:shadow-2xl"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+                }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Recent Job Postings</h3>
+                  <ChevronRight className="h-6 w-6 text-gray-400" />
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {jobOpenings.slice(0, 3).map((job) => (
-                    <div key={job.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div 
+                      key={job.id} 
+                      className="group flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
                       <div className="flex-1">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-4">
                           <div>
-                            <h4 className="text-sm font-medium text-slate-900">{job.title}</h4>
-                            <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
-                              <MapPin className="h-3 w-3" />
+                            <h4 className="text-base font-semibold text-white mb-1">{job.title}</h4>
+                            <div className="flex items-center space-x-3 text-sm text-gray-400">
+                              <MapPin className="h-4 w-4" />
                               <span>{job.location}</span>
                               <span>•</span>
                               <span>{job.applicants} applicants</span>
@@ -266,12 +474,12 @@ const AdminCareerPage = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getUrgencyColor(job.urgency)}`}>
+                      <div className="flex items-center space-x-3">
+                        <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getUrgencyColor(job.urgency)}`}>
                           {job.urgency}
                         </span>
-                        <button className="p-1 hover:bg-slate-200 rounded">
-                          <Edit3 className="h-4 w-4 text-slate-500" />
+                        <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                          <Edit3 className="h-5 w-5 text-gray-400 hover:text-blue-400" />
                         </button>
                       </div>
                     </div>
@@ -280,46 +488,72 @@ const AdminCareerPage = () => {
               </div>
 
               {/* Performance Metrics */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-5 border border-blue-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Performance Metrics</h3>
-                <div className="space-y-4">
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2563eb40',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(37, 99, 235, 0.1)',
+                }}
+              >
+                <h3 className="text-xl font-bold text-white mb-6">Performance Metrics</h3>
+                <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Application Rate</span>
-                    <span className="text-lg font-bold text-blue-700">{careerStats.applicationRate}%</span>
+                    <span className="text-sm text-gray-300 font-medium">Application Rate</span>
+                    <span className="text-2xl font-bold text-blue-400">{careerStats.applicationRate}%</span>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${careerStats.applicationRate}%` }} />
+                  <div className="w-full bg-blue-900/30 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-700 shadow-lg shadow-blue-500/25" 
+                      style={{ width: `${careerStats.applicationRate}%` }} 
+                    />
                   </div>
                   
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-sm text-slate-600">Time to Hire</span>
-                    <span className="text-lg font-bold text-emerald-700">{careerStats.averageTimeToHire} days</span>
+                  <div className="flex items-center justify-between mt-6">
+                    <span className="text-sm text-gray-300 font-medium">Time to Hire</span>
+                    <span className="text-2xl font-bold text-emerald-400">{careerStats.averageTimeToHire} days</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Successful Hires</span>
-                    <span className="text-lg font-bold text-purple-700">{careerStats.hires}</span>
+                    <span className="text-sm text-gray-300 font-medium">Successful Hires</span>
+                    <span className="text-2xl font-bold text-purple-400">{careerStats.hires}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Department Overview */}
-            <div className="bg-white rounded-xl p-5 border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Department Hiring Status</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div 
+              className="rounded-2xl p-6 border"
+              style={{
+                background: 'rgba(30, 30, 30, 0.8)',
+                backdropFilter: 'blur(20px)',
+                borderColor: '#2a2a2a',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+              }}
+            >
+              <h3 className="text-xl font-bold text-white mb-6">Department Hiring Status</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {departments.map((dept, index) => {
                   const deptJobs = jobOpenings.filter(job => job.department === dept);
                   const totalApplicants = deptJobs.reduce((sum, job) => sum + job.applicants, 0);
                   
                   return (
-                    <div key={dept} className="p-4 bg-slate-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-medium text-slate-900">{dept}</h4>
-                        <Building2 className="h-4 w-4 text-slate-500" />
+                    <div 
+                      key={dept} 
+                      className="group p-5 rounded-xl border transition-all duration-300 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02]"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-base font-semibold text-white">{dept}</h4>
+                        <Building2 className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
                       </div>
-                      <div className="text-xs text-slate-600">
-                        <div>{deptJobs.length} open positions</div>
+                      <div className="text-sm text-gray-400 space-y-1">
+                        <div className="font-medium">{deptJobs.length} open positions</div>
                         <div>{totalApplicants} total applicants</div>
                       </div>
                     </div>
@@ -333,20 +567,35 @@ const AdminCareerPage = () => {
         {activeTab === 'jobs' && (
           <>
             {/* Job Management Header */}
-            <div className="bg-white rounded-xl p-4 border border-slate-200 mb-6">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <div 
+              className="rounded-2xl p-6 border mb-8"
+              style={{
+                background: 'rgba(30, 30, 30, 0.8)',
+                backdropFilter: 'blur(20px)',
+                borderColor: '#2a2a2a',
+              }}
+            >
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search jobs..."
-                    className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-12 pr-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-white placeholder-gray-400"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 <select
-                  className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  style={{
+                    background: 'rgba(40, 40, 40, 0.8)',
+                    borderColor: '#404040',
+                  }}
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
                 >
@@ -356,7 +605,11 @@ const AdminCareerPage = () => {
                   ))}
                 </select>
                 <select
-                  className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  style={{
+                    background: 'rgba(40, 40, 40, 0.8)',
+                    borderColor: '#404040',
+                  }}
                   value={selectedJobLevel}
                   onChange={(e) => setSelectedJobLevel(e.target.value)}
                 >
@@ -369,49 +622,56 @@ const AdminCareerPage = () => {
             </div>
 
             {/* Jobs List */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
+            <div 
+              className="rounded-2xl border overflow-hidden"
+              style={{
+                background: 'rgba(30, 30, 30, 0.8)',
+                backdropFilter: 'blur(20px)',
+                borderColor: '#2a2a2a',
+              }}
+            >
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="min-w-full divide-y divide-gray-700">
+                  <thead style={{ background: 'rgba(40, 40, 40, 0.8)' }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Job Title</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Department</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Location</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Applications</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Job Title</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Department</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Location</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Applications</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
+                  <tbody className="divide-y divide-gray-700">
                     {filteredJobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-slate-50">
-                        <td className="px-6 py-4">
+                      <tr key={job.id} className="hover:bg-gray-800/30 transition-colors duration-200">
+                        <td className="px-6 py-5">
                           <div>
-                            <div className="text-sm font-medium text-slate-900">{job.title}</div>
-                            <div className="text-sm text-slate-500">{job.salary}</div>
+                            <div className="text-base font-semibold text-white">{job.title}</div>
+                            <div className="text-sm text-gray-400 font-medium">{job.salary}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-900">{job.department}</td>
-                        <td className="px-6 py-4 text-sm text-slate-900">{job.location}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-slate-900">{job.applicants}</span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getUrgencyColor(job.urgency)}`}>
+                        <td className="px-6 py-5 text-base text-gray-300">{job.department}</td>
+                        <td className="px-6 py-5 text-base text-gray-300">{job.location}</td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-base font-semibold text-white">{job.applicants}</span>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getUrgencyColor(job.urgency)}`}>
                               {job.urgency}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <td className="px-6 py-5">
+                          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             {job.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <Edit3 className="h-4 w-4" />
+                        <td className="px-6 py-5 text-sm font-medium space-x-3">
+                          <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                            <Edit3 className="h-5 w-5" />
                           </button>
-                          <button className="text-slate-600 hover:text-slate-900">
-                            <Eye className="h-4 w-4" />
+                          <button className="text-gray-400 hover:text-gray-300 transition-colors">
+                            <Eye className="h-5 w-5" />
                           </button>
                         </td>
                       </tr>
@@ -426,21 +686,37 @@ const AdminCareerPage = () => {
         {activeTab === 'content' && (
           <>
             {/* Content Management */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Company Benefits */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-900">Company Benefits</h3>
-                  <button className="text-blue-600 hover:text-blue-700">
-                    <Edit3 className="h-4 w-4" />
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Company Benefits</h3>
+                  <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                    <Edit3 className="h-5 w-5" />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-4">
                   {companyHighlights.map((highlight, index) => (
-                    <div key={index} className={`p-3 rounded-lg bg-${highlight.color}-50 border border-${highlight.color}-200`}>
-                      <div className="flex items-center space-x-2">
-                        <highlight.icon className={`h-4 w-4 text-${highlight.color}-600`} />
-                        <span className="text-xs font-medium text-slate-700">{highlight.label}</span>
+                    <div 
+                      key={index} 
+                      className="group p-4 rounded-xl border transition-all duration-300 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-500/30">
+                          <highlight.icon className="h-5 w-5 text-blue-400" />
+                        </div>
+                        <span className="text-sm font-semibold text-white">{highlight.label}</span>
                       </div>
                     </div>
                   ))}
@@ -448,38 +724,52 @@ const AdminCareerPage = () => {
               </div>
 
               {/* Employee Testimonials */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-900">Employee Testimonials</h3>
-                  <button className="text-blue-600 hover:text-blue-700">
-                    <Plus className="h-4 w-4" />
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Employee Testimonials</h3>
+                  <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                    <Plus className="h-5 w-5" />
                   </button>
                 </div>
                 <div className="space-y-4">
                   {testimonials.map((testimonial) => (
-                    <div key={testimonial.id} className="p-3 bg-slate-50 rounded-lg">
-                      <div className="flex items-start space-x-3">
+                    <div 
+                      key={testimonial.id} 
+                      className="p-4 rounded-xl border"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
+                      <div className="flex items-start space-x-4">
                         <img
                           src={testimonial.image}
                           alt={testimonial.name}
-                          className="h-8 w-8 rounded-full"
+                          className="h-12 w-12 rounded-full border-2 border-blue-500/30"
                         />
                         <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center justify-between mb-2">
                             <div>
-                              <div className="text-sm font-medium text-slate-900">{testimonial.name}</div>
-                              <div className="text-xs text-slate-500">{testimonial.role}</div>
+                              <div className="text-base font-semibold text-white">{testimonial.name}</div>
+                              <div className="text-sm text-gray-400">{testimonial.role}</div>
                             </div>
                             <div className="flex">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`h-3 w-3 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-slate-300'}`}
+                                  className={`h-4 w-4 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`}
                                 />
                               ))}
                             </div>
                           </div>
-                          <p className="text-xs text-slate-600">"{testimonial.quote}"</p>
+                          <p className="text-sm text-gray-300 leading-relaxed">"{testimonial.quote}"</p>
                         </div>
                       </div>
                     </div>
@@ -488,19 +778,32 @@ const AdminCareerPage = () => {
               </div>
 
               {/* Company Culture */}
-              <div className="lg:col-span-2 bg-white rounded-xl p-5 border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-900">Company Culture Content</h3>
-                  <button className="text-blue-600 hover:text-blue-700">
-                    <Edit3 className="h-4 w-4" />
+              <div 
+                className="lg:col-span-2 rounded-2xl p-6 border"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Company Culture Content</h3>
+                  <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                    <Edit3 className="h-5 w-5" />
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <h4 className="text-sm font-medium text-slate-900 mb-2">Mission Statement</h4>
-                    <div className="p-3 bg-slate-50 rounded-lg">
-                      <p className="text-sm text-slate-600">
+                    <h4 className="text-base font-semibold text-white mb-3">Mission Statement</h4>
+                    <div 
+                      className="p-4 rounded-xl border"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
+                      <p className="text-sm text-gray-300 leading-relaxed">
                         "We're building the future of work by empowering teams to collaborate seamlessly, 
                         innovate fearlessly, and create meaningful impact for our customers and communities."
                       </p>
@@ -508,32 +811,45 @@ const AdminCareerPage = () => {
                   </div>
                   
                   <div>
-                    <h4 className="text-sm font-medium text-slate-900 mb-2">Core Values</h4>
-                    <div className="space-y-2">
+                    <h4 className="text-base font-semibold text-white mb-3">Core Values</h4>
+                    <div className="space-y-3">
                       {['Innovation', 'Collaboration', 'Integrity', 'Growth'].map((value, index) => (
-                        <div key={index} className="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg">
-                          <CheckCircle className="h-4 w-4 text-emerald-500" />
-                          <span className="text-sm text-slate-700">{value}</span>
+                        <div 
+                          key={index} 
+                          className="flex items-center space-x-3 p-3 rounded-xl border"
+                          style={{
+                            background: 'rgba(40, 40, 40, 0.5)',
+                            borderColor: '#404040',
+                          }}
+                        >
+                          <CheckCircle className="h-5 w-5 text-emerald-400" />
+                          <span className="text-sm font-medium text-white">{value}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
                 
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-slate-900 mb-2">Media Content</h4>
+                <div className="mt-8">
+                  <h4 className="text-base font-semibold text-white mb-4">Media Content</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center">
-                      <Play className="h-8 w-8 text-slate-500" />
-                    </div>
-                    <div className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center">
-                      <Play className="h-8 w-8 text-slate-500" />
-                    </div>
-                    <div className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center">
-                      <Play className="h-8 w-8 text-slate-500" />
-                    </div>
-                    <div className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
-                      <Plus className="h-8 w-8 text-slate-400" />
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <div 
+                        key={index}
+                        className="aspect-video rounded-xl flex items-center justify-center border transition-all duration-300 hover:border-blue-500/50"
+                        style={{
+                          background: 'rgba(40, 40, 40, 0.8)',
+                          borderColor: '#404040',
+                        }}
+                      >
+                        <Play className="h-8 w-8 text-gray-400" />
+                      </div>
+                    ))}
+                    <div 
+                      className="aspect-video rounded-xl flex items-center justify-center border-2 border-dashed border-gray-600 hover:border-blue-500/50 transition-all duration-300 cursor-pointer group"
+                      style={{ background: 'rgba(40, 40, 40, 0.3)' }}
+                    >
+                      <Plus className="h-8 w-8 text-gray-400 group-hover:text-blue-400 transition-colors" />
                     </div>
                   </div>
                 </div>
@@ -545,10 +861,17 @@ const AdminCareerPage = () => {
         {activeTab === 'analytics' && (
           <>
             {/* Analytics Dashboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-sm font-medium text-slate-900 mb-3">Application Sources</h3>
-                <div className="space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                }}
+              >
+                <h3 className="text-base font-semibold text-white mb-4">Application Sources</h3>
+                <div className="space-y-4">
                   {[
                     { source: 'Direct Website', count: 45, percentage: 35 },
                     { source: 'LinkedIn', count: 38, percentage: 30 },
@@ -556,39 +879,60 @@ const AdminCareerPage = () => {
                     { source: 'Referrals', count: 19, percentage: 15 }
                   ].map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-xs text-slate-600">{item.source}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-16 bg-slate-200 rounded-full h-1.5">
+                      <span className="text-sm text-gray-300 font-medium">{item.source}</span>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-20 bg-gray-700 rounded-full h-2">
                           <div 
-                            className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${item.percentage}%` }}
                           />
                         </div>
-                        <span className="text-xs font-medium text-slate-900">{item.count}</span>
+                        <span className="text-sm font-bold text-white w-8 text-right">{item.count}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-sm font-medium text-slate-900 mb-3">Top Performing Jobs</h3>
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.8)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#2a2a2a',
+                }}
+              >
+                <h3 className="text-base font-semibold text-white mb-4">Top Performing Jobs</h3>
                 <div className="space-y-3">
                   {jobOpenings.map((job, index) => (
-                    <div key={job.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+                    <div 
+                      key={job.id} 
+                      className="flex items-center justify-between p-3 rounded-xl border"
+                      style={{
+                        background: 'rgba(40, 40, 40, 0.5)',
+                        borderColor: '#404040',
+                      }}
+                    >
                       <div>
-                        <div className="text-xs font-medium text-slate-900">{job.title}</div>
-                        <div className="text-xs text-slate-500">{job.department}</div>
+                        <div className="text-sm font-semibold text-white">{job.title}</div>
+                        <div className="text-xs text-gray-400">{job.department}</div>
                       </div>
-                      <div className="text-xs font-bold text-blue-600">{job.applicants}</div>
+                      <div className="text-sm font-bold text-blue-400">{job.applicants}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-xl p-5 border border-emerald-200">
-                <h3 className="text-sm font-medium text-slate-900 mb-3">Hiring Funnel</h3>
-                <div className="space-y-3">
+              <div 
+                className="rounded-2xl p-6 border"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: '#22c55e40',
+                }}
+              >
+                <h3 className="text-base font-semibold text-white mb-4">Hiring Funnel</h3>
+                <div className="space-y-4">
                   {[
                     { stage: 'Applications', count: 156, color: 'bg-emerald-500' },
                     { stage: 'Screening', count: 89, color: 'bg-emerald-400' },
@@ -597,10 +941,10 @@ const AdminCareerPage = () => {
                     { stage: 'Hires', count: 8, color: 'bg-emerald-100' }
                   ].map((stage, index) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-xs text-slate-700">{stage.stage}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${stage.color}`} />
-                        <span className="text-xs font-bold text-slate-900">{stage.count}</span>
+                      <span className="text-sm text-gray-300 font-medium">{stage.stage}</span>
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full ${stage.color} shadow-lg`} />
+                        <span className="text-sm font-bold text-white w-8 text-right">{stage.count}</span>
                       </div>
                     </div>
                   ))}
@@ -609,13 +953,26 @@ const AdminCareerPage = () => {
             </div>
 
             {/* Detailed Analytics */}
-            <div className="bg-white rounded-xl p-5 border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Monthly Performance Trends</h3>
-              <div className="h-48 bg-slate-50 rounded-lg flex items-center justify-center">
+            <div 
+              className="rounded-2xl p-8 border"
+              style={{
+                background: 'rgba(30, 30, 30, 0.8)',
+                backdropFilter: 'blur(20px)',
+                borderColor: '#2a2a2a',
+              }}
+            >
+              <h3 className="text-xl font-bold text-white mb-6">Monthly Performance Trends</h3>
+              <div 
+                className="h-64 rounded-2xl flex items-center justify-center border"
+                style={{
+                  background: 'rgba(40, 40, 40, 0.5)',
+                  borderColor: '#404040',
+                }}
+              >
                 <div className="text-center">
-                  <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm text-slate-500">Analytics chart would be rendered here</p>
-                  <p className="text-xs text-slate-400">Integration with chart library needed</p>
+                  <BarChart3 className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+                  <p className="text-base text-gray-300 font-medium">Analytics chart would be rendered here</p>
+                  <p className="text-sm text-gray-500 mt-2">Integration with chart library needed</p>
                 </div>
               </div>
             </div>
@@ -625,31 +982,48 @@ const AdminCareerPage = () => {
 
       {/* Job Posting Modal */}
       {showJobForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Create New Job Posting</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div 
+            className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-8 border custom-scrollbar"
+            style={{
+              background: 'rgba(26, 26, 26, 0.95)',
+              backdropFilter: 'blur(20px)',
+              borderColor: '#2a2a2a',
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Create New Job Posting</h3>
               <button
                 onClick={() => setShowJobForm(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
             </div>
             
-            <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Job Title</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Job Title</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-white placeholder-gray-400"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
                     placeholder="e.g. Senior Software Engineer"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
-                  <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Department</label>
+                  <select 
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
+                  >
                     <option>Select Department</option>
                     {departments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -658,18 +1032,28 @@ const AdminCareerPage = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Location</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
                     placeholder="e.g. Remote, New York"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Job Type</label>
-                  <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Job Type</label>
+                  <select 
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
+                  >
                     <option>Full-time</option>
                     <option>Part-time</option>
                     <option>Contract</option>
@@ -679,26 +1063,40 @@ const AdminCareerPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Job Description</label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Job Description</label>
                 <textarea
-                  rows={4}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  rows={5}
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400 resize-none"
+                  style={{
+                    background: 'rgba(40, 40, 40, 0.8)',
+                    borderColor: '#404040',
+                  }}
                   placeholder="Describe the role, responsibilities, and requirements..."
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Salary Range</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Salary Range</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
                     placeholder="e.g. $80k - $120k"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority Level</label>
-                  <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Priority Level</label>
+                  <select 
+                    className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    style={{
+                      background: 'rgba(40, 40, 40, 0.8)',
+                      borderColor: '#404040',
+                    }}
+                  >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -706,17 +1104,21 @@ const AdminCareerPage = () => {
                 </div>
               </div>
               
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-4 pt-6">
                 <button
                   type="button"
                   onClick={() => setShowJobForm(false)}
-                  className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium"
+                  className="px-6 py-3 border text-gray-300 rounded-xl hover:text-white hover:border-gray-600 transition-all duration-300 text-sm font-semibold"
+                  style={{
+                    background: 'rgba(40, 40, 40, 0.8)',
+                    borderColor: '#404040',
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-blue-500/25"
                 >
                   Publish Job
                 </button>
@@ -725,6 +1127,64 @@ const AdminCareerPage = () => {
           </div>
         </div>
       )}
+
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(40, 40, 40, 0.3);
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          border-radius: 10px;
+          border: 2px solid rgba(40, 40, 40, 0.3);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-corner {
+          background: rgba(40, 40, 40, 0.3);
+        }
+        
+        /* Firefox */
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #2563eb rgba(40, 40, 40, 0.3);
+        }
+        
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.8; }
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes drift {
+          0% { transform: translateX(0px); }
+          100% { transform: translateX(50px); }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

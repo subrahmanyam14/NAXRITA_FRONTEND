@@ -38,7 +38,7 @@ import EmployeeCompensationDashboard from './employee/pages/EmployeeCompensation
 import PerformanceDashboard from './admin/pages/PerformanceDashboard.jsx';
 import AdminCareerPage from './admin/pages/AdminCareerPage.jsx';
 import AdminContactPage from './admin/pages/AdminContactPage.jsx';
-import AdminCompensationPage from './employee/pages/AdminCompensationPage.jsx';
+import AdminCompensationPage from './admin/pages/AdminCompensationPage.jsx';
 
 // Redirects
 const RedirectToLogin = () => {

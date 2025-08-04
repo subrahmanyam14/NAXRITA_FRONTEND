@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { 
   Clock, 
   CheckCircle,
@@ -14,13 +14,227 @@ import {
   Activity,
   MapPin,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Zap,
   Target,
   Award,
   Coffee,
-  Users
+  Users,
+  Star,
+  Sparkles
 } from 'lucide-react';
+
+// Animated background components
+const StarfieldBackground = () => {
+  const [stars, setStars] = useState([]);
+
+  useEffect(() => {
+    const starArray = Array.from({ length: 150 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      opacity: Math.random() * 0.6 + 0.2,
+      color: ['#ffffff', '#2563eb', '#a3a3a3', '#6b7280'][Math.floor(Math.random() * 4)],
+      animationDelay: Math.random() * 3
+    }));
+    setStars(starArray);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {stars.map(star => (
+        <div
+          key={star.id}
+          className="absolute animate-pulse"
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            backgroundColor: star.color,
+            opacity: star.opacity,
+            borderRadius: '50%',
+            animationDelay: `${star.animationDelay}s`,
+            animationDuration: '3s'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const SparkleOverlay = () => {
+  const [sparkles, setSparkles] = useState([]);
+
+  useEffect(() => {
+    const sparkleArray = Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      color: ['#2563eb', '#22c55e', '#f59e0b', '#ffffff'][Math.floor(Math.random() * 4)],
+      animationDelay: Math.random() * 8
+    }));
+    setSparkles(sparkleArray);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-10">
+      {sparkles.map(sparkle => (
+        <div
+          key={sparkle.id}
+          className="absolute animate-bounce"
+          style={{
+            left: `${sparkle.x}%`,
+            top: `${sparkle.y}%`,
+            animationDelay: `${sparkle.animationDelay}s`,
+            animationDuration: '8s'
+          }}
+        >
+          <Sparkles 
+            size={sparkle.size} 
+            color={sparkle.color}
+            className="opacity-60"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const AnimatedDots = () => {
+  const [dots, setDots] = useState([]);
+
+  useEffect(() => {
+    const dotArray = Array.from({ length: 80 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+      color: ['rgba(37, 99, 235, 0.3)', 'rgba(163, 163, 163, 0.2)', 'rgba(107, 114, 128, 0.1)'][Math.floor(Math.random() * 3)],
+      animationDelay: Math.random() * 4
+    }));
+    setDots(dotArray);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-5">
+      {dots.map(dot => (
+        <div
+          key={dot.id}
+          className="absolute animate-pulse"
+          style={{
+            left: `${dot.x}%`,
+            top: `${dot.y}%`,
+            width: `${dot.size}px`,
+            height: `${dot.size}px`,
+            backgroundColor: dot.color,
+            borderRadius: '50%',
+            animationDelay: `${dot.animationDelay}s`,
+            animationDuration: '4s'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Auto-scrolling carousel component
+const AutoCarousel = ({ items, title, interval = 5000 }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (!isHovered && items.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % items.length);
+      }, interval);
+      return () => clearInterval(timer);
+    }
+  }, [items.length, interval, isHovered]);
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % items.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+  };
+
+  return (
+    <div 
+      className="relative bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px] overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(30, 30, 30, 0.8)'
+      }}
+    >
+      <div className="px-6 py-4 border-b border-[#2a2a2a]">
+        <h3 className="text-lg font-medium text-[#ffffff]">{title}</h3>
+      </div>
+      
+      <div className="relative h-48 overflow-hidden">
+        <div 
+          className="flex transition-transform duration-500 ease-in-out h-full"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {items.map((item, index) => (
+            <div key={index} className="w-full flex-shrink-0 p-6 flex items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-full flex items-center justify-center">
+                  {item.icon && <item.icon className="w-8 h-8 text-white" />}
+                </div>
+                <h4 className="text-xl font-medium text-[#ffffff] mb-2">{item.title}</h4>
+                <p className="text-[#a3a3a3] text-sm">{item.description}</p>
+                {item.value && (
+                  <p className="text-[#2563eb] text-lg font-semibold mt-2">{item.value}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Navigation buttons */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#2563eb] hover:bg-[#1d4ed8] rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+      >
+        <ChevronLeft className="w-5 h-5 text-white" />
+      </button>
+      
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#2563eb] hover:bg-[#1d4ed8] rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+      >
+        <ChevronRight className="w-5 h-5 text-white" />
+      </button>
+
+      {/* Indicators */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        {items.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-[#2563eb] shadow-[0_0_10px_rgba(59,130,246,0.6)]' 
+                : 'bg-[#404040] hover:bg-[#6b7280]'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const quickActions = [
   { 
@@ -86,7 +300,7 @@ const recentActivity = [
     status: 'Approved',
     details: 'Vacation from Jun 15-22, 2023',
     icon: CheckCircle,
-    color: 'text-green-500'
+    color: 'text-[#22c55e]'
   },
   {
     id: 2,
@@ -95,7 +309,7 @@ const recentActivity = [
     status: 'Completed',
     details: 'Updated Resume.pdf',
     icon: FileText,
-    color: 'text-blue-500'
+    color: 'text-[#2563eb]'
   },
   {
     id: 3,
@@ -104,7 +318,7 @@ const recentActivity = [
     status: 'Completed',
     details: 'Cybersecurity Awareness Training',
     icon: Award,
-    color: 'text-purple-500'
+    color: 'text-[#a855f7]'
   },
 ];
 
@@ -139,10 +353,53 @@ const upcomingEvents = [
 ];
 
 const stats = [
-  { name: 'Available PTO', value: '18', unit: 'days', change: '+2', icon: Clock, color: 'text-blue-600' },
-  { name: 'This Month', value: '42', unit: 'hours', change: '+5%', icon: TrendingUp, color: 'text-green-600' },
-  { name: 'Tasks Done', value: '23', unit: 'of 28', change: '82%', icon: Target, color: 'text-purple-600' },
-  { name: 'Team Rank', value: '#3', unit: 'of 12', change: '+1', icon: Award, color: 'text-amber-600' },
+  { name: 'Available PTO', value: '18', unit: 'days', change: '+2', icon: Clock, color: 'text-[#2563eb]' },
+  { name: 'This Month', value: '42', unit: 'hours', change: '+5%', icon: TrendingUp, color: 'text-[#22c55e]' },
+  { name: 'Tasks Done', value: '23', unit: 'of 28', change: '82%', icon: Target, color: 'text-[#a855f7]' },
+  { name: 'Team Rank', value: '#3', unit: 'of 12', change: '+1', icon: Award, color: 'text-[#f59e0b]' },
+];
+
+// Carousel data
+const announcementItems = [
+  {
+    title: 'Memorial Day Closure',
+    description: 'Office will be closed on Monday, May 29th',
+    icon: Bell,
+    value: 'May 29'
+  },
+  {
+    title: 'New Benefits Package',
+    description: 'Enhanced healthcare and wellness benefits available',
+    icon: Award,
+    value: 'Effective June 1'
+  },
+  {
+    title: 'Team Building Event', 
+    description: 'Annual company picnic scheduled for next month',
+    icon: Users,
+    value: 'June 15'
+  }
+];
+
+const performanceItems = [
+  {
+    title: 'Monthly Performance',
+    description: 'You\'re performing above average this month',
+    icon: TrendingUp,
+    value: '115%'
+  },
+  {
+    title: 'Goal Progress',
+    description: 'Q2 objectives are on track',
+    icon: Target,
+    value: '82%'
+  },
+  {
+    title: 'Team Contribution',
+    description: 'Your contributions are making a difference',
+    icon: Star,
+    value: 'Excellent'
+  }
 ];
 
 function classNames(...classes) {
@@ -153,259 +410,322 @@ const EmployeeDashboard = () => {
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 space-y-4">
-      {/* Welcome Header - Compact */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-xl">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-light text-white">Good morning, John</h1>
-              <p className="text-xs text-slate-300 font-thin">Ready to make today productive?</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className="text-xs font-thin text-slate-400">Last active</p>
-                <p className="text-xs text-white">9:42 AM</p>
+    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <StarfieldBackground />
+      <AnimatedDots />
+      <SparkleOverlay />
+      
+      {/* Main Content */}
+      <div className="relative z-20 p-8 space-y-8 max-w-full mx-auto">
+        {/* Welcome Header */}
+        <div 
+          className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px] relative overflow-hidden group hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-500"
+          style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'rgba(30, 30, 30, 0.8)'
+          }}
+        >
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-light text-[#ffffff] mb-2">Good morning, John</h1>
+                <p className="text-lg text-[#a3a3a3] font-light">Ready to make today productive?</p>
               </div>
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <User className="h-4 w-4 text-white" />
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm text-[#6b7280]">Last active</p>
+                  <p className="text-lg text-[#ffffff] font-medium">9:42 AM</p>
+                </div>
+                <div className="h-16 w-16 bg-gradient-to-r from-[#2563eb] to-[#a855f7] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                  <User className="h-8 w-8 text-white" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Stats Grid - Compact */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {stats.map((stat) => (
-          <div key={stat.name} className="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
-            <div className="flex items-center justify-between">
-              <stat.icon className={classNames('h-4 w-4', stat.color)} />
-              <span className="text-xs font-thin text-gray-500">{stat.change}</span>
-            </div>
-            <div className="mt-2">
-              <p className="text-lg font-light text-gray-900">{stat.value}</p>
-              <div className="flex items-center space-x-1">
-                <p className="text-xs font-thin text-gray-600">{stat.unit}</p>
-              </div>
-              <p className="text-xs font-thin text-gray-500 mt-1">{stat.name}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Announcement - Compact */}
-      {!announcementDismissed && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
-          <div className="flex items-start">
-            <Bell className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-            <div className="ml-2 flex-1">
-              <p className="text-xs font-light text-blue-800">
-                Memorial Day office closure - Monday, May 29th
-              </p>
-            </div>
-            <button
-              onClick={() => setAnnouncementDismissed(true)}
-              className="text-blue-600 hover:text-blue-800 ml-2"
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <div 
+              key={stat.name} 
+              className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-6 backdrop-blur-[10px] group hover:border-[#404040] hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:-translate-y-1 transition-all duration-300"
+              style={{
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                animationDelay: `${index * 0.1}s`
+              }}
             >
-              <span className="text-xs">×</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions - Modern Cards */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-light text-gray-900">Quick Actions</h3>
-            <Zap className="h-4 w-4 text-yellow-500" />
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {quickActions.map((action) => (
-              <div
-                key={action.name}
-                className="group relative bg-gradient-to-br border border-gray-100 rounded-lg p-3 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
-              >
-                <div className={classNames(
-                  'absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity',
-                  action.gradient
-                )} />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={classNames(
-                      'h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center',
-                      action.gradient
-                    )}>
-                      <action.icon className="h-4 w-4 text-white" />
-                    </div>
-                    <ChevronRight className="h-3 w-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                  </div>
-                  <h4 className="text-sm font-light text-gray-900">{action.name}</h4>
-                  <p className="text-xs font-thin text-gray-500 mb-1">{action.description}</p>
-                  <span className="text-xs font-thin text-gray-400">{action.count}</span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-[#2563eb] to-[#1d4ed8]">
+                  <stat.icon className={classNames('h-6 w-6 text-white')} />
                 </div>
+                <span className="text-sm text-[#22c55e] font-medium">{stat.change}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Upcoming Time Off - Compact */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <h3 className="text-sm font-light text-gray-900">Time Off</h3>
-          </div>
-          <div className="p-4 space-y-3">
-            {upcomingTimeOff.length > 0 ? (
-              upcomingTimeOff.map((timeOff) => (
-                <div key={timeOff.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="h-8 w-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
-                    <timeOff.icon className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-light text-gray-900 truncate">{timeOff.type}</p>
-                      <span className={classNames(
-                        'px-2 py-0.5 rounded-full text-xs font-thin',
-                        timeOff.status === 'Approved' 
-                          ? 'bg-green-50 text-green-700 border border-green-200' 
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      )}>
-                        {timeOff.status}
-                      </span>
-                    </div>
-                    <p className="text-xs font-thin text-gray-500">
-                      {new Date(timeOff.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {timeOff.days}d
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-4">
-                <Clock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-xs font-thin text-gray-500 mb-2">No upcoming time off</p>
-                <button className="text-xs font-light text-blue-600 hover:text-blue-800">
-                  Request Time Off
-                </button>
+              <div>
+                <p className="text-3xl font-light text-[#ffffff] mb-1">{stat.value}</p>
+                <p className="text-sm text-[#a3a3a3] mb-1">{stat.unit}</p>
+                <p className="text-sm text-[#6b7280]">{stat.name}</p>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
         </div>
 
-        {/* Recent Activity - Enhanced */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-          <div className="px-4 py-3 border-b border-gray-100">
+        {/* Auto-scrolling Carousels */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <AutoCarousel 
+            items={announcementItems}
+            title="Company Announcements"
+            interval={5000}
+          />
+          <AutoCarousel 
+            items={performanceItems}
+            title="Performance Insights"
+            interval={7000}
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <div 
+          className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px]"
+          style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'rgba(30, 30, 30, 0.8)'
+          }}
+        >
+          <div className="px-8 py-6 border-b border-[#2a2a2a]">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-light text-gray-900">Recent Activity</h3>
-              <Activity className="h-4 w-4 text-gray-400" />
+              <h3 className="text-xl font-medium text-[#ffffff]">Quick Actions</h3>
+              <Zap className="h-6 w-6 text-[#f59e0b]" />
             </div>
           </div>
-          <div className="p-4">
-            <div className="space-y-3">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className={classNames('mt-0.5', activity.color)}>
-                    <activity.icon className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-light text-gray-900">{activity.type}</p>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-thin text-gray-500">
-                          {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                        <span className={classNames(
-                          'px-2 py-0.5 rounded-full text-xs font-thin border',
-                          activity.status === 'Completed' 
-                            ? 'bg-green-50 text-green-700 border-green-200' 
-                            : 'bg-blue-50 text-blue-700 border-blue-200'
-                        )}>
-                          {activity.status}
-                        </span>
+          <div className="p-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {quickActions.map((action, index) => (
+                <div
+                  key={action.name}
+                  className="group relative bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#404040] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={classNames(
+                        'h-12 w-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
+                        action.gradient
+                      )}>
+                        <action.icon className="h-6 w-6 text-white" />
                       </div>
+                      <ChevronRight className="h-5 w-5 text-[#6b7280] group-hover:text-[#ffffff] transition-colors" />
                     </div>
-                    <p className="text-xs font-thin text-gray-500 mt-1">{activity.details}</p>
+                    <h4 className="text-lg font-medium text-[#ffffff] mb-2">{action.name}</h4>
+                    <p className="text-sm text-[#a3a3a3] mb-2">{action.description}</p>
+                    <span className="text-sm text-[#6b7280]">{action.count}</span>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 border-t border-gray-100">
-              <button className="w-full text-xs font-light text-blue-600 hover:text-blue-800 py-2 rounded-lg hover:bg-blue-50 transition-colors">
-                View All Activity →
-              </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Upcoming Time Off */}
+          <div 
+            className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px]"
+            style={{
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+              backgroundColor: 'rgba(30, 30, 30, 0.8)'
+            }}
+          >
+            <div className="px-6 py-4 border-b border-[#2a2a2a]">
+              <h3 className="text-lg font-medium text-[#ffffff]">Time Off</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              {upcomingTimeOff.length > 0 ? (
+                upcomingTimeOff.map((timeOff) => (
+                  <div key={timeOff.id} className="flex items-center space-x-4 p-4 rounded-lg bg-[#161616] border border-[#2a2a2a] hover:border-[#404040] transition-all duration-300">
+                    <div className="h-12 w-12 bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-xl flex items-center justify-center">
+                      <timeOff.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-[#ffffff] truncate">{timeOff.type}</p>
+                        <span className={classNames(
+                          'px-3 py-1 rounded-full text-xs font-medium border',
+                          timeOff.status === 'Approved' 
+                            ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30' 
+                            : 'bg-[#f59e0b]/10 text-[#f59e0b] border-[#f59e0b]/30'
+                        )}>
+                          {timeOff.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[#a3a3a3] mt-1">
+                        {new Date(timeOff.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {timeOff.days}d
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Clock className="h-12 w-12 text-[#6b7280] mx-auto mb-4" />
+                  <p className="text-sm text-[#a3a3a3] mb-4">No upcoming time off</p>
+                  <button className="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8] transition-colors">
+                    Request Time Off
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div 
+            className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px] lg:col-span-2"
+            style={{
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+              backgroundColor: 'rgba(30, 30, 30, 0.8)'
+            }}
+          >
+            <div className="px-6 py-4 border-b border-[#2a2a2a]">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-[#ffffff]">Recent Activity</h3>
+                <Activity className="h-6 w-6 text-[#6b7280]" />
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-4 p-4 rounded-lg bg-[#161616] border border-[#2a2a2a] hover:border-[#404040] transition-all duration-300">
+                    <div className={classNames('mt-1', activity.color)}>
+                      <activity.icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-[#ffffff]">{activity.type}</p>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-xs text-[#a3a3a3]">
+                            {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                          <span className={classNames(
+                            'px-3 py-1 rounded-full text-xs font-medium border',
+                            activity.status === 'Completed' 
+                              ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30' 
+                              : 'bg-[#2563eb]/10 text-[#2563eb] border-[#2563eb]/30'
+                          )}>
+                            {activity.status}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-[#a3a3a3] mt-2">{activity.details}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#2a2a2a]">
+                <button className="w-full text-sm font-medium text-[#2563eb] hover:text-[#1d4ed8] py-3 rounded-lg hover:bg-[#2563eb]/5 transition-all duration-300">
+                  View All Activity →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming Events */}
+        <div 
+          className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] backdrop-blur-[10px]"
+          style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'rgba(30, 30, 30, 0.8)'
+          }}
+        >
+          <div className="px-8 py-6 border-b border-[#2a2a2a]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-medium text-[#ffffff]">Upcoming Events</h3>
+              <div className="flex items-center space-x-3">
+                <Calendar className="h-6 w-6 text-[#6b7280]" />
+                <button className="text-sm font-medium text-[#2563eb] hover:text-[#1d4ed8] transition-colors">
+                  View Calendar
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="p-8">
+            <div className="space-y-4">
+              {upcomingEvents.map((event, index) => (
+                <div key={event.id} className="flex items-center space-x-4 p-6 rounded-xl bg-[#161616] border border-[#2a2a2a] hover:border-[#404040] hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all duration-300 group">
+                  <div className="flex-shrink-0">
+                    <div className={classNames(
+                      'h-14 w-14 rounded-xl flex items-center justify-center',
+                      event.type === 'meeting' ? 'bg-gradient-to-br from-[#2563eb] to-[#1d4ed8]' : 
+                      event.type === 'deadline' ? 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]' : 'bg-gradient-to-br from-[#a855f7] to-[#9333ea]'
+                    )}>
+                      <Calendar className="h-7 w-7 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-lg font-medium text-[#ffffff] group-hover:text-[#2563eb] transition-colors">{event.name}</h4>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-[#a3a3a3]">
+                          {new Date(event.date).toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit',
+                            hour12: true 
+                          })}
+                        </span>
+                        {event.attendees && (
+                          <div className="flex items-center space-x-2">
+                            <Users className="h-4 w-4 text-[#6b7280]" />
+                            <span className="text-sm text-[#a3a3a3]">{event.attendees}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <span className="text-sm text-[#a3a3a3]">{event.duration}</span>
+                      <span className="text-[#6b7280]">•</span>
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-[#6b7280]" />
+                        <span className="text-sm text-[#a3a3a3]">{event.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-6 w-6 text-[#6b7280] group-hover:text-[#ffffff] transition-colors" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Upcoming Events - Modern Timeline */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-light text-gray-900">Upcoming Events</h3>
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <button className="text-xs font-light text-blue-600 hover:text-blue-800">
-                View Calendar
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="space-y-3">
-            {upcomingEvents.map((event, index) => (
-              <div key={event.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                <div className="flex-shrink-0">
-                  <div className={classNames(
-                    'h-10 w-10 rounded-lg flex items-center justify-center',
-                    event.type === 'meeting' ? 'bg-blue-100' : 
-                    event.type === 'deadline' ? 'bg-red-100' : 'bg-purple-100'
-                  )}>
-                    <Calendar className={classNames(
-                      'h-4 w-4',
-                      event.type === 'meeting' ? 'text-blue-600' : 
-                      event.type === 'deadline' ? 'text-red-600' : 'text-purple-600'
-                    )} />
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-light text-gray-900 group-hover:text-gray-700">{event.name}</h4>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-thin text-gray-500">
-                        {new Date(event.date).toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit',
-                          hour12: true 
-                        })}
-                      </span>
-                      {event.attendees && (
-                        <div className="flex items-center space-x-1">
-                          <Users className="h-3 w-3 text-gray-400" />
-                          <span className="text-xs font-thin text-gray-500">{event.attendees}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-xs font-thin text-gray-600">{event.duration}</span>
-                    <span className="text-gray-300">•</span>
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs font-thin text-gray-500">{event.location}</span>
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* CSS for additional animations */}
+      <style jsx>{`
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.8; }
+        }
+        
+        @keyframes float {
+          0% { transform: translateY(0) rotate(0deg); }
+          100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+        
+        @keyframes drift {
+          0% { transform: translate(0, 0); }
+          100% { transform: translate(50px, -50px); }
+        }
+        
+        .animate-twinkle {
+          animation: twinkle 3s ease-in-out infinite alternate;
+        }
+        
+        .animate-float {
+          animation: float 8s linear infinite;
+        }
+        
+        .animate-drift {
+          animation: drift 15s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
