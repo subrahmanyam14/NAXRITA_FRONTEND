@@ -152,21 +152,22 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-gray-950 text-white border-r border-gray-700 backdrop-blur-md ${
+        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#1a1a1a] text-white border-r border-gray-700 backdrop-blur-md ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 relative overflow-hidden`}
         style={{
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #161616 100%)',
+          // background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #161616 100%)',
+          background:'#1a1a1a',
           borderRight: '1px solid #2a2a2a',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.8)',
         }}
       >
         {/* Animated Background Effects */}
-        <CosmicBackground intensity="moderate" />
+        {/* <CosmicBackground intensity="moderate" /> */}
         {/* <SparklesOverlay /> */}
         
         {/* Cosmic overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/5 to-transparent pointer-events-none" />
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/5 to-transparent pointer-events-none" /> */}
 
         <div className="flex-1 flex flex-col h-full relative z-10 no-scrollbar">
           {/* Header with Company Branding */}
@@ -215,7 +216,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
                           item.action();
                           setActionsOpen(false);
                         }}
-                        className="w-full px-3 py-1 text-xs text-gray-300 hover:text-white hover:bg-gray-700/80 flex items-center gap-2 transition-all duration-200 first:rounded-t-lg last:rounded-b-lg group"
+                        className="w-full px-3 py-1 text-xs text-gray-300 hover:text-white hover:bg-gray-700/80 flex items-center gap-4 transition-all duration-200 first:rounded-t-lg last:rounded-b-lg group"
                       >
                         <div className="w-6 h-6 rounded-full border border-gray-500/50 flex items-center justify-center group-hover:border-blue-400/50 group-hover:shadow-lg group-hover:shadow-blue-400/20 transition-all duration-200">
                           <item.icon className="w-3 h-3" />
@@ -229,7 +230,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-4 space-y-1">
+            <nav className="flex-1 px-4 space-y-2">
                           {navigation.map((item) => {
                             const isActive = location.pathname === item.href;
                             return (
@@ -240,7 +241,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
                                 className={`group relative flex items-center px-4 py-3.5 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-[1.02] ${
                                   isActive
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 border border-blue-500'
-                                    : 'text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-gray-800 hover:to-gray-700 border border-transparent hover:border-gray-600'
+                                    : 'text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-gray-800 hover:to-gray-700 border border-gray-800/50 hover:border-gray-400'
                                 }`}
                                 style={{
                                   backdropFilter: 'blur(10px)',
