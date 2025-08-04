@@ -164,14 +164,14 @@ const HomeEmployee = () => {
   ];
 
   // Cosmic background styles
-  // const cosmicStyles = {
-  //   background: `
-  //     radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
-  //     radial-gradient(circle at 80% 20%, rgba(107, 114, 128, 0.03) 0%, transparent 50%),
-  //     radial-gradient(circle at 40% 80%, rgba(37, 99, 235, 0.02) 0%, transparent 50%),
-  //     #0a0a0a
-  //   `
-  // };
+  const cosmicStyles = {
+    background: `
+      radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(107, 114, 128, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(37, 99, 235, 0.02) 0%, transparent 50%),
+      #0a0a0a
+    `
+  };
 
   return (
     <div 
