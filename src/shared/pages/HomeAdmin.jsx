@@ -264,25 +264,7 @@ const AdminHomepage = () => {
         </div>
 
         {/* Company Branding Section */}
-        <div className="bg-black/90 backdrop-blur-sm py-8 border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="bg-black/80 backdrop-blur-sm rounded-xl p-8 text-center border border-gray-800 shadow-glow relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-center space-x-4 mb-4">
-                  <img 
-                    src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                    alt="naxrita Logo"
-                    className="h-12 w-auto"
-                    onError={(e) => {e.target.style.display = 'none';}}
-                  />
-                  {/* <h3 className="bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent text-2xl font-bold tracking-tight">naxrita</h3> */}
-                </div>
-                <p className="text-gray-300 text-lg">Leading Innovation • Empowering Teams • Driving Success</p>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Main Content Grid */}
         <div className="max-w-7xl mx-auto px-8 py-12">
@@ -570,6 +552,25 @@ const AdminHomepage = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         <div className="bg-black/90 backdrop-blur-sm py-8 border-b border-gray-800">
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="bg-black/80 backdrop-blur-sm rounded-xl p-8 text-center border border-gray-800 shadow-glow relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-center space-x-4 mb-4">
+                  <img 
+                    src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
+                    alt="naxrita Logo"
+                    className="h-12 w-auto"
+                    onError={(e) => {e.target.style.display = 'none';}}
+                  />
+                  {/* <h3 className="bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent text-2xl font-bold tracking-tight">naxrita</h3> */}
+                </div>
+                <p className="text-gray-300 text-lg">Leading Innovation • Empowering Teams • Driving Success</p>
               </div>
             </div>
           </div>
