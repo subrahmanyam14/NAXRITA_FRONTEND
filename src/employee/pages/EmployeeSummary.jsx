@@ -538,7 +538,7 @@ const EmployeeProfile = () => {
           </div>
 
           {/* Auto Carousel for Announcements */}
-          <div className="mb-8">
+          <div className="mb-8 hidden">
             <AutoCarousel 
               items={profileData.announcements}
               title="Recent Announcements"
@@ -546,7 +546,7 @@ const EmployeeProfile = () => {
           </div>
 
           {/* Performance Dashboard Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8 hidden">
             {[
               {
                 icon: TrendingUp,
@@ -679,33 +679,37 @@ const EmployeeProfile = () => {
               </div>
 
               {/* Skills Section */}
-              <div 
-                className="rounded-xl p-6 border border-gray-700"
-                style={{
-                  background: '#1e1e1e',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)'
-                }}
-              >
-                <h3 className="text-white font-normal mb-4 flex items-center" style={{ fontSize: '16px' }}>
-                  <Target className="h-4 w-4 mr-2 text-green-500" />
-                  Skills & Expertise
-                </h3>
-                <div className="space-y-3">
-                  {profileData.skills.slice(0, 4).map((skill, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300 font-normal" style={{ fontSize: '12px' }}>{skill}</span>
-                        <span className="text-gray-400" style={{ fontSize: '12px' }}>{85 + (idx * 3)}%</span>
-                      </div>
-                      <ProgressBar value={85 + (idx * 3)} color="green" size="sm" />
-                    </div>
-                  ))}
-                </div>
-                <button className="text-blue-400 mt-4 hover:text-blue-300 font-normal transition-colors" style={{ fontSize: '12px' }}>
-                  View All Skills →
-                </button>
-              </div>
+             <div 
+  className="rounded-xl p-6 border border-gray-700"
+  style={{
+    background: '#1e1e1e',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)'
+  }}
+>
+  <h3 className="text-white font-normal mb-4 flex items-center" style={{ fontSize: '16px' }}>
+    <Target className="h-4 w-4 mr-2 text-green-500" />
+    Skills & Expertise
+  </h3>
+  
+  <div className="flex flex-wrap gap-2">
+    {/* Skills as badges - falls back to dummy data if backend fails */}
+    {["JavaScript", "React", "Node.js", "CSS", "TypeScript", "Python"].map((skill, idx) => (
+      <span 
+        key={idx}
+        className="px-3 py-1 rounded-full text-gray-300 bg-gray-800 font-normal border border-gray-600 hover:bg-gray-700 transition-colors"
+        style={{ fontSize: '12px' }}
+      >
+        {skill}
+      </span>
+    ))}
+  </div>
+  
+  <button className="text-blue-400 mt-4 hover:text-blue-300 font-normal transition-colors" style={{ fontSize: '12px' }}>
+    View All Skills →
+  </button>
+</div>
+
             </div>
 
             {/* Center Column - Job Information */}
@@ -746,10 +750,11 @@ const EmployeeProfile = () => {
                   ))}
                 </div>
               </div>
+              
 
               {/* Performance Metrics */}
               <div 
-                className="rounded-xl p-6 border border-gray-700"
+                className="rounded-xl p-6 border border-gray-700 hidden"
                 style={{
                   background: '#1e1e1e',
                   backdropFilter: 'blur(10px)',
@@ -779,9 +784,80 @@ const EmployeeProfile = () => {
             </div>
 
             {/* Right Column - Analytics & Activities */}
-            <div className="space-y-6">
+            <div className="space-y-6 ">
               <div 
-                className="rounded-xl p-6 border border-gray-700"
+  className="rounded-xl p-6 border border-gray-700"
+  style={{
+    background: '#1e1e1e',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.8)'
+  }}
+>
+  <h3 className="text-white font-normal mb-4 flex items-center" style={{ fontSize: '16px' }}>
+    <Users className="h-4 w-4 mr-2 text-orange-500" />
+    Reporting Structure
+  </h3>
+  
+  <div className="space-y-4">
+    {/* Manager Section with Orange Glow */}
+    <div className="flex justify-between items-center">
+      <span className="text-gray-400" style={{ fontSize: '12px' }}>Reports To</span>
+      <div className="flex items-center">
+        <div 
+          className="w-6 h-6 rounded-full mr-2"
+          style={{
+            backgroundImage: 'url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFOwAVvhf3sdby3fwUAH4VKaCxtBE4FKHDg&s")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            boxShadow: '0 0 15px rgba(255, 165, 0, 0.6), 0 0 25px rgba(255, 165, 0, 0.4)'
+          }}
+        />
+        <span 
+          className="font-normal bg-gradient-to-r from-orange-400 to-blue-400 bg-clip-text text-transparent"
+          style={{ fontSize: '12px' }}
+        >
+          Sarah Johnson
+        </span>
+      </div>
+    </div>
+
+    {/* Work Type */}
+    <div className="flex justify-between items-center">
+      <span className="text-gray-400" style={{ fontSize: '12px' }}>Work Type</span>
+      <span 
+        className="font-normal bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+        style={{ fontSize: '12px' }}
+      >
+        Work from Office
+      </span>
+    </div>
+
+    {/* Office Location */}
+    <div className="flex justify-between items-center">
+      <span className="text-gray-400" style={{ fontSize: '12px' }}>Office Location</span>
+      <span 
+        className="font-normal bg-gradient-to-r from-orange-400 to-blue-400 bg-clip-text text-transparent"
+        style={{ fontSize: '12px' }}
+      >
+        New York HQ
+      </span>
+    </div>
+
+    {/* Work Schedule */}
+    <div className="flex justify-between items-center">
+      <span className="text-gray-400" style={{ fontSize: '12px' }}>Work Schedule</span>
+      <span 
+        className="font-normal bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"
+        style={{ fontSize: '12px' }}
+      >
+        9 AM - 6 PM
+      </span>
+    </div>
+  </div>
+</div>
+
+              <div 
+                className="rounded-xl p-6 border border-gray-700 hidden"
                 style={{
                   background: '#1e1e1e',
                   backdropFilter: 'blur(10px)',
@@ -822,7 +898,7 @@ const EmployeeProfile = () => {
 
               {/* Goal Progress */}
               <div 
-                className="rounded-xl p-6 border border-gray-700"
+                className="rounded-xl p-6 border border-gray-700 hidden"
                 style={{
                   background: '#1e1e1e',
                   backdropFilter: 'blur(10px)',

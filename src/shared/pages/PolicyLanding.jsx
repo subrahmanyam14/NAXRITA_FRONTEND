@@ -122,7 +122,7 @@ const categoryIcons = {
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center font-jakarta relative overflow-hidden">
     {/* Cosmic Background */}
-    <div className="fixed inset-0 pointer-events-none">
+    {/* <div className="fixed inset-0 pointer-events-none">
       {[...Array(100)].map((_, i) => (
         <div
           key={i}
@@ -138,7 +138,7 @@ const PageLoader = () => (
           }}
         />
       ))}
-    </div>
+    </div> */}
 
     <div className="text-center relative z-10">
       <div className="animate-pulse mb-6">
@@ -225,31 +225,52 @@ export default function PolicyLanding() {
   }));
 
   // Filter policies based on active tab
-  const getFilteredPolicies = () => {
-    let filtered = policies.filter(policy => {
+ const getAllCombinedPolicies = () => {
+  const allCategories = ['global', 'hr', 'code', 'india', 'it', 'finance', 'safety', 'operations'];
+  
+  // Get all policies from all categories
+  const combinedPolicies = policies.filter(policy => {
+    if (!policy || !policy.category) return false;
+    return allCategories.includes(policy.category.toLowerCase());
+  });
+  
+  return combinedPolicies;
+};
+
+const getFilteredPolicies = () => {
+  let filtered;
+  
+  // If 'all' is selected, get combined policies from all specific categories
+  if (selectedCategory === 'all') {
+    filtered = getAllCombinedPolicies();
+  } else {
+    // Filter by specific category
+    filtered = policies.filter(policy => policy && policy.category === selectedCategory);
+  }
+  
+  // Apply search filter
+  if (searchQuery) {
+    filtered = filtered.filter(policy => {
       if (!policy || !policy.title) return false;
 
       const title = typeof policy.title === 'string' ? policy.title : '';
       const content = typeof policy.content === 'string' ? policy.content : '';
       const tags = Array.isArray(policy.tags) ? policy.tags : [];
 
-      const matchesSearch = !searchQuery ||
-        title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const matchesCategory = selectedCategory === 'all' || policy.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
+      return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     });
+  }
 
-    // Filter by active tab
-    if (activeTab === 'bookmarked') {
-      filtered = filtered.filter(policy => bookmarkedPolicies.has(policy.id));
-    }
+  // Filter by active tab
+  if (activeTab === 'bookmarked') {
+    filtered = filtered.filter(policy => bookmarkedPolicies.has(policy.id));
+  }
 
-    return filtered;
-  };
+  return filtered;
+};
+
 
   const filteredPolicies = getFilteredPolicies();
 
@@ -329,12 +350,12 @@ export default function PolicyLanding() {
       {/* Cosmic Background Effects */}
       <div className="fixed inset-0 z-0">
         {/* Starfield */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           {generateStars(150)}
-        </div>
+        </div> */}
         
         {/* Floating Sparkles */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           {Array.from({ length: 25 }, (_, i) => (
             <div
               key={i}
@@ -351,14 +372,14 @@ export default function PolicyLanding() {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Nebula Clouds */}
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-96 h-96 bg-blue-600 opacity-5 rounded-full blur-3xl animate-drift"></div>
           <div className="absolute bottom-20 right-10 w-80 h-80 bg-gray-600 opacity-3 rounded-full blur-3xl animate-drift-reverse"></div>
           <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-400 opacity-4 rounded-full blur-3xl animate-pulse-slow"></div>
-        </div>
+        </div> */}
       </div>
 
       {/* Hero Section */}

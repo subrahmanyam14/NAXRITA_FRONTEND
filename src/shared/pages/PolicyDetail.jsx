@@ -429,7 +429,7 @@ export default function PolicyDetail() {
       <CosmicBackground />
       
       {/* Header */}
-      <header className="bg-[#111111]/80 backdrop-blur-lg border-b border-[#2a2a2a] shadow-lg sticky top-0 z-30">
+      <header className="bg-[#111111]/80 backdrop-blur-lg border-b border-[#2a2a2a] shadow-lg sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3 text-sm text-gray-300">
             <button

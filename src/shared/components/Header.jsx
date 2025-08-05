@@ -16,7 +16,7 @@ import MainSidebar from './MainSidebar';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Header({ isPublic = false }) {
-  const { user: contextUser, logout } = useAuth();
+  const { user: contextUser ,logout  } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -36,6 +36,24 @@ export default function Header({ isPublic = false }) {
     { name: 'Settings', icon: FiSettings, href: '/settings' },
     { name: 'Sign out', icon: FiLogOut, onClick: logout },
   ];
+  // In your AuthContext
+// const logout = () => {
+//   const confirmLogout = window.confirm('Are you sure you want to sign out?');
+  
+//   if (confirmLogout) {
+//     // Clear user state
+//     setUser(null);
+    
+//     // Clear localStorage
+//     localStorage.removeItem('user');
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('refreshToken');
+    
+//     // Redirect to login
+//     window.location.href = '/login';
+//   }
+// };
+
 
   return (
     <>
@@ -91,17 +109,17 @@ export default function Header({ isPublic = false }) {
           {/* Right: Icons & User */}
           <div className="flex items-center space-x-2">
             {/* Chat */}
-            <button
+            {/* <button
               type="button"
               className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
               <FiMessageCircle className="h-5 w-5" />
               <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-[#2563eb] rounded-full animate-pulse"></span>
               <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(37,99,235,0.1)]"></div>
-            </button>
+            </button> */}
 
             {/* Notifications */}
-            <button
+            {/* <button
               type="button"
               className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
@@ -110,10 +128,10 @@ export default function Header({ isPublic = false }) {
                 1
               </span>
               <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(239,68,68,0.1)]"></div>
-            </button>
+            </button> */}
 
             {/* Email */}
-            <button
+            {/* <button
               type="button"
               className="p-3 rounded-xl text-[#a3a3a3] hover:text-white hover:bg-[#1e1e1e] relative transition-all duration-300 focus:outline-none border border-transparent hover:border-[#404040] hover:shadow-lg hover:shadow-black/20 group"
             >
@@ -122,7 +140,7 @@ export default function Header({ isPublic = false }) {
                 3
               </span>
               <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(34,197,94,0.1)]"></div>
-            </button>
+            </button> */}
 
             {/* User: Show Login or Profile */}
             {isLoggedIn ? (

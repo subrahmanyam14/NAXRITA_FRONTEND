@@ -1,44 +1,44 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
+import BlankLayout from './layouts/BlankLayout'; // for login only
 import EmployeeLayout from './layouts/EmployeeLayout';
+import PublicLayout from './layouts/PublicLayout';
 import PublicAdminLayout from './layouts/PublicLayoutAdmin';
 import PublicEmployeeLayout from './layouts/PubliclayoutEmp';
-import BlankLayout from './layouts/BlankLayout'; // for login only
-import PublicLayout from './layouts/PublicLayout';
 // Pages
-import Login from './shared/pages/Login';
 import HomeAdmin from './shared/pages/HomeAdmin';
 import HomeEmployee from './shared/pages/HomeEmp';
+import Login from './shared/pages/Login';
 
+import MyLearning from './shared/pages/MyLearning';
+import PolicyDetail from './shared/pages/PolicyDetail';
 import PolicyLanding from './shared/pages/PolicyLanding';
 import PolicySearchResult from './shared/pages/PolicySearchResult';
-import PolicyDetail from './shared/pages/PolicyDetail';
-import MyLearning from './shared/pages/MyLearning';
 import Unauthorized from './shared/pages/Unauthorized';
 
 // Admin Pages
-import AdminSummary from './admin/pages/AdminSummary';
-import ManageEmployees from './admin/pages/ManageEmployees';
-import EmployeePerformance from './admin/pages/EmployeePerformance';
 import AdminProfile from './admin/pages/AdminProfile';
-
+import AdminSummary from './admin/pages/AdminSummary';
+import EmployeeBirthdays from './admin/pages/EmployeeBirthdays.jsx';
+import EmployeePerformance from './admin/pages/EmployeePerformance';
+import ManageEmployees from './admin/pages/ManageEmployees';
 // Employee Pages
-import Summary from './employee/pages/EmployeeSummary';
-import MyTasks from './employee/pages/MyTasks';
-import EmployeeProfile from './employee/pages/EmployeeProfile';
+import AdminCareerPage from './admin/pages/AdminCareerPage.jsx';
+import AdminCompensationPage from './admin/pages/AdminCompensationPage.jsx';
+import AdminContactPage from './admin/pages/AdminContactPage.jsx';
+import PerformanceDashboard from './admin/pages/PerformanceDashboard.jsx';
 import EmployeeDashboard from './employee/pages/Dashboard';
 import EmployeeCareerDashboard from './employee/pages/EmployeeCareerDashboard';
-import EmployeeContactPage from './employee/pages/EmployeeContactPage';
 import EmployeeCompensationDashboard from './employee/pages/EmployeeCompensationDashboard.jsx';
-import PerformanceDashboard from './admin/pages/PerformanceDashboard.jsx';
-import AdminCareerPage from './admin/pages/AdminCareerPage.jsx';
-import AdminContactPage from './admin/pages/AdminContactPage.jsx';
-import AdminCompensationPage from './admin/pages/AdminCompensationPage.jsx';
+import EmployeeContactPage from './employee/pages/EmployeeContactPage';
+import EmployeeProfile from './employee/pages/EmployeeProfile';
+import Summary from './employee/pages/EmployeeSummary';
+import MyTasks from './employee/pages/MyTasks';
 
 // Redirects
 const RedirectToLogin = () => {
@@ -120,7 +120,7 @@ const App = () => {
             <Route path="admin/compensation" element={<AdminCompensationPage />} />
             <Route path="admin/contact" element={<AdminContactPage />} />
             
-            
+            <Route path ="admin/birthdays" element ={<EmployeeBirthdays/>}/>
             <Route path="admin/career" element={<AdminCareerPage />} />
             <Route path="admin/overview" element={<PerformanceDashboard />} />
             <Route path="admin/employees" element={<ManageEmployees />} />
