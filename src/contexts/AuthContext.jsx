@@ -10,39 +10,54 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 🔁 Use the SAME key: 'user'
+    // Check for stored user and token
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
+  const login = (userData, token) => {
     setUser(userData);
-    // 🔁 Save with key 'user', not 'hr_user'
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', token);
   };
 
-  // In your AuthContext
-const logout = () => {
-  const confirmLogout = window.confirm('Are you sure you want to sign out?');
-  
-  if (confirmLogout) {
-    // Clear user state
-    setUser(null);
+  const logout = async () => {
+    const confirmLogout = window.confirm('Are you sure you want to sign out?');
     
-    // Clear localStorage
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    
-    // Redirect to login
-    navigate('/login');
-    // window.location.href = '/login';
-  }
-};
-
+    if (confirmLogout) {
+      try {
+        // Call backend logout endpoint
+        const token = localStorage.getItem('token');
+        if (token) {
+          await fetch('http://localhost:5000/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Logout API call failed:', error);
+        // Continue with local logout even if API fails
+      }
+      
+      // Clear user state and localStorage
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('authType');
+      
+      // Redirect to login
+      navigate('/login');
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>

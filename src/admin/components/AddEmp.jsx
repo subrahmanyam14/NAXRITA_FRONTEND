@@ -1,38 +1,84 @@
-import React, { useRef, useState } from 'react';
 import axios from 'axios';
+import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { FaBriefcase, FaGraduationCap, FaPlus, FaTimes, FaUpload, FaUser, FaBuilding } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaTimes, FaPlus, FaUpload } from 'react-icons/fa';
-import { createPortal } from 'react-dom';
+
 const AddEmployee = () => {
   const fileInputRef = useRef(null);
   const [imageSrc, setImageSrc] = useState('/assets/profile.png');
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [file, setFile] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [loadingRoles, setLoadingRoles] = useState(false);
+  
+  // Employee basic data for first API
   const [employeeData, setEmployeeData] = useState({
-    EmployeeID: '',
-    FullName: '',
-    EmailAddress: '',
-    Gender: '',
-    DateOfBirth: '',
-    ContactNumber: '',
-    DeptID: '',
-    HireDate: '',
-    JoiningDate: '',
-    EmploymentType: 'Permanent',
-    SecondaryContact: '',
-    Address: '',
-    Graduation: '',
-    TotalExperience: '',
-    DOJ: '',
-    DeptName: '',
-    JobTitle: '',
-    ProfilePhoto: '',
-    Skill1: '',
-    Skill2: '',
-    Skill3: ''
+    employee_id: '',
+    employee_name: '',
+    email: '',
+    employee_type: 'Permanent',
+    time_type: 'Full-time',
+    default_weekly_hours: 40.00,
+    scheduled_weekly_hours: 40.00,
+    joining_date: '',
+    hire_date: '',
+    job_profile_progression_model_designation: '',
+    department_name: '',
+    role_name: 'Employee',
+    status: 'Active',
+    manager_id: ''
   });
+
+  // Job details data for second API
+  const [jobDetailsData, setJobDetailsData] = useState({
+    supervisory_organization: '',
+    job: '',
+    business_title: '',
+    job_profile: '',
+    job_family: '',
+    management_level: '',
+    location: '',
+    phone: '',
+    work_address: '',
+    skills: ['', '', '']
+  });
+
+  // Dummy roles data as fallback
+  const dummyRoles = [
+    { id: 1, name: "Super Admin", description: "Full system access" },
+    { id: 2, name: "HR Admin", description: "HR management access" },
+    { id: 3, name: "Manager", description: "Department management access" },
+    { id: 4, name: "Team Lead", description: "Team leadership access" },
+    { id: 5, name: "Employee", description: "Basic employee access" },
+    { id: 6, name: "HR Viewer", description: "Read-only HR access" },
+    { id: 7, name: "Contractor", description: "Limited contractor access" }
+  ];
+
+  // Fetch roles on component mount
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    setLoadingRoles(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/role-department/roles`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      setRoles(response.data.roles || []);
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      setRoles(dummyRoles); // Use dummy data as fallback
+      toast.info('Using offline role data');
+    } finally {
+      setLoadingRoles(false);
+    }
+  };
 
   const openForm = () => {
     setIsOpen(true);
@@ -50,27 +96,32 @@ const AddEmployee = () => {
   const clearForm = () => {
     setImageSrc('/assets/profile.png');
     setEmployeeData({
-      EmployeeID: '',
-      FullName: '',
-      EmailAddress: '',
-      Gender: '',
-      DateOfBirth: '',
-      DOJ: '',
-      DeptName: '',
-      DeptID: '',
-      HireDate: '',
-      JoiningDate: '',
-      EmploymentType: 'Permanent',
-      ContactNumber: '',
-      SecondaryContact: '',
-      TotalExperience: '',
-      JobTitle: '',
-      ProfilePhoto: '',
-      Address: '',
-      Graduation: '',
-      Skill1: '',
-      Skill2: '',
-      Skill3: ''
+      employee_id: '',
+      employee_name: '',
+      email: '',
+      employee_type: 'Permanent',
+      time_type: 'Full-time',
+      default_weekly_hours: 40.00,
+      scheduled_weekly_hours: 40.00,
+      joining_date: '',
+      hire_date: '',
+      job_profile_progression_model_designation: '',
+      department_name: '',
+      role_name: 'Employee',
+      status: 'Active',
+      manager_id: ''
+    });
+    setJobDetailsData({
+      supervisory_organization: '',
+      job: '',
+      business_title: '',
+      job_profile: '',
+      job_family: '',
+      management_level: '',
+      location: '',
+      phone: '',
+      work_address: '',
+      skills: ['', '', '']
     });
     setFile(null);
     if (fileInputRef.current) {
@@ -94,7 +145,7 @@ const AddEmployee = () => {
         const response = await axios.post('https://api.cloudinary.com/v1_1/dlo7urgnj/image/upload', formData);
         const imageUrl = response.data.secure_url;
         setImageSrc(imageUrl);
-        setEmployeeData({ ...employeeData, ProfilePhoto: imageUrl });
+        toast.success('Profile image uploaded successfully!');
       } catch (error) {
         toast.error('Error uploading image. Please try again.');
         console.error('Error uploading image to Cloudinary:', error);
@@ -104,458 +155,539 @@ const AddEmployee = () => {
     }
   };
 
-  const deptMapping = {
-    "HR Department": "VTS001",
-    "IT Department": "VTS003",
-    "BA Department": "VTS002",
-    "Management": "VTS004"
-  };
-
-  const handleInputChange = (e) => {
+  const handleEmployeeInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "DeptName") {
-      const deptId = deptMapping[value];
-      setEmployeeData({
-        ...employeeData,
-        [name]: value,
-        DeptID: deptId
-      });
-    } else if (name === "DOJ") {
-      setEmployeeData({
-        ...employeeData,
-        [name]: value,
-        JoiningDate: value
-      });
-    } else {
-      setEmployeeData({ ...employeeData, [name]: value });
-    }
+    setEmployeeData({ ...employeeData, [name]: value });
   };
 
-  const isValidFullName = (fullName) => {
-    return fullName.trim().split(' ').length >= 2;
+  const handleJobDetailsInputChange = (e) => {
+    const { name, value } = e.target;
+    setJobDetailsData({ ...jobDetailsData, [name]: value });
   };
 
-  const isValidAge = (dob) => {
-    const birthDate = new Date(dob);
-    const age = new Date().getFullYear() - birthDate.getFullYear();
-    return age > 18;
+  const handleSkillChange = (index, value) => {
+    const newSkills = [...jobDetailsData.skills];
+    newSkills[index] = value;
+    setJobDetailsData({ ...jobDetailsData, skills: newSkills });
   };
 
-  const checkEmployeeID = async (employeeID) => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_URL}/employee/getemployeebyid/${employeeID}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      return response.data.length > 0;
-    } catch (error) {
-      console.error('Error checking Employee ID:', error);
-      return false;
-    }
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const employeeExists = await checkEmployeeID(employeeData.EmployeeID);
-
-    if (employeeExists) {
-      toast.error('Employee ID already exists. Please use a different ID.');
+    // Validation
+    if (!employeeData.employee_id.trim()) {
+      toast.error('Employee ID is required');
       return;
     }
 
-    if (!isValidFullName(employeeData.FullName)) {
-      toast.error('Full Name must contain at least two words.');
+    if (!employeeData.employee_name.trim()) {
+      toast.error('Employee name is required');
       return;
     }
 
-    if (!isValidAge(employeeData.DateOfBirth)) {
-      toast.error('Employee must be older than 18 years.');
+    if (!isValidEmail(employeeData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (!employeeData.joining_date || !employeeData.hire_date) {
+      toast.error('Joining date and hire date are required');
       return;
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_URL}/employee/empReg`, employeeData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      // First API call - Create Employee
+      const employeeResponse = await axios.post(
+        `${process.env.REACT_APP_URL}/employees`,
+        employeeData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // Second API call - Create Job Details
+      const jobDetailsPayload = {
+        ...jobDetailsData,
+        individual_data_id: employeeData.employee_id,
+        email: employeeData.email,
+        skills: jobDetailsData.skills.filter(skill => skill.trim() !== '')
+      };
+
+      const jobDetailsResponse = await axios.post(
+        `${process.env.REACT_APP_URL}/jobDetails`,
+        jobDetailsPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
       toast.success('Employee added successfully!');
       closeForm();
     } catch (error) {
       console.error('Error adding employee:', error);
-      toast.error('Error adding employee');
+      if (error.response?.status === 409) {
+        toast.error('Employee ID already exists. Please use a different ID.');
+      } else {
+        toast.error(error.response?.data?.message || 'Error adding employee');
+      }
     }
   };
 
   return (
-    <div>
-      <button 
-        onClick={openForm} 
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg bg-clip-text text-transparent border-gray-400  transition-all duration-300 hover:scale-105"
-      >
-        <FaPlus />
-        <span className="hidden sm:inline">Add Employee</span>
-      </button>
+    <>
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        .noscrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .noscrollbar::-webkit-scrollbar {
+          display: none;
+        }
 
+        .gradient-text {
+          background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #3b82f6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
 
-      {isOpen && createPortal(
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-   
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`bg-gray-900 border border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-y-auto transition-all duration-300 ${isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
-            <div className="flex justify-between items-center p-6 border-b border-gray-700 sticky top-0 bg-gray-900 z-10">
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Add New Employee
-              </h3>
-              <button 
-                className="p-2 bg-red-700 hover:bg-red-600 rounded-lg transition-all duration-200" 
-                onClick={closeForm}
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-            </div>
+        .gradient-border {
+          background: linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa);
+          padding: 1px;
+          border-radius: 12px;
+        }
 
-            <form onSubmit={handleSubmit} className="p-6">
-              {/* Profile Upload Section */}
-              <div className="flex justify-center mb-8">
-                <div className="relative">
-                  <img 
-                    src={imageSrc} 
-                    alt="Profile" 
-                    className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
-                  />
-                  <button 
-                    type="button" 
-                    className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 rounded-full transition-all duration-200 hover:scale-110" 
-                    onClick={handleImageClick}
-                  >
-                    <FaUpload className="w-4 h-4" />
-                  </button>
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="hidden"
-                />
-              </div>
+        .gradient-border-content {
+          background: #0a0a0a;
+          border-radius: 11px;
+          height: 100%;
+          width: 100%;
+        }
 
-              {/* Form Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Personal Information */}
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                  <h4 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
-                    Personal Information
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Employee ID *</label>
-                      <input
-                        type="text"
-                        name="EmployeeID"
-                        value={employeeData.EmployeeID}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Enter Employee ID"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Full Name *</label>
-                      <input
-                        type="text"
-                        name="FullName"
-                        value={employeeData.FullName}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Enter Full Name"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Email Address *</label>
-                      <input
-                        type="email"
-                        name="EmailAddress"
-                        value={employeeData.EmailAddress}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Enter Email Address"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Gender *</label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="Gender"
-                            value="Male"
-                            onChange={handleInputChange}
-                            required
-                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500"
-                          />
-                          <span className="text-white">Male</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="Gender"
-                            value="Female"
-                            onChange={handleInputChange}
-                            required
-                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500"
-                          />
-                          <span className="text-white">Female</span>
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Date of Birth *</label>
-                      <input
-                        type="date"
-                        name="DateOfBirth"
-                        value={employeeData.DateOfBirth}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Contact Number *</label>
-                      <input
-                        type="tel"
-                        name="ContactNumber"
-                        value={employeeData.ContactNumber}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Enter Contact Number"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Secondary Contact</label>
-                      <input
-                        type="tel"
-                        name="SecondaryContact"
-                        value={employeeData.SecondaryContact}
-                        onChange={handleInputChange}
-                        placeholder="Enter Secondary Contact"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Address *</label>
-                      <textarea
-                        name="Address"
-                        value={employeeData.Address}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Enter Address"
-                        rows="3"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      />
-                    </div>
+        .glow-button {
+          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+          transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+          box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+          transform: translateY(-1px);
+        }
+
+        * {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+      `}</style>
+
+      <div>
+        <button 
+          onClick={openForm} 
+          className="glow-button group relative flex items-center gap-2 px-4 py-2.5 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105"
+        >
+          <FaPlus className="w-4 h-4" />
+          <span className="gradient-text">Create Employee</span>
+        </button>
+
+        {isOpen && createPortal(
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className={`relative bg-black border border-gray-800 rounded-2xl w-full max-w-7xl max-h-[95vh] transition-all duration-300 shadow-2xl ${isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+              
+              {/* Header */}
+              <div className="flex justify-between items-center p-6 border-b border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg">
+                    <FaUser className="w-5 h-5 text-white" />
                   </div>
+                  <h3 className="text-2xl font-bold gradient-text">
+                    Create New Employee
+                  </h3>
                 </div>
-
-                {/* Employment Information */}
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                  <h4 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
-                    Employment Information
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Date of Joining *</label>
-                      <input
-                        type="date"
-                        name="DOJ"
-                        value={employeeData.DOJ}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Hire Date *</label>
-                      <input
-                        type="date"
-                        name="HireDate"
-                        value={employeeData.HireDate}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Employment Type *</label>
-                      <select
-                        name="EmploymentType"
-                        value={employeeData.EmploymentType}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="Permanent">Permanent</option>
-                        <option value="Internship">Internship</option>
-                        <option value="Contractor">Contractor</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Department *</label>
-                      <select
-                        name="DeptName"
-                        value={employeeData.DeptName}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="" disabled>Select Department</option>
-                        <option value="HR Department">HR Department</option>
-                        <option value="IT Department">IT Department</option>
-                        <option value="BA Department">BA Department</option>
-                        <option value="Management">Management</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Job Title *</label>
-                      <select
-                        name="JobTitle"
-                        value={employeeData.JobTitle}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="" disabled>Select Job Title</option>
-                        <option value="Vice President">Vice President</option>
-                        <option value="Junior_Software_Engineer">Junior Software Engineer</option>
-                        <option value="Business_Associate">Business Associate</option>
-                        <option value="Lead_Manager">Lead Manager</option>
-                        <option value="Talent_Acquisition_Executive">Talent Acquisition Executive</option>
-                        <option value="Talent_Acquisition_IT_Recruiter">Talent Acquisition IT Recruiter</option>
-                        <option value="Campus_Hiring_Executive">Campus Hiring Executive</option>
-                        <option value="HR_Admin_Executive">HR Admin Executive</option>
-                        <option value="HR_Business_Partner">HR Business Partner</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Professional Information */}
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                  <h4 className="text-lg font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
-                    Professional Information
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Graduation *</label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="Graduation"
-                            value="UG"
-                            onChange={handleInputChange}
-                            required
-                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500"
-                          />
-                          <span className="text-white">UG</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="Graduation"
-                            value="PG"
-                            onChange={handleInputChange}
-                            required
-                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500"
-                          />
-                          <span className="text-white">PG</span>
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Total Experience (Years) *</label>
-                      <input
-                        type="number"
-                        name="TotalExperience"
-                        value={employeeData.TotalExperience}
-                        onChange={handleInputChange}
-                        required
-                        min="0"
-                        placeholder="Enter Experience in Years"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 1</label>
-                      <input
-                        type="text"
-                        name="Skill1"
-                        value={employeeData.Skill1}
-                        onChange={handleInputChange}
-                        placeholder="Enter Primary Skill"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 2</label>
-                      <input
-                        type="text"
-                        name="Skill2"
-                        value={employeeData.Skill2}
-                        onChange={handleInputChange}
-                        placeholder="Enter Secondary Skill"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Skill 3</label>
-                      <input
-                        type="text"
-                        name="Skill3"
-                        value={employeeData.Skill3}
-                        onChange={handleInputChange}
-                        placeholder="Enter Additional Skill"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Form Footer */}
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-700">
                 <button 
-                  type="submit" 
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300"
-                >
-                  Add Employee
-                </button>
-                <button 
-                  type="button" 
-                  className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300" 
+                  className="p-2 bg-gray-900 hover:bg-red-600/20 border border-gray-700 hover:border-red-500/50 rounded-lg transition-all duration-200" 
                   onClick={closeForm}
                 >
-                  Cancel
+                  <FaTimes className="w-4 h-4 text-gray-400 hover:text-red-400" />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>,
-    document.body
-)}
-      <ToastContainer 
-        position="top-right"
-        theme="dark"
-        toastClassName="bg-gray-900 text-white"
-      />
-    </div>
+
+              {/* Form Container */}
+              <div className="overflow-y-auto noscrollbar max-h-[calc(95vh-160px)]">
+                <form onSubmit={handleSubmit} className="p-6">
+                  
+                  {/* Profile Upload Section */}
+                  <div className="flex justify-center mb-8">
+                    <div className="relative">
+                      <img 
+                        src={imageSrc} 
+                        alt="Profile" 
+                        className="w-24 h-24 rounded-full object-cover border-2 border-blue-500/50"
+                      />
+                      <button 
+                        type="button" 
+                        className="absolute -bottom-1 -right-1 p-2 glow-button rounded-full" 
+                        onClick={handleImageClick}
+                      >
+                        <FaUpload className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                  </div>
+
+                  {/* Horizontal Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                    
+                    {/* Basic Information */}
+                    <div className="gradient-border">
+                      <div className="gradient-border-content p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaUser className="w-4 h-4 text-blue-400" />
+                          <h4 className="text-sm font-semibold text-blue-400">Basic Info</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Employee ID *</label>
+                            <input
+                              type="text"
+                              name="employee_id"
+                              value={employeeData.employee_id}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              placeholder="EMP001"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Full Name *</label>
+                            <input
+                              type="text"
+                              name="employee_name"
+                              value={employeeData.employee_name}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              placeholder="John Doe"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Email Address *</label>
+                            <input
+                              type="email"
+                              name="email"
+                              value={employeeData.email}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              placeholder="john@company.com"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Phone *</label>
+                            <input
+                              type="tel"
+                              name="phone"
+                              value={jobDetailsData.phone}
+                              onChange={handleJobDetailsInputChange}
+                              required
+                              placeholder="+1234567890"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Manager ID</label>
+                            <input
+                              type="text"
+                              name="manager_id"
+                              value={employeeData.manager_id}
+                              onChange={handleEmployeeInputChange}
+                              placeholder="EMP001"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Employment Details */}
+                    <div className="gradient-border">
+                      <div className="gradient-border-content p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaBriefcase className="w-4 h-4 text-blue-400" />
+                          <h4 className="text-sm font-semibold text-blue-400">Employment</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Joining Date *</label>
+                            <input
+                              type="date"
+                              name="joining_date"
+                              value={employeeData.joining_date}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Hire Date *</label>
+                            <input
+                              type="date"
+                              name="hire_date"
+                              value={employeeData.hire_date}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Employee Type *</label>
+                            <select
+                              name="employee_type"
+                              value={employeeData.employee_type}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="Permanent">Permanent</option>
+                              <option value="Contract">Contract</option>
+                              <option value="Intern">Intern</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Time Type *</label>
+                            <select
+                              name="time_type"
+                              value={employeeData.time_type}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="Full-time">Full-time</option>
+                              <option value="Part-time">Part-time</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Role *</label>
+                            <select
+                              name="role_name"
+                              value={employeeData.role_name}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              disabled={loadingRoles}
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                            >
+                              {roles.map((role) => (
+                                <option key={role.id} value={role.name}>
+                                  {role.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job Information */}
+                    <div className="gradient-border">
+                      <div className="gradient-border-content p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaBuilding className="w-4 h-4 text-blue-400" />
+                          <h4 className="text-sm font-semibold text-blue-400">Job Details</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Department *</label>
+                            <input
+                              type="text"
+                              name="department_name"
+                              value={employeeData.department_name}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              placeholder="Information Technology"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Designation *</label>
+                            <input
+                              type="text"
+                              name="job_profile_progression_model_designation"
+                              value={employeeData.job_profile_progression_model_designation}
+                              onChange={handleEmployeeInputChange}
+                              required
+                              placeholder="Software Engineer"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Job Title</label>
+                            <input
+                              type="text"
+                              name="job"
+                              value={jobDetailsData.job}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Senior Software Engineer"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Business Title</label>
+                            <input
+                              type="text"
+                              name="business_title"
+                              value={jobDetailsData.business_title}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Senior Developer"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Management Level</label>
+                            <select
+                              name="management_level"
+                              value={jobDetailsData.management_level}
+                              onChange={handleJobDetailsInputChange}
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Select Level</option>
+                              <option value="Entry">Entry</option>
+                              <option value="Junior">Junior</option>
+                              <option value="Senior">Senior</option>
+                              <option value="Lead">Lead</option>
+                              <option value="Manager">Manager</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Additional Information */}
+                    <div className="gradient-border">
+                      <div className="gradient-border-content p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaGraduationCap className="w-4 h-4 text-blue-400" />
+                          <h4 className="text-sm font-semibold text-blue-400">Additional</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Location</label>
+                            <input
+                              type="text"
+                              name="location"
+                              value={jobDetailsData.location}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Hyderabad, India"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Work Address</label>
+                            <textarea
+                              name="work_address"
+                              value={jobDetailsData.work_address}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Enter work address"
+                              rows="2"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none noscrollbar"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Job Family</label>
+                            <input
+                              type="text"
+                              name="job_family"
+                              value={jobDetailsData.job_family}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Engineering"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Skills</label>
+                            {jobDetailsData.skills.map((skill, index) => (
+                              <input
+                                key={index}
+                                type="text"
+                                value={skill}
+                                onChange={(e) => handleSkillChange(index, e.target.value)}
+                                placeholder={`Skill ${index + 1}`}
+                                className="w-full px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Footer */}
+                  <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-800">
+                    <button 
+                      type="button" 
+                      className="px-6 py-2 bg-gray-900 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white rounded-lg text-sm transition-all duration-200" 
+                      onClick={closeForm}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="glow-button px-6 py-2 text-white font-medium rounded-lg text-sm"
+                    >
+                      <span className="gradient-text">Create Employee</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        <ToastContainer 
+          position="top-right"
+          theme="dark"
+          toastClassName="!bg-gray-900 !text-white !border !border-gray-700"
+          progressClassName="!bg-gradient-to-r !from-blue-500 !to-blue-400"
+        />
+      </div>
+    </>
   );
 };
 
