@@ -8,183 +8,105 @@ import {
   Calendar,
   Camera,
   CheckCircle,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, 
+  ChevronRight,
   Clock,
   Edit3,
   Eye,
+  EyeOff,
   Mail,
-  MapPin, Phone,
+  MapPin, 
+  Phone,
   Plus,
   Save,
-  Star, Target,
+  Star, 
+  Target,
   User,
   X,
-  Zap
+  Zap,
+  Lock,
+  Shield
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-// Animated Background Component
-const StarfieldBackground = () => {
-  useEffect(() => {
-    const createStars = () => {
-      const starfield = document.getElementById('starfield');
-      if (!starfield) return;
-      
-      starfield.innerHTML = '';
-      
-      for (let i = 0; i < 150; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.width = Math.random() > 0.7 ? '3px' : Math.random() > 0.4 ? '2px' : '1px';
-        star.style.height = star.style.width;
-        star.style.animationDelay = Math.random() * 3 + 's';
-        star.style.animationDuration = (2 + Math.random() * 2) + 's';
-        starfield.appendChild(star);
-      }
-      
-      // Create sparkles
-      for (let i = 0; i < 25; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.className = 'sparkle';
-        sparkle.style.left = Math.random() * 100 + '%';
-        sparkle.style.animationDelay = Math.random() * 8 + 's';
-        sparkle.style.animationDuration = (6 + Math.random() * 4) + 's';
-        starfield.appendChild(sparkle);
-      }
-    };
-    
-    createStars();
-  }, []);
-  
-  return <div id="starfield" className="fixed inset-0 pointer-events-none z-0"></div>;
-};
-
-// Carousel Component
-const AnnouncementCarousel = ({ items }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
-  
-  useEffect(() => {
-    if (!isAutoPlay) return;
-    
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [items.length, isAutoPlay]);
-  
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % items.length);
-  };
-  
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-  };
-  
-  return (
-    <div 
-      className="relative bg-[#1e1e1e] rounded-xl p-6 backdrop-blur-lg border border-[#2a2a2a] overflow-hidden hidden"
-      onMouseEnter={() => setIsAutoPlay(false)}
-      onMouseLeave={() => setIsAutoPlay(true)}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2563eb]/5 to-transparent"></div>
-      
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-light text-[#ffffff] flex items-center space-x-2">
-            <Bell className="h-5 w-5 text-[#2563eb]" />
-            <span>Company Updates</span>
-          </h3>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={prevSlide}
-              className="w-10 h-10 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:scale-105"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="w-10 h-10 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:scale-105"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-        
-        <div className="overflow-hidden rounded-lg">
-          <div 
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {items.map((item, index) => (
-              <div key={index} className="w-full flex-shrink-0 p-4 bg-[#111111] rounded-lg">
-                <h4 className="text-[#ffffff] font-medium mb-2">{item.title}</h4>
-                <p className="text-[#a3a3a3] text-sm leading-relaxed">{item.content}</p>
-                <div className="mt-3 text-xs text-[#6b7280]">{item.date}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="flex justify-center mt-4 space-x-2">
-          {items.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-[#2563eb] shadow-[0_0_8px_rgba(37,99,235,0.6)]' 
-                  : 'bg-[#404040] hover:bg-[#6b7280]'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Enhanced API functions
 const api = {
-  getProfile: async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return {
-      id: 'EMP2024001',
-      name: 'Sarah Chen',
-      email: 'sarah.chen@naxrita.com',
-      phone: '+1 (555) 987-6543',
-      address: '456 Innovation Drive, Silicon Valley, CA 94043',
-      location: 'San Francisco HQ',
-      profilePic: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face',
-      joinDate: '2023-01-15',
-      role: 'Senior Product Manager',
-      department: 'Product Development',
-      manager: 'Michael Rodriguez',
-      teamLead: 'Jennifer Kim',
-      skills: ['Product Strategy', 'User Research', 'Agile', 'Data Analysis', 'Figma', 'SQL', 'Python', 'Scrum'],
-      jobDescription: 'Lead product strategy and development for enterprise solutions with focus on AI integration.',
-      contractType: 'Full-time',
-      experience: '5 years',
-      education: 'MBA, Stanford University',
-      certifications: ['Certified Scrum Master', 'Google Analytics', 'AWS Solutions Architect'],
-      timezone: 'PST (UTC-8)',
-      workSchedule: 'Mon-Fri, 9AM-6PM',
-      projects: ['Mobile App Redesign', 'AI Integration Platform', 'Customer Analytics Dashboard'],
-      emergencyContact: {
-        name: 'David Chen',
-        relationship: 'Spouse',
-        phone: '+1 (555) 123-7890'
+  // Employee APIs
+  getEmployee: async () => {
+    const response = await fetch('http://localhost:5000/api/employees/employee', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
       }
-    };
+    });
+    const result = await response.json();
+    return result.data;
   },
 
-  updateProfile: async (data) => {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return { success: true, data };
+  // Personal Details APIs
+  getPersonalDetails: async () => {
+    const response = await fetch('http://localhost:5000/api/personalDetails/individual', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const result = await response.json();
+    return result.success ? result.data : null;
+  },
+
+  createPersonalDetails: async (data) => {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    });
+
+    const response = await fetch('http://localhost:5000/api/personalDetails/individual', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: formData
+    });
+    return await response.json();
+  },
+
+  updatePersonalDetails: async (id, data) => {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    });
+
+    const response = await fetch(`http://localhost:5000/api/personalDetails/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: formData
+    });
+    return await response.json();
+  },
+
+  // Job Details APIs
+  getJobDetails: async () => {
+    const response = await fetch('http://localhost:5000/api/jobDetails/employee', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const result = await response.json();
+    return result.data;
+  },
+
+  // Password Update API (dummy endpoint)
+  updatePassword: async (passwordData) => {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    return { success: true, message: 'Password updated successfully' };
   },
 
   getAnnouncements: () => [
@@ -206,48 +128,313 @@ const api = {
   ]
 };
 
-// Main Component
-const CosmicProfileDashboard = () => {
-  const [profileData, setProfileData] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editData, setEditData] = useState({});
-  const [newSkill, setNewSkill] = useState('');
-  const [activeSection, setActiveSection] = useState('personal');
-  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [announcements] = useState(api.getAnnouncements());
+// Starfield Background Component
+const StarfieldBackground = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {[...Array(100)].map((_, i) => (
+        <div
+          key={i}
+          className="star"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${Math.random() * 3 + 1}px`,
+            height: `${Math.random() * 3 + 1}px`,
+            animationDelay: `${Math.random() * 2}s`,
+            animationDuration: `${Math.random() * 3 + 2}s`
+          }}
+        />
+      ))}
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={`sparkle-${i}`}
+          className="sparkle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 10}s`,
+            animationDuration: `${Math.random() * 10 + 10}s`
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
+// Password Update Modal Component
+const PasswordUpdateModal = ({ isOpen, onClose, onUpdate }) => {
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  const [loading, setLoading] = useState(false);
 
-  const loadProfile = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('New passwords do not match');
+      return;
+    }
+    
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await api.getProfile();
-      setProfileData(data);
-      setEditData(data);
+      await onUpdate(passwordData);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      onClose();
     } catch (error) {
-      showNotification('Failed to load profile', 'error');
+      console.error('Password update failed:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const saveProfile = async () => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-6 w-full max-w-md mx-4 animate-in fade-in zoom-in duration-300">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2563eb]/10 to-transparent rounded-xl" />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-light text-white flex items-center space-x-3">
+              <Lock className="h-5 w-5 text-[#2563eb]" />
+              <span>Update Password</span>
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-[#a3a3a3] hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-light text-[#a3a3a3] mb-2">Current Password</label>
+              <div className="relative">
+                <input
+                  type={showPasswords.current ? 'text' : 'password'}
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  className="w-full px-4 py-3 pr-12 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-white font-light"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#a3a3a3] hover:text-white"
+                >
+                  {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-light text-[#a3a3a3] mb-2">New Password</label>
+              <div className="relative">
+                <input
+                  type={showPasswords.new ? 'text' : 'password'}
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className="w-full px-4 py-3 pr-12 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-white font-light"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#a3a3a3] hover:text-white"
+                >
+                  {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-light text-[#a3a3a3] mb-2">Confirm New Password</label>
+              <div className="relative">
+                <input
+                  type={showPasswords.confirm ? 'text' : 'password'}
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="w-full px-4 py-3 pr-12 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-white font-light"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#a3a3a3] hover:text-white"
+                >
+                  {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-3 text-sm font-light text-[#a3a3a3] bg-transparent border border-[#404040] rounded-lg hover:text-white hover:border-white transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-3 text-sm font-light text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] disabled:opacity-50 flex items-center justify-center space-x-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Shield className="h-4 w-4" />
+                    <span>Update Password</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Confirmation Modal Component
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 'warning' }) => {
+  if (!isOpen) return null;
+
+  const typeStyles = {
+    warning: 'from-[#f59e0b]/10 to-transparent border-[#f59e0b]/20',
+    success: 'from-[#22c55e]/10 to-transparent border-[#22c55e]/20',
+    danger: 'from-[#ef4444]/10 to-transparent border-[#ef4444]/20'
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className={`relative bg-[#1e1e1e] rounded-xl border p-6 w-full max-w-md mx-4 animate-in fade-in zoom-in duration-300 ${typeStyles[type]}`}>
+        <div className="text-center">
+          <h3 className="text-lg font-light text-white mb-3">{title}</h3>
+          <p className="text-sm font-light text-[#a3a3a3] mb-6">{message}</p>
+          <div className="flex space-x-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm font-light text-[#a3a3a3] bg-transparent border border-[#404040] rounded-lg hover:text-white hover:border-white transition-all duration-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-2 text-sm font-light text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all duration-300"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Component
+const CosmicProfileDashboard = () => {
+  const [employeeData, setEmployeeData] = useState(null);
+  const [personalData, setPersonalData] = useState(null);
+  const [jobData, setJobData] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editPersonalData, setEditPersonalData] = useState({});
+  const [activeSection, setActiveSection] = useState('personal');
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [announcements] = useState(api.getAnnouncements());
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationData, setConfirmationData] = useState({});
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  const loadAllData = async () => {
+    try {
+      setLoading(true);
+      const [employee, personal, job] = await Promise.all([
+        api.getEmployee(),
+        api.getPersonalDetails(),
+        api.getJobDetails()
+      ]);
+      
+      setEmployeeData(employee);
+      setPersonalData(personal);
+      setJobData(job);
+      
+      if (personal) {
+        setEditPersonalData(personal);
+      }
+    } catch (error) {
+      showNotification('Failed to load profile data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePersonalDetails = async () => {
     try {
       setSaving(true);
-      await api.updateProfile(editData);
-      setProfileData(editData);
-      setEditMode(false);
-      showNotification('Profile updated successfully!', 'success');
+      let result;
+      
+      if (personalData && personalData.id) {
+        result = await api.updatePersonalDetails(personalData.id, editPersonalData);
+      } else {
+        result = await api.createPersonalDetails({
+          ...editPersonalData,
+          individual_data_id: employeeData.id
+        });
+      }
+      
+      if (result.success) {
+        setPersonalData(editPersonalData);
+        setEditMode(false);
+        showNotification('Personal details saved successfully!', 'success');
+        await loadAllData(); // Reload data
+      } else {
+        throw new Error(result.message || 'Failed to save');
+      }
     } catch (error) {
-      showNotification('Failed to save changes', 'error');
+      showNotification('Failed to save personal details', 'error');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePasswordUpdate = async (passwordData) => {
+    setConfirmationData({
+      title: 'Update Password',
+      message: 'Are you sure you want to update your password?',
+      type: 'warning',
+      onConfirm: async () => {
+        try {
+          await api.updatePassword(passwordData);
+          showNotification('Password updated successfully!', 'success');
+          setShowPasswordModal(false);
+        } catch (error) {
+          showNotification('Failed to update password', 'error');
+        }
+        setShowConfirmationModal(false);
+      }
+    });
+    setShowConfirmationModal(true);
   };
 
   const showNotification = (message, type) => {
@@ -255,25 +442,15 @@ const CosmicProfileDashboard = () => {
     setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
   };
 
-  const addSkill = () => {
-    if (newSkill.trim() && !editData.skills.includes(newSkill.trim())) {
-      setEditData(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }));
-      setNewSkill('');
+  const updatePersonalField = (field, value) => {
+    setEditPersonalData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditPersonalData(prev => ({ ...prev, profile_pic: file }));
     }
-  };
-
-  const removeSkill = (skillToRemove) => {
-    setEditData(prev => ({
-      ...prev,
-      skills: prev.skills.filter(skill => skill !== skillToRemove)
-    }));
-  };
-
-  const updateField = (field, value) => {
-    setEditData(prev => ({ ...prev, [field]: value }));
   };
 
   if (loading) {
@@ -290,10 +467,8 @@ const CosmicProfileDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
-      {/* Animated Background */}
-      {/* <StarfieldBackground /> */}
+      <StarfieldBackground />
       
-      {/* Custom CSS for animations */}
       <style jsx>{`
         .star {
           position: absolute;
@@ -341,10 +516,21 @@ const CosmicProfileDashboard = () => {
           transform: translateY(-4px);
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 20px rgba(59, 130, 246, 0.2);
         }
-      `}</style>
 
-      {/* Sidebar */}
-      {/* <Sidebar isCollapsed={sidebarCollapsed} setIsCollapsed={setSidebarCollapsed} /> */}
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes zoom-in {
+          from { transform: scale(0.9); }
+          to { transform: scale(1); }
+        }
+
+        .animate-in {
+          animation: fade-in 0.3s ease-out, zoom-in 0.3s ease-out;
+        }
+      `}</style>
 
       {/* Notification Toast */}
       {notification.show && (
@@ -358,8 +544,25 @@ const CosmicProfileDashboard = () => {
         </div>
       )}
 
+      {/* Password Update Modal */}
+      <PasswordUpdateModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onUpdate={handlePasswordUpdate}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        onConfirm={confirmationData.onConfirm}
+        title={confirmationData.title}
+        message={confirmationData.message}
+        type={confirmationData.type}
+      />
+
       {/* Main Content */}
-      <div className={`transition-all duration-300`}>
+      <div className="transition-all duration-300">
         {/* Header */}
         <div className="bg-[#0a0a0a]/90 backdrop-blur-lg border-b border-[#2a2a2a] sticky top-0 z-40">
           <div className="px-8 py-4">
@@ -380,7 +583,7 @@ const CosmicProfileDashboard = () => {
                       Cancel
                     </button>
                     <button
-                      onClick={saveProfile}
+                      onClick={savePersonalDetails}
                       disabled={saving}
                       className="px-4 py-2 text-sm font-light text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] disabled:opacity-50 flex items-center space-x-2"
                     >
@@ -419,14 +622,20 @@ const CosmicProfileDashboard = () => {
               <div className="flex items-center space-x-6">
                 <div className="relative group">
                   <img
-                    src={profileData.profilePic}
-                    alt={profileData.name}
+                    src={personalData?.profile_pic || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face'}
+                    alt={employeeData?.employee_name || 'Profile'}
                     className="w-24 h-24 rounded-xl object-cover border-2 border-[#2563eb]/50 transition-all duration-300 group-hover:border-[#2563eb]"
                   />
                   {editMode && (
-                    <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#2563eb] text-white rounded-full flex items-center justify-center hover:bg-[#1d4ed8] transition-colors shadow-lg">
+                    <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#2563eb] text-white rounded-full flex items-center justify-center hover:bg-[#1d4ed8] transition-colors shadow-lg cursor-pointer">
                       <Camera className="h-4 w-4" />
-                    </button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
                   )}
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#22c55e] rounded-full border-2 border-[#1e1e1e] flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -436,30 +645,34 @@ const CosmicProfileDashboard = () => {
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h2 className="text-2xl font-light text-[#ffffff] mb-1">{profileData.name}</h2>
-                      <p className="text-lg font-light text-[#a3a3a3] mb-2">{profileData.role}</p>
+                      <h2 className="text-2xl font-light text-[#ffffff] mb-1">
+                        {personalData?.gender ? `${personalData.gender} Employee` : employeeData?.employee_name || 'Employee Name'}
+                      </h2>
+                      <p className="text-lg font-light text-[#a3a3a3] mb-2">
+                        {jobData?.job || employeeData?.job_profile_progression_model_designation || 'Position'}
+                      </p>
                       <div className="flex items-center space-x-4">
                         <span className="flex items-center space-x-2 text-sm font-light text-[#6b7280]">
                           <Building2 className="h-4 w-4 text-[#2563eb]" />
-                          <span>{profileData.department}</span>
+                          <span>{employeeData?.department_name || 'Department'}</span>
                         </span>
                         <span className="flex items-center space-x-2 text-sm font-light text-[#6b7280]">
                           <Calendar className="h-4 w-4 text-[#2563eb]" />
-                          <span>Since {new Date(profileData.joinDate).getFullYear()}</span>
+                          <span>Since {employeeData?.joining_date ? new Date(employeeData.joining_date).getFullYear() : 'N/A'}</span>
                         </span>
                         <span className="flex items-center space-x-2 text-sm font-light text-[#6b7280]">
                           <MapPin className="h-4 w-4 text-[#2563eb]" />
-                          <span>{profileData.location}</span>
+                          <span>{jobData?.location || personalData?.address || 'Location'}</span>
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center space-x-3">
                       <span className="px-3 py-1 bg-[#22c55e]/20 text-[#22c55e] text-sm font-light rounded-full border border-[#22c55e]/30 cosmic-glow">
-                        Active
+                        {employeeData?.status || 'Active'}
                       </span>
                       <span className="px-3 py-1 bg-[#2563eb]/20 text-[#2563eb] text-sm font-light rounded-full border border-[#2563eb]/30">
-                        {profileData.id}
+                        {employeeData?.employee_id || 'ID'}
                       </span>
                     </div>
                   </div>
@@ -468,17 +681,13 @@ const CosmicProfileDashboard = () => {
             </div>
           </div>
 
-          {/* Announcements Carousel */}
-          <AnnouncementCarousel items={announcements} className="hidden" />
-
           {/* Navigation Tabs */}
           <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-2 backdrop-blur-lg">
             <div className="flex space-x-2">
               {[
                 { id: 'personal', label: 'Personal Info', icon: User },
                 { id: 'job', label: 'Job Details', icon: Briefcase },
-                { id: 'skills', label: 'Skills & Expertise', icon: Target },
-                { id: 'projects', label: 'Active Projects', icon: Zap }
+                { id: 'security', label: 'Security', icon: Shield }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -511,16 +720,38 @@ const CosmicProfileDashboard = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Full Name</label>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Gender</label>
+                        {editMode ? (
+                          <select
+                            value={editPersonalData.gender || ''}
+                            onChange={(e) => updatePersonalField('gender', e.target.value)}
+                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg transition-all duration-300"
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        ) : (
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.gender || 'Not specified'}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Date of Birth</label>
                         {editMode ? (
                           <input
-                            type="text"
-                            value={editData.name}
-                            onChange={(e) => updateField('name', e.target.value)}
-                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg transition-all duration-300"
+                            type="date"
+                            value={editPersonalData.date_of_birth ? editPersonalData.date_of_birth.split('T')[0] : ''}
+                            onChange={(e) => updatePersonalField('date_of_birth', e.target.value)}
+                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
                           />
                         ) : (
-                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.name}</p>
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.date_of_birth ? new Date(personalData.date_of_birth).toLocaleDateString() : 'Not specified'}
+                          </p>
                         )}
                       </div>
                       
@@ -529,14 +760,16 @@ const CosmicProfileDashboard = () => {
                         {editMode ? (
                           <input
                             type="email"
-                            value={editData.email}
-                            onChange={(e) => updateField('email', e.target.value)}
+                            value={editPersonalData.email || ''}
+                            onChange={(e) => updatePersonalField('email', e.target.value)}
                             className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
                           />
                         ) : (
                           <div className="flex items-center space-x-3 bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
                             <Mail className="h-4 w-4 text-[#2563eb]" />
-                            <span className="text-lg font-light text-[#ffffff]">{profileData.email}</span>
+                            <span className="text-lg font-light text-[#ffffff]">
+                              {personalData?.email || employeeData?.email || 'Not specified'}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -546,32 +779,54 @@ const CosmicProfileDashboard = () => {
                         {editMode ? (
                           <input
                             type="tel"
-                            value={editData.phone}
-                            onChange={(e) => updateField('phone', e.target.value)}
+                            value={editPersonalData.mobile || ''}
+                            onChange={(e) => updatePersonalField('mobile', e.target.value)}
                             className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
                           />
                         ) : (
                           <div className="flex items-center space-x-3 bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
                             <Phone className="h-4 w-4 text-[#2563eb]" />
-                            <span className="text-lg font-light text-[#ffffff]">{profileData.phone}</span>
+                            <span className="text-lg font-light text-[#ffffff]">
+                              {personalData?.mobile || 'Not specified'}
+                            </span>
                           </div>
                         )}
                       </div>
-                      
+
                       <div>
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Location</label>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Nationality</label>
                         {editMode ? (
                           <input
                             type="text"
-                            value={editData.location}
-                            onChange={(e) => updateField('location', e.target.value)}
+                            value={editPersonalData.nationality || ''}
+                            onChange={(e) => updatePersonalField('nationality', e.target.value)}
                             className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
                           />
                         ) : (
-                          <div className="flex items-center space-x-3 bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
-                            <MapPin className="h-4 w-4 text-[#2563eb]" />
-                            <span className="text-lg font-light text-[#ffffff]">{profileData.location}</span>
-                          </div>
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.nationality || 'Not specified'}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Marital Status</label>
+                        {editMode ? (
+                          <select
+                            value={editPersonalData.marital_status || ''}
+                            onChange={(e) => updatePersonalField('marital_status', e.target.value)}
+                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
+                          >
+                            <option value="">Select Status</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                          </select>
+                        ) : (
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.marital_status || 'Not specified'}
+                          </p>
                         )}
                       </div>
                       
@@ -579,13 +834,47 @@ const CosmicProfileDashboard = () => {
                         <label className="block text-sm font-light text-[#a3a3a3] mb-2">Address</label>
                         {editMode ? (
                           <textarea
-                            value={editData.address}
-                            onChange={(e) => updateField('address', e.target.value)}
+                            value={editPersonalData.address || ''}
+                            onChange={(e) => updatePersonalField('address', e.target.value)}
                             rows={3}
                             className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg resize-none"
                           />
                         ) : (
-                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a] leading-relaxed">{profileData.address}</p>
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a] leading-relaxed">
+                            {personalData?.address || 'Not specified'}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">PAN ID</label>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            value={editPersonalData.pan_id || ''}
+                            onChange={(e) => updatePersonalField('pan_id', e.target.value)}
+                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
+                          />
+                        ) : (
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.pan_id || 'Not specified'}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Aadhar Number</label>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            value={editPersonalData.adhaar || ''}
+                            onChange={(e) => updatePersonalField('adhaar', e.target.value)}
+                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
+                          />
+                        ) : (
+                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                            {personalData?.adhaar || 'Not specified'}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -605,151 +894,119 @@ const CosmicProfileDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-light text-[#a3a3a3] mb-2">Position</label>
-                        {editMode ? (
-                          <input
-                            type="text"
-                            value={editData.role}
-                            onChange={(e) => updateField('role', e.target.value)}
-                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
-                          />
-                        ) : (
-                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.role}</p>
-                        )}
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {jobData?.job || employeeData?.job_profile_progression_model_designation || 'Not specified'}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Business Title</label>
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {jobData?.business_title || 'Not specified'}
+                        </p>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-light text-[#a3a3a3] mb-2">Department</label>
-                        {editMode ? (
-                          <input
-                            type="text"
-                            value={editData.department}
-                            onChange={(e) => updateField('department', e.target.value)}
-                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
-                          />
-                        ) : (
-                          <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.department}</p>
-                        )}
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {employeeData?.department_name || 'Not specified'}
+                        </p>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Manager</label>
-                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.manager}</p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Team Lead</label>
-                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.teamLead}</p>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Employee Type</label>
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {employeeData?.employee_type || 'Not specified'}
+                        </p>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-light text-[#a3a3a3] mb-2">Work Schedule</label>
                         <div className="flex items-center space-x-3 bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
                           <Clock className="h-4 w-4 text-[#2563eb]" />
-                          <span className="text-lg font-light text-[#ffffff]">{profileData.workSchedule}</span>
+                          <span className="text-lg font-light text-[#ffffff]">
+                            {employeeData?.time_type || 'Full-time'} - {employeeData?.default_weekly_hours || '40'}hrs/week
+                          </span>
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Timezone</label>
-                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">{profileData.timezone}</p>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Location</label>
+                        <div className="flex items-center space-x-3 bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          <MapPin className="h-4 w-4 text-[#2563eb]" />
+                          <span className="text-lg font-light text-[#ffffff]">
+                            {jobData?.location || 'Not specified'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Job Family</label>
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {jobData?.job_family || 'Not specified'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Management Level</label>
+                        <p className="text-lg font-light text-[#ffffff] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a]">
+                          {jobData?.management_level || 'Not specified'}
+                        </p>
                       </div>
                       
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Job Description</label>
-                        {editMode ? (
-                          <textarea
-                            value={editData.jobDescription}
-                            onChange={(e) => updateField('jobDescription', e.target.value)}
-                            rows={4}
-                            className="w-full px-4 py-3 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg resize-none"
-                          />
-                        ) : (
-                          <p className="text-lg font-light text-[#a3a3a3] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a] leading-relaxed">{profileData.jobDescription}</p>
-                        )}
+                        <label className="block text-sm font-light text-[#a3a3a3] mb-2">Work Address</label>
+                        <p className="text-lg font-light text-[#a3a3a3] bg-[#111111] px-4 py-3 rounded-lg border border-[#2a2a2a] leading-relaxed">
+                          {jobData?.work_address || 'Not specified'}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {activeSection === 'skills' && (
-                <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-6 hover-lift backdrop-blur-lg">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#2563eb]/5 to-transparent rounded-xl"></div>
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-light text-[#ffffff] flex items-center space-x-3">
-                        <Target className="h-5 w-5 text-[#2563eb]" />
-                        <span>Skills & Expertise</span>
-                      </h3>
-                      
-                      {editMode && (
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="text"
-                            placeholder="Add new skill..."
-                            value={newSkill}
-                            onChange={(e) => setNewSkill(e.target.value)}
-                            className="px-4 py-2 bg-[#161616] border border-[#404040] rounded-lg focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-[#ffffff] font-light backdrop-blur-lg"
-                            onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                          />
-                          <button
-                            onClick={addSkill}
-                            className="px-3 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8] transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-3">
-                      {(editMode ? editData.skills : profileData.skills).map((skill, idx) => (
-                        <div
-                          key={idx}
-                          className={`px-4 py-2 bg-[#111111] text-[#ffffff] border border-[#404040] rounded-lg flex items-center space-x-2 transition-all duration-300 hover:border-[#2563eb] hover:shadow-[0_0_15px_rgba(37,99,235,0.3)] ${
-                            editMode ? 'hover:bg-[#ef4444]/10 hover:border-[#ef4444]' : 'hover:bg-[#1e1e1e]'
-                          }`}
-                        >
-                          <span className="font-light">{skill}</span>
-                          {editMode && (
-                            <button
-                              onClick={() => removeSkill(skill)}
-                              className="text-[#6b7280] hover:text-[#ef4444] transition-colors"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeSection === 'projects' && (
+              {activeSection === 'security' && (
                 <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-6 hover-lift backdrop-blur-lg">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#2563eb]/5 to-transparent rounded-xl"></div>
                   <div className="relative z-10">
                     <h3 className="text-xl font-light text-[#ffffff] mb-6 flex items-center space-x-3">
-                      <Zap className="h-5 w-5 text-[#2563eb]" />
-                      <span>Active Projects</span>
+                      <Shield className="h-5 w-5 text-[#2563eb]" />
+                      <span>Security Settings</span>
                     </h3>
                     
-                    <div className="space-y-4">
-                      {profileData.projects.map((project, idx) => (
-                        <div key={idx} className="flex items-center space-x-4 p-4 bg-[#111111] rounded-lg border border-[#2a2a2a] hover:border-[#404040] transition-all duration-300 hover-lift">
-                          <div className="w-3 h-3 bg-[#2563eb] rounded-full animate-pulse"></div>
-                          <span className="text-lg font-light text-[#ffffff] flex-1">{project}</span>
+                    <div className="space-y-6">
+                      <div className="p-6 bg-[#111111] rounded-lg border border-[#2a2a2a]">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-lg font-light text-[#ffffff] mb-2">Password</h4>
+                            <p className="text-sm font-light text-[#a3a3a3]">
+                              Update your password to keep your account secure
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setShowPasswordModal(true)}
+                            className="px-4 py-2 text-sm font-light text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center space-x-2"
+                          >
+                            <Lock className="h-4 w-4" />
+                            <span>Update Password</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-6 bg-[#111111] rounded-lg border border-[#2a2a2a]">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-lg font-light text-[#ffffff] mb-2">Account Status</h4>
+                            <p className="text-sm font-light text-[#a3a3a3]">
+                              Your account is currently active and secure
+                            </p>
+                          </div>
                           <div className="flex items-center space-x-2">
-                            <span className="px-3 py-1 bg-[#22c55e]/20 text-[#22c55e] text-sm font-light rounded-full border border-[#22c55e]/30">
-                              Active
-                            </span>
-                            <button className="p-2 text-[#a3a3a3] hover:text-[#ffffff] hover:bg-[#2a2a2a] rounded-lg transition-colors">
-                              <Eye className="h-4 w-4" />
-                            </button>
+                            <div className="w-3 h-3 bg-[#22c55e] rounded-full"></div>
+                            <span className="text-sm font-light text-[#22c55e]">Active</span>
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -764,65 +1021,52 @@ const CosmicProfileDashboard = () => {
                 <div className="relative z-10">
                   <h4 className="text-sm font-light text-[#ffffff] mb-4 flex items-center space-x-2">
                     <Star className="h-4 w-4 text-[#f59e0b]" />
-                    <span>Cosmic Stats</span>
+                    <span>Profile Stats</span>
                   </h4>
                   
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-2 bg-[#111111] rounded border border-[#2a2a2a]">
-                      <span className="text-sm font-light text-[#a3a3a3]">Experience</span>
-                      <span className="text-sm font-light text-[#ffffff] cosmic-glow">{profileData.experience}</span>
+                      <span className="text-sm font-light text-[#a3a3a3]">Employee ID</span>
+                      <span className="text-sm font-light text-[#ffffff] cosmic-glow">
+                        {employeeData?.employee_id || 'N/A'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-[#111111] rounded border border-[#2a2a2a]">
-                      <span className="text-sm font-light text-[#a3a3a3]">Projects</span>
-                      <span className="text-sm font-light text-[#2563eb] cosmic-glow">{profileData.projects.length} active</span>
+                      <span className="text-sm font-light text-[#a3a3a3]">Status</span>
+                      <span className="text-sm font-light text-[#22c55e] cosmic-glow">
+                        {employeeData?.status || 'Active'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-[#111111] rounded border border-[#2a2a2a]">
-                      <span className="text-sm font-light text-[#a3a3a3]">Skills</span>
-                      <span className="text-sm font-light text-[#22c55e] cosmic-glow">{profileData.skills.length} total</span>
+                      <span className="text-sm font-light text-[#a3a3a3]">Type</span>
+                      <span className="text-sm font-light text-[#2563eb] cosmic-glow">
+                        {employeeData?.employee_type || 'N/A'}
+                      </span>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Certifications */}
-              <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-4 hover-lift backdrop-blur-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-xl"></div>
-                <div className="relative z-10">
-                  <h4 className="text-sm font-light text-[#ffffff] mb-4 flex items-center space-x-2">
-                    <Award className="h-4 w-4 text-purple-400" />
-                    <span>Certifications</span>
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    {profileData.certifications.map((cert, idx) => (
-                      <div key={idx} className="flex items-center space-x-3 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                        <Badge className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                        <span className="text-sm font-light text-purple-100">{cert}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
               </div>
 
               {/* Emergency Contact */}
-              <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-4 hover-lift backdrop-blur-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#ef4444]/5 to-transparent rounded-xl"></div>
-                <div className="relative z-10">
-                  <h4 className="text-sm font-light text-[#ffffff] mb-4 flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-[#ef4444]" />
-                    <span>Emergency Contact</span>
-                  </h4>
-                  
-                  <div className="space-y-2 p-3 bg-[#111111] rounded-lg border border-[#2a2a2a]">
-                    <p className="text-sm font-light text-[#ffffff]">{profileData.emergencyContact.name}</p>
-                    <p className="text-xs font-light text-[#6b7280]">{profileData.emergencyContact.relationship}</p>
-                    <p className="text-sm font-light text-[#a3a3a3] flex items-center space-x-2">
-                      <Phone className="h-3 w-3" />
-                      <span>{profileData.emergencyContact.phone}</span>
-                    </p>
+              {personalData?.emergency_contact_name && (
+                <div className="bg-[#1e1e1e] rounded-xl border border-[#2a2a2a] p-4 hover-lift backdrop-blur-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ef4444]/5 to-transparent rounded-xl"></div>
+                  <div className="relative z-10">
+                    <h4 className="text-sm font-light text-[#ffffff] mb-4 flex items-center space-x-2">
+                      <Phone className="h-4 w-4 text-[#ef4444]" />
+                      <span>Emergency Contact</span>
+                    </h4>
+                    
+                    <div className="space-y-2 p-3 bg-[#111111] rounded-lg border border-[#2a2a2a]">
+                      <p className="text-sm font-light text-[#ffffff]">{personalData.emergency_contact_name}</p>
+                      <p className="text-sm font-light text-[#a3a3a3] flex items-center space-x-2">
+                        <Phone className="h-3 w-3" />
+                        <span>{personalData.emergency_contact_phone}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
