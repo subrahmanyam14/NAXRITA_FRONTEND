@@ -62,7 +62,7 @@ export default function Header({ isPublic = false }) {
         <div className="px-8 w-full flex items-center justify-between">
           {/* Left: Menu Button + Label + Brand */}
           <div className="flex items-center space-x-4 flex-shrink-0">
-            <button
+            {/* <button
               type="button"
               className="flex items-center space-x-2 p-3 rounded-lg text-[#a3a3a3] hover:bg-[#1e1e1e] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 ease-out border border-[#404040] hover:border-[#2563eb] hover:shadow-lg hover:shadow-blue-500/10"
               onClick={toggleSidebar}
@@ -74,7 +74,7 @@ export default function Header({ isPublic = false }) {
                 <FiMenu className="h-5 w-5" />
               )}
               <span className="text-sm font-medium">Menu</span>
-            </button>
+            </button> */}
 
             {/* Brand with Logo */}
             <Link 
