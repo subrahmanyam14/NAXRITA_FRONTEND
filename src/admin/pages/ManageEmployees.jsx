@@ -80,11 +80,12 @@ const EmpManagement = () => {
 
     const fetchEmployees = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/employees', {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/api/employees`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
+            console.log("Manager:-----------------------", response.data)
             setEmployees(response.data.data || response.data);
         } catch (error) {
             console.error('Error fetching employees:', error);
@@ -95,7 +96,7 @@ const EmpManagement = () => {
 
     const fetchRoles = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/role-department/roles', {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/api/role-department/roles`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -109,12 +110,13 @@ const EmpManagement = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/departments', {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/api/role-department/departments`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
-            setDepartments(response.data.data || response.data);
+            console.log("---------------------------", response.data)
+            setDepartments(response.data.departments || response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
             setDepartments(dummyDepartments);
@@ -123,7 +125,7 @@ const EmpManagement = () => {
 
     const fetchJobDetails = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/jobDetails', {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/api/jobDetails`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -137,7 +139,7 @@ const EmpManagement = () => {
 
     const fetchEmployeeById = async (employeeId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/employees/${employeeId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_URL}/api/employees/employee/${employeeId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -146,6 +148,7 @@ const EmpManagement = () => {
             
             // Also fetch job details for this employee
             const jobDetail = jobDetails.find(job => job.individual_data_id === employeeId);
+            console.log("-----------------------------------job details", jobDetail)
             setSelectedJobDetails(jobDetail || null);
         } catch (error) {
             console.error('Error fetching employee by ID:', error);
@@ -241,7 +244,7 @@ const EmpManagement = () => {
 
     const saveEmployeeChanges = async () => {
         try {
-            await axios.put(`http://localhost:5000/api/employees/${selectedEmployee.id}`, selectedEmployee, {
+            await axios.put(`${process.env.REACT_APP_URL}/api/employees/${selectedEmployee.id}`, selectedEmployee, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -261,7 +264,7 @@ const EmpManagement = () => {
 
     const saveJobChanges = async () => {
         try {
-            await axios.patch(`http://localhost:5000/api/jobDetails/${selectedJobDetails.id}`, selectedJobDetails, {
+            await axios.patch(`${process.env.REACT_APP_URL}/api/jobDetails/${selectedJobDetails.id}`, selectedJobDetails, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -289,7 +292,7 @@ const EmpManagement = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/employees/bulk-upload', formData, {
+            const response = await axios.post(`${process.env.REACT_APP_URL}/api/employees/bulk-upload`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'multipart/form-data',
@@ -686,8 +689,8 @@ const EmpManagement = () => {
                                                 { label: 'Employee ID', name: 'employee_id', type: 'text', readOnly: true },
                                                 { label: 'Employee Name', name: 'employee_name', type: 'text' },
                                                 { label: 'Email', name: 'email', type: 'email' },
-                                                { label: 'Employee Type', name: 'employee_type', type: 'select', options: ['Permanent', 'Intern', 'Contractor'] },
-                                                { label: 'Time Type', name: 'time_type', type: 'select', options: ['Full-time', 'Part-time'] },
+                                                { label: 'Employee Type', name: 'employee_type', type: 'select', options: ['Permanent', 'Contract', 'Temporary', 'Intern'] },
+                                                { label: 'Time Type', name: 'time_type', type: 'select', options: ['Full-time', 'Part-time', 'Intern', '    '] },
                                                 { label: 'Weekly Hours', name: 'scheduled_weekly_hours', type: 'number' },
                                                 { label: 'Joining Date', name: 'joining_date', type: 'date' },
                                                 { label: 'Hire Date', name: 'hire_date', type: 'date' },

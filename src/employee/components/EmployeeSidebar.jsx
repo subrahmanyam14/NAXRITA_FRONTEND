@@ -11,18 +11,18 @@ import {
   Settings,
   User
 } from 'lucide-react';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const navigation = [
   { name: 'Summary', href: '/employee/summary', icon: Home },
-  { name: 'Overview', href: '/employee/overview', icon: Briefcase },
-  { name: 'Career', href: '/employee/career', icon: User },
-  { name: 'Performance', href: '/employee/learning', icon: BarChart3 },
+  // { name: 'Overview', href: '/employee/overview', icon: Briefcase },
+  // { name: 'Career', href: '/employee/career', icon: User },
+  // { name: 'Performance', href: '/employee/learning', icon: BarChart3 },
   { name: 'Personal', href: '/employee/profile', icon: FileText },
-  { name: 'Contact', href: '/employee/contact', icon: Clock },
-  { name: 'Tasks', href: '/employee/tasks', icon: Briefcase },
-  { name: 'Compensation', href: '/employee/compensation', icon: DollarSign },
+  // { name: 'Contact', href: '/employee/contact', icon: Clock },
+  // { name: 'Tasks', href: '/employee/tasks', icon: Briefcase },
+  // { name: 'Compensation', href: '/employee/compensation', icon: DollarSign },
 ];
 
 // Cosmic Background Component
@@ -123,11 +123,46 @@ const CosmicBackground = ({ intensity = 'full' }) => {
 const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
   const [actionsOpen, setActionsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('/employee/profile');
+  const [userData, setUserData] = useState(null);
 
-  // Mock user data
-  const displayName = 'Sid Johnson';
-  const displayRole = 'Employee';
-  const displayId = '007';
+  // Get user data from localStorage on component mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // Extract display values from userData or use defaults
+  const displayName = userData?.employee_name || 'Employee';
+  const displayRole = userData?.role || 'User';
+  const displayId = userData?.employeeId || 'N/A';
+  const displayEmail = userData?.email || '';
+
+  // Generate initials for avatar
+  const getInitials = (name) => {
+    if (!name) return 'E';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Format name for footer display
+  const getFormattedName = (name) => {
+    if (!name) return 'Employee';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[names.length - 1]}, ${names[0]}`;
+    }
+    return name;
+  };
 
   const actionItems = [
     { name: 'Download PDF', icon: Download, action: () => console.log('Download PDF') },
@@ -182,6 +217,9 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
                   {displayName}
                 </h1>
                 <p className="text-sm text-gray-300 font-medium">{displayRole}</p>
+                {displayEmail && (
+                  <p className="text-xs text-gray-400 mt-1">{displayEmail}</p>
+                )}
               </div>
               
               {/* Centered Actions Button with Dropdown */}
@@ -283,14 +321,14 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
               >
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
-                {displayName.charAt(0).toUpperCase()}
+                {getInitials(displayName)}
               </div>
               <div className="ml-3">
                 <p 
                   className="text-sm font-semibold text-white"
                   style={{ fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' }}
                 >
-                  {displayName.split(' ').slice(-1).join(' ')}, {displayName.split(' ')[0]}
+                  {getFormattedName(displayName)}
                 </p>
                 <p className="text-xs text-gray-400">ID: {displayId}</p>
               </div>

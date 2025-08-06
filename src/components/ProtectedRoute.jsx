@@ -4,16 +4,20 @@ import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
-
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  if (!allowedRoles.includes(user.role)) {
+  
+  // Make role comparison case-insensitive
+  const userRole = user.role?.toLowerCase();
+  const normalizedAllowedRoles = allowedRoles.map(role => role.toLowerCase());
+  
+  if (!normalizedAllowedRoles.includes(userRole)) {
     return <Navigate to="/unauthorized" replace />;
   }
-
-  return children; // 👈 This renders EmployeeLayout
+  
+  return children;
 };
 
 export default ProtectedRoute;

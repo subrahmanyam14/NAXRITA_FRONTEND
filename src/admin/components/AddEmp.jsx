@@ -1,16 +1,13 @@
 import axios from 'axios';
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaBriefcase, FaGraduationCap, FaPlus, FaTimes, FaUpload, FaUser, FaBuilding } from 'react-icons/fa';
+import { FaBriefcase, FaGraduationCap, FaPlus, FaTimes, FaUser, FaBuilding } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AddEmployee = () => {
-  const fileInputRef = useRef(null);
-  const [imageSrc, setImageSrc] = useState('/assets/profile.png');
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [file, setFile] = useState(null);
   const [roles, setRoles] = useState([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
   
@@ -43,19 +40,8 @@ const AddEmployee = () => {
     location: '',
     phone: '',
     work_address: '',
-    skills: ['', '', '']
+    skills: ['', '', '', '', '']
   });
-
-  // Dummy roles data as fallback
-  const dummyRoles = [
-    { id: 1, name: "Super Admin", description: "Full system access" },
-    { id: 2, name: "HR Admin", description: "HR management access" },
-    { id: 3, name: "Manager", description: "Department management access" },
-    { id: 4, name: "Team Lead", description: "Team leadership access" },
-    { id: 5, name: "Employee", description: "Basic employee access" },
-    { id: 6, name: "HR Viewer", description: "Read-only HR access" },
-    { id: 7, name: "Contractor", description: "Limited contractor access" }
-  ];
 
   // Fetch roles on component mount
   useEffect(() => {
@@ -65,7 +51,7 @@ const AddEmployee = () => {
   const fetchRoles = async () => {
     setLoadingRoles(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_URL}/role-department/roles`, {
+      const response = await axios.get(`http://localhost:5000/api/role-department/roles`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -73,8 +59,8 @@ const AddEmployee = () => {
       setRoles(response.data.roles || []);
     } catch (error) {
       console.error('Error fetching roles:', error);
-      setRoles(dummyRoles); // Use dummy data as fallback
-      toast.info('Using offline role data');
+      toast.error('Error fetching roles. Please try again.');
+      setRoles([]);
     } finally {
       setLoadingRoles(false);
     }
@@ -94,7 +80,6 @@ const AddEmployee = () => {
   };
 
   const clearForm = () => {
-    setImageSrc('/assets/profile.png');
     setEmployeeData({
       employee_id: '',
       employee_name: '',
@@ -121,38 +106,8 @@ const AddEmployee = () => {
       location: '',
       phone: '',
       work_address: '',
-      skills: ['', '', '']
+      skills: ['', '', '', '', '']
     });
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'ml_default');
-      formData.append('cloud_name', 'dlo7urgnj');
-
-      try {
-        const response = await axios.post('https://api.cloudinary.com/v1_1/dlo7urgnj/image/upload', formData);
-        const imageUrl = response.data.secure_url;
-        setImageSrc(imageUrl);
-        toast.success('Profile image uploaded successfully!');
-      } catch (error) {
-        toast.error('Error uploading image. Please try again.');
-        console.error('Error uploading image to Cloudinary:', error);
-      }
-    } else {
-      setFile(file);
-    }
   };
 
   const handleEmployeeInputChange = (e) => {
@@ -200,10 +155,25 @@ const AddEmployee = () => {
       return;
     }
 
+    if (!employeeData.department_name.trim()) {
+      toast.error('Department name is required');
+      return;
+    }
+
+    if (!employeeData.job_profile_progression_model_designation.trim()) {
+      toast.error('Designation is required');
+      return;
+    }
+
+    if (!jobDetailsData.phone.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+
     try {
       // First API call - Create Employee
       const employeeResponse = await axios.post(
-        `${process.env.REACT_APP_URL}/employees`,
+        `http://localhost:5000/api/employees`,
         employeeData,
         {
           headers: {
@@ -213,16 +183,27 @@ const AddEmployee = () => {
         }
       );
 
+      console.log('Employee created successfully:', employeeResponse.data);
+
       // Second API call - Create Job Details
       const jobDetailsPayload = {
-        ...jobDetailsData,
         individual_data_id: employeeData.employee_id,
+        supervisory_organization: jobDetailsData.supervisory_organization,
+        job: jobDetailsData.job,
+        business_title: jobDetailsData.business_title,
+        job_profile: jobDetailsData.job_profile,
+        job_family: jobDetailsData.job_family,
+        management_level: jobDetailsData.management_level,
+        time_type: employeeData.time_type,
+        location: jobDetailsData.location,
+        phone: jobDetailsData.phone,
         email: employeeData.email,
+        work_address: jobDetailsData.work_address,
         skills: jobDetailsData.skills.filter(skill => skill.trim() !== '')
       };
 
       const jobDetailsResponse = await axios.post(
-        `${process.env.REACT_APP_URL}/jobDetails`,
+        `http://localhost:5000/api/jobDetails`,
         jobDetailsPayload,
         {
           headers: {
@@ -232,6 +213,7 @@ const AddEmployee = () => {
         }
       );
 
+      console.log('Job details created successfully:', jobDetailsResponse.data);
       toast.success('Employee added successfully!');
       closeForm();
     } catch (error) {
@@ -239,7 +221,7 @@ const AddEmployee = () => {
       if (error.response?.status === 409) {
         toast.error('Employee ID already exists. Please use a different ID.');
       } else {
-        toast.error(error.response?.data?.message || 'Error adding employee');
+        toast.error(error.response?.data?.message || 'Error adding employee. Please try again.');
       }
     }
   };
@@ -328,31 +310,6 @@ const AddEmployee = () => {
               <div className="overflow-y-auto noscrollbar max-h-[calc(95vh-160px)]">
                 <form onSubmit={handleSubmit} className="p-6">
                   
-                  {/* Profile Upload Section */}
-                  <div className="flex justify-center mb-8">
-                    <div className="relative">
-                      <img 
-                        src={imageSrc} 
-                        alt="Profile" 
-                        className="w-24 h-24 rounded-full object-cover border-2 border-blue-500/50"
-                      />
-                      <button 
-                        type="button" 
-                        className="absolute -bottom-1 -right-1 p-2 glow-button rounded-full" 
-                        onClick={handleImageClick}
-                      >
-                        <FaUpload className="w-3 h-3 text-white" />
-                      </button>
-                    </div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                  </div>
-
                   {/* Horizontal Layout */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                     
@@ -477,6 +434,7 @@ const AddEmployee = () => {
                               <option value="Permanent">Permanent</option>
                               <option value="Contract">Contract</option>
                               <option value="Intern">Intern</option>
+                              <option value="Temporary">Temporary</option>
                             </select>
                           </div>
 
@@ -491,6 +449,8 @@ const AddEmployee = () => {
                             >
                               <option value="Full-time">Full-time</option>
                               <option value="Part-time">Part-time</option>
+                              <option value="Contract">Contract</option>
+                              <option value="Intern">Intern</option>
                             </select>
                           </div>
 
@@ -504,6 +464,7 @@ const AddEmployee = () => {
                               disabled={loadingRoles}
                               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                             >
+                              <option value="">Select Role</option>
                               {roles.map((role) => (
                                 <option key={role.id} value={role.name}>
                                   {role.name}
@@ -575,20 +536,15 @@ const AddEmployee = () => {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">Management Level</label>
-                            <select
-                              name="management_level"
-                              value={jobDetailsData.management_level}
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Job Profile</label>
+                            <input
+                              type="text"
+                              name="job_profile"
+                              value={jobDetailsData.job_profile}
                               onChange={handleJobDetailsInputChange}
-                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                              <option value="">Select Level</option>
-                              <option value="Entry">Entry</option>
-                              <option value="Junior">Junior</option>
-                              <option value="Senior">Senior</option>
-                              <option value="Lead">Lead</option>
-                              <option value="Manager">Manager</option>
-                            </select>
+                              placeholder="Senior Software Engineer"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
                           </div>
                         </div>
                       </div>
@@ -604,27 +560,36 @@ const AddEmployee = () => {
                         
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">Location</label>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Supervisory Organization</label>
                             <input
                               type="text"
-                              name="location"
-                              value={jobDetailsData.location}
+                              name="supervisory_organization"
+                              value={jobDetailsData.supervisory_organization}
                               onChange={handleJobDetailsInputChange}
-                              placeholder="Hyderabad, India"
+                              placeholder="Engineering Department"
                               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">Work Address</label>
-                            <textarea
-                              name="work_address"
-                              value={jobDetailsData.work_address}
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Management Level</label>
+                            <select
+                              name="management_level"
+                              value={jobDetailsData.management_level}
                               onChange={handleJobDetailsInputChange}
-                              placeholder="Enter work address"
-                              rows="2"
-                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none noscrollbar"
-                            />
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Select Level</option>
+                              <option value="Entry">Entry</option>
+                              <option value="Junior">Junior</option>
+                              <option value="Mid">Mid</option>
+                              <option value="Senior">Senior</option>
+                              <option value="Lead">Lead</option>
+                              <option value="Manager">Manager</option>
+                              <option value="Director">Director</option>
+                              <option value="VP">VP</option>
+                              <option value="C-Level">C-Level</option>
+                            </select>
                           </div>
 
                           <div>
@@ -639,19 +604,55 @@ const AddEmployee = () => {
                             />
                           </div>
 
-                          <div className="space-y-2">
-                            <label className="block text-xs font-medium text-gray-400 mb-1">Skills</label>
-                            {jobDetailsData.skills.map((skill, index) => (
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Location</label>
+                            <input
+                              type="text"
+                              name="location"
+                              value={jobDetailsData.location}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="Hyderabad, Hytechcity"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Work Address</label>
+                            <textarea
+                              name="work_address"
+                              value={jobDetailsData.work_address}
+                              onChange={handleJobDetailsInputChange}
+                              placeholder="123 Tech Street, Hytechcity, Hyderabad"
+                              rows="2"
+                              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none noscrollbar"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Skills Section */}
+                  <div className="mt-6">
+                    <div className="gradient-border">
+                      <div className="gradient-border-content p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaGraduationCap className="w-4 h-4 text-blue-400" />
+                          <h4 className="text-sm font-semibold text-blue-400">Skills</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                          {jobDetailsData.skills.map((skill, index) => (
+                            <div key={index}>
                               <input
-                                key={index}
                                 type="text"
                                 value={skill}
                                 onChange={(e) => handleSkillChange(index, e.target.value)}
                                 placeholder={`Skill ${index + 1}`}
-                                className="w-full px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                               />
-                            ))}
-                          </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>

@@ -74,7 +74,7 @@ export default function NaxritaLogin() {
     try {
       console.log('Attempting backend authentication...');
       
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${process.env.REACT_APP_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ export default function NaxritaLogin() {
             email: 'admin@company.com',
             employeeId: 'ADM001',
             name: 'Admin User',
-            role: 'admin',
+            role: 'Admin',
             avatar: 'A',
             jobTitle: 'HR Administrator',
             department: 'Human Resources',
@@ -173,7 +173,7 @@ export default function NaxritaLogin() {
             email: 'employee@company.com',
             employeeId: 'EMP001',
             name: 'Employee User',
-            role: 'employee',
+            role: 'Employee',
             avatar: 'E',
             jobTitle: 'Software Developer',
             department: 'Engineering',
