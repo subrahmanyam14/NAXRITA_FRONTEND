@@ -51,7 +51,7 @@ const AddEmployee = () => {
   const fetchRoles = async () => {
     setLoadingRoles(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/role-department/roles`, {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/api/role-department/roles`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
