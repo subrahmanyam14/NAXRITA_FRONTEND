@@ -173,7 +173,7 @@ const AddEmployee = () => {
     try {
       // First API call - Create Employee
       const employeeResponse = await axios.post(
-        `http://localhost:5000/api/employees`,
+        `${process.env.REACT_APP_URL}/api/employees`,
         employeeData,
         {
           headers: {
@@ -203,7 +203,7 @@ const AddEmployee = () => {
       };
 
       const jobDetailsResponse = await axios.post(
-        `http://localhost:5000/api/jobDetails`,
+        `${process.env.REACT_APP_URL}/api/jobDetails`,
         jobDetailsPayload,
         {
           headers: {

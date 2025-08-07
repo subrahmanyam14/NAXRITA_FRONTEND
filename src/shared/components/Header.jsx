@@ -16,7 +16,7 @@ import MainSidebar from './MainSidebar';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Header({ isPublic = false }) {
-  const { user: contextUser ,logout  } = useAuth();
+  const { user: contextUser, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -37,22 +37,22 @@ export default function Header({ isPublic = false }) {
     { name: 'Sign out', icon: FiLogOut, onClick: logout },
   ];
   // In your AuthContext
-// const logout = () => {
-//   const confirmLogout = window.confirm('Are you sure you want to sign out?');
-  
-//   if (confirmLogout) {
-//     // Clear user state
-//     setUser(null);
-    
-//     // Clear localStorage
-//     localStorage.removeItem('user');
-//     localStorage.removeItem('token');
-//     localStorage.removeItem('refreshToken');
-    
-//     // Redirect to login
-//     window.location.href = '/login';
-//   }
-// };
+  // const logout = () => {
+  //   const confirmLogout = window.confirm('Are you sure you want to sign out?');
+
+  //   if (confirmLogout) {
+  //     // Clear user state
+  //     setUser(null);
+
+  //     // Clear localStorage
+  //     localStorage.removeItem('user');
+  //     localStorage.removeItem('token');
+  //     localStorage.removeItem('refreshToken');
+
+  //     // Redirect to login
+  //     window.location.href = '/login';
+  //   }
+  // };
 
 
   return (
@@ -62,7 +62,7 @@ export default function Header({ isPublic = false }) {
         <div className="px-8 w-full flex items-center justify-between">
           {/* Left: Menu Button + Label + Brand */}
           <div className="flex items-center space-x-4 flex-shrink-0">
-            {/* <button
+            <button
               type="button"
               className="flex items-center space-x-2 p-3 rounded-lg text-[#a3a3a3] hover:bg-[#1e1e1e] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 ease-out border border-[#404040] hover:border-[#2563eb] hover:shadow-lg hover:shadow-blue-500/10"
               onClick={toggleSidebar}
@@ -74,24 +74,24 @@ export default function Header({ isPublic = false }) {
                 <FiMenu className="h-5 w-5" />
               )}
               <span className="text-sm font-medium">Menu</span>
-            </button> */}
+            </button>
 
             {/* Brand with Logo */}
-            <Link 
-              to="/" 
+            <Link
+              to={`/${user?.role}/home`}
               className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300"
+              aria-label="Go to profile"
             >
-              <img 
-                src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
-                alt="naxrita Logo"
+              <img
+                src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png"
+                alt="Naxrita Logo"
                 className="h-8 w-auto"
                 onError={(e) => {
-                  e.target.style.display = 'none';
+                  e.currentTarget.style.display = 'none'; // Use currentTarget instead of target
                 }}
+                loading="lazy" // Optimize image loading
               />
-
-            </Link>
-          </div>
+            </Link>          </div>
 
           {/* Center: Search Bar */}
           <div className="mx-6 flex-1 max-w-lg">
@@ -174,19 +174,16 @@ export default function Header({ isPublic = false }) {
                                 item.onClick();
                               }
                             }}
-                            className={`${
-                              focus 
-                                ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20' 
+                            className={`${focus
+                                ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20'
                                 : 'text-[#a3a3a3] hover:text-white'
-                            } flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-300 ${
-                              index === profileNavigation.length - 1 
-                                ? 'border-t border-[#2a2a2a] mt-2' 
+                              } flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-300 ${index === profileNavigation.length - 1
+                                ? 'border-t border-[#2a2a2a] mt-2'
                                 : ''
-                            }`}
+                              }`}
                           >
-                            <Icon className={`mr-3 h-4 w-4 ${
-                              focus ? 'text-white' : 'text-[#6b7280]'
-                            }`} />
+                            <Icon className={`mr-3 h-4 w-4 ${focus ? 'text-white' : 'text-[#6b7280]'
+                              }`} />
                             <span className="font-medium">{item.name}</span>
                           </Link>
                         )}
@@ -208,8 +205,8 @@ export default function Header({ isPublic = false }) {
       </header>
 
       {/* Sidebar Component */}
-      <MainSidebar 
-        sidebarOpen={sidebarOpen} 
+      <MainSidebar
+        sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
     </>

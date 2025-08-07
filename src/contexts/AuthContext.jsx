@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
         // Call backend logout endpoint
         const token = localStorage.getItem('token');
         if (token) {
-          await fetch('http://localhost:5000/api/auth/logout', {
+          await fetch(`${process.env.REACT_APP_URL}/api/auth/logout`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,

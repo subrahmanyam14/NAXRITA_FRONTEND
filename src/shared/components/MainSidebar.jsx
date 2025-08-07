@@ -123,17 +123,17 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         {
           name: 'Calendar',
-          href: user?.role === 'admin' ? '/admin/calendar' : '/employee/calendar',
+          href: user?.role.toLowerCase() === 'admin' ? '/admin/calendar' : '/employee/calendar',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Policies',
-          href: user?.role === 'admin' ? '/admin/policies' : '/employee/policies',
+          href: user?.role.toLowerCase() === 'admin' ? '/admin/policies' : '/employee/policies',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Settings',
-          href: user?.role === 'admin' ? '/admin/settings' : '/employee/settings',
+          href: user?.role.toLowerCase() === 'admin' ? '/admin/settings' : '/employee/settings',
           roles: ['admin', 'employee'],
         },
       ],
@@ -141,7 +141,7 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   ];
 
   // Filter navigation based on user role
-  const filteredNav = navigation.filter((item) => item.roles.includes(user?.role || ''));
+  const filteredNav = navigation.filter((item) => item.roles.includes(user?.role.toLowerCase() || ''));
 
   // Close sidebar when clicking outside
   useEffect(() => {
