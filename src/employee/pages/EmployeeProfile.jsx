@@ -482,7 +482,7 @@ const CosmicProfileDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
-      <StarfieldBackground />
+      {/* <StarfieldBackground /> */}
       
       <style jsx>{`
         .star {
@@ -583,7 +583,7 @@ const CosmicProfileDashboard = () => {
           <div className="px-8 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-light text-[#ffffff]">Cosmic Profile Dashboard</h1>
+                <h1 className="text-2xl font-light text-[#ffffff]"> Profile Dashboard</h1>
                 <p className="text-sm font-light text-[#6b7280] mt-1">Manage your stellar information</p>
               </div>
               
