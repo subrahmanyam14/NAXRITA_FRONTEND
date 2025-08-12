@@ -118,14 +118,14 @@ const AdminLayout = () => {
         <div className="flex-1 flex flex-col min-w-0 relative">
           <main className="flex-1 relative z-0 overflow-y-auto bg-white">
             <div className="py-0">
-              <div className="max-w-full mx-auto px-4 sm:px-0 md:px-0">
+              <div className="max-w-full mx-auto  sm:px-0 md:px-0">
                 <Outlet />
               </div>
             </div>
           </main>
 
           {/* Mobile FAB (optional since hanger exists) */}
-          <div className="md:hidden fixed bottom-4 left-4 z-20">
+          {/* <div className="md:hidden fixed bottom-4 left-4 z-20">
             <button
               type="button"
               className="inline-flex items-center justify-center p-3 rounded-full shadow-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -134,7 +134,7 @@ const AdminLayout = () => {
             >
               <HiMenu className="h-6 w-6" />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* ===== Mobile Overlay Sidebar (slides over Outlet) ===== */}
