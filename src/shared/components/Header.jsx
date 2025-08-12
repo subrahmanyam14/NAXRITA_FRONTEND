@@ -110,7 +110,7 @@ export default function Header({ isPublic = false }) {
                   leaveFrom="opacity-100 translate-y-0"
                   leaveTo="opacity-0 translate-y-1"
                 >
-                  <MenuItems className="absolute right-0 mt-2 w-56 rounded-xl bg-[#111] border border-[#262626] shadow-xl py-2 focus:outline-none">
+                  <MenuItems className="absolute right-0 mt-2 w-56 rounded-xl bg-[#111] border border-[#262626] shadow-xl py-2 focus:outline-none font-jakarta">
                     {profileNavigation.map((item, idx) => {
                       const Icon = item.icon;
                       return (
@@ -129,7 +129,7 @@ export default function Header({ isPublic = false }) {
                               } ${idx === profileNavigation.length - 1 ? 'mt-2 border-t border-[#1f1f1f] pt-3' : ''}`}
                             >
                               <Icon className={`mr-3 h-4 w-4 ${focus ? 'text-white' : 'text-white/60'}`} />
-                              <span className="font-medium">{item.name}</span>
+                              <span className="font-medium font-jakarta">{item.name}</span>
                             </Link>
                           )}
                         </MenuItem>

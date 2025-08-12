@@ -75,27 +75,33 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
     { name: 'Settings', icon: Settings, action: () => console.log('Settings') },
   ];
 
-  const handleNavClick = (href) => {
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
-  };
+  // const handleNavClick = (href) => {
+  //   if (window.innerWidth < 1024) {
+  //     setSidebarOpen(false);
+  //   }
+  // };
+const handleNavClick = () => {
+  // close only on mobile (<768), keep it open on md+
+   if (window.innerWidth < 768) {
+     setSidebarOpen(false);
+   }
+ };
 
   return (
     <Fragment>
       {/* Backdrop (only visible on mobile when sidebar is open) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 transition-opacity lg:hidden"
+          className="fixed inset-0 z-20 bg-black bg-opacity-50 transition-opacity md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static h-screen pb-16 inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 relative overflow-hidden`}
+        className={`fixed md:static h-screen pb-16 inset-y-0 left-0 z-30 flex flex-col w-72 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
+     sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+   } md:translate-x-0 relative overflow-hidden`}
         style={{
                 background:'#0a0a0a',
           borderRight: '1px solid #2a2a2a',
@@ -245,7 +251,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
       )}
 
       {/* Custom styles */}
-      <style jsx>{`
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         
         @keyframes twinkle {

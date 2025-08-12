@@ -14,9 +14,11 @@ const EmployeeLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const [mainSidebarOpen, setMainSidebarOpen] = useState(false);
-  const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+const getIsMobile = () =>
+   typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+ const [mainSidebarOpen, setMainSidebarOpen] = useState(false);
+ const [isMobile, setIsMobile] = useState(getIsMobile);
+ const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(() => !getIsMobile());
 
   // drag state (mobile)
   const dragStartX = useRef(null);
@@ -29,16 +31,20 @@ const EmployeeLayout = () => {
   }, [location]);
 
   // Sync mobile/desktop + default dashboard open state
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      setDashboardSidebarOpen(!mobile); // open on desktop, closed on mobile
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+ useEffect(() => {
+   const handleResize = () => {
+     const mobile = window.innerWidth < 768;
+     setIsMobile(prev => {
+       if (prev !== mobile) {
+         // only when crossing breakpoint:
+         setDashboardSidebarOpen(!mobile); // open on desktop, closed on mobile
+        }
+       return mobile;
+     });
+   };
+   window.addEventListener('resize', handleResize);
+   return () => window.removeEventListener('resize', handleResize);
+ }, []);
 
   const toggleDashboardSidebar = () => {
     setDashboardSidebarOpen((prev) => !prev);
@@ -109,13 +115,15 @@ const EmployeeLayout = () => {
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Desktop / Tablet persistent sidebar */}
-        <div className="hidden md:block h-screen">
-          <EmployeeSidebar
-            sidebarOpen={dashboardSidebarOpen}
-            setSidebarOpen={setDashboardSidebarOpen}
-            className="h-full"
-          />
-        </div>
+     {/* Desktop / Tablet persistent sidebar */}
+<div className="hidden md:block h-screen" >
+  <EmployeeSidebar
+    sidebarOpen={true}                 // ✅ always open on md+
+    setSidebarOpen={() => {}}          // noop so nothing can close it
+    className="h-full"
+  />
+</div>
+
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 relative">
@@ -128,7 +136,7 @@ const EmployeeLayout = () => {
           </main>
 
           {/* Mobile Dashboard Toggle FAB (you can keep it or remove since we add a hanger) */}
-          <div className="md:hidden fixed bottom-4 left-4 z-20">
+          {/* <div className="md:hidden fixed bottom-4 left-4 z-20">
             <button
               type="button"
               className="inline-flex items-center justify-center p-3 rounded-full shadow-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -137,7 +145,7 @@ const EmployeeLayout = () => {
             >
               <HiMenu className="h-6 w-6" />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* ===== Mobile Overlay Sidebar (slides over Outlet) ===== */}
