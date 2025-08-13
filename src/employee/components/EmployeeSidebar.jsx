@@ -99,11 +99,11 @@ const handleNavClick = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed md:static h-screen pb-16 inset-y-0 left-0 z-30 flex flex-col w-72 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
+        className={`fixed md:static h-screen pb-16 inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
      sidebarOpen ? 'translate-x-0' : '-translate-x-full'
    } md:translate-x-0 relative overflow-hidden`}
         style={{
-                background:'#0a0a0a',
+                abackground:'#0a0a0a',
           borderRight: '1px solid #2a2a2a',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.8)',
         }}
