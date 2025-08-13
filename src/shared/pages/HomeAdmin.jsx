@@ -132,17 +132,20 @@ const AdminHomepage = () => {
     `,
   };
 
+  // 🔧 MOBILE SHELL: lock compact width on mobile, expand on sm+
+  const shell = 'mx-auto w-full max-w-[420px] px-2 sm:max-w-7xl sm:px-6 md:px-8';
+
   return (
     <div
       className="
-        min-h-screen font-['Plus_Jakarta_Sans'] text-white
+        min-h-screen font-jakarta text-white
         text-[13px] sm:text-sm md:text-base
       "
       style={cosmicBg}
     >
       {/* Header strip */}
       <div className="border-b border-gray-800/70 bg-black/60 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
+        <div className={`${shell} py-3 flex items-center justify-between`}>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400">Hello,</span>
             <span className="text-sm sm:text-base font-semibold bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
@@ -159,15 +162,15 @@ const AdminHomepage = () => {
       </div>
 
       {/* Main grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 lg:py-14 grid lg:grid-cols-3 gap-6 lg:gap-10">
+      <section className={`${shell} py-6 sm:py-10 lg:py-14 grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-10 `}>
         {/* Left (admin focus) */}
-        <div className="lg:col-span-2 space-y-6 lg:space-y-10">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-10 min-w-96 px-2 w-min lg:w-full">
           {/* Focus header + QA controls */}
-          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] p-4 sm:p-6 relative overflow-hidden">
+          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] p-3 sm:p-6 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-gray-600/10" />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#4f46e5] via-[#7c3aed] to-white">
+              <div className="flex items-center justify-between mb-3 sm:mb-6">
+                <h2 className="text-lg sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#4f46e5] via-[#7c3aed] to-white">
                   Let’s Focus on Administration
                 </h2>
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -207,7 +210,7 @@ const AdminHomepage = () => {
                         <button
                           key={li}
                           className="
-                            text-left px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-lg
+                            text-left px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg
                             bg-[#121212] border border-gray-700
                             text-gray-300 hover:text-white hover:border-[#2563eb]
                             transition
@@ -222,7 +225,7 @@ const AdminHomepage = () => {
               </div>
 
               {/* QA indicators */}
-              <div className="flex justify-center gap-1.5 sm:gap-2 mt-4">
+              <div className="flex justify-center gap-1.5 sm:gap-2 mt-3 ">
                 {qaSlides.map((_, i) => (
                   <button
                     key={i}
@@ -237,7 +240,7 @@ const AdminHomepage = () => {
 
           {/* Awaiting Your Action */}
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-white">Awaiting Your Action</h3>
+            <h3 className="text-base sm:text-xl font-semibold text-white">Awaiting Your Action</h3>
             {awaitingActions.slice(0, 4).map((item, idx) => (
               <div
                 key={idx}
@@ -279,13 +282,13 @@ const AdminHomepage = () => {
         </div>
 
         {/* Right (Announcements + Suggestions) */}
-        <div className="space-y-6 lg:space-y-8">
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8 min-w-96 px-2 w-min lg:w-full">
           {/* Announcements */}
-          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] p-4 sm:p-6 overflow-hidden relative">
+          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] py-3  overflow-hidden relative lg:max-w-7xl max-w-80 mx-auto px-4 sm:px-6 md:px-8 pb-12 sm:pb-16 lg:pb-20 font-jakarta">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent" />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+              <div className="flex items-center justify-between mb-3 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                   Announcements
                 </h3>
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -314,7 +317,7 @@ const AdminHomepage = () => {
                   {announcements.map((a, i) => (
                     <div key={i} className="min-w-full">
                       <div className="relative">
-                        <img src={a.image} alt="" className="w-full h-36 sm:h-40 object-cover" />
+                        <img src={a.image} alt="" className="w-full h-32 sm:h-40 object-cover" />
                         <span className="absolute top-2 left-2 px-2.5 py-1 rounded-full text-[11px] bg-blue-600 text-white">
                           {a.badge}
                         </span>
@@ -347,11 +350,11 @@ const AdminHomepage = () => {
           </div>
 
           {/* Timely Suggestions */}
-          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] p-4 sm:p-6 overflow-hidden relative">
+          <div className="rounded-xl border border-gray-800 bg-[#0b0b0b] py-3  overflow-hidden relative mx-auto lg:max-w-7xl max-w-80  px-4 sm:px-6 md:px-8 pb-12 sm:pb-16 lg:pb-20 font-jakarta">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-transparent" />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+              <div className="flex items-center justify-between mb-3 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
                   Timely Suggestions
                 </h3>
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -385,7 +388,7 @@ const AdminHomepage = () => {
                   style={{ transform: `translateX(-${suggestionIndex * 100}%)` }}
                 >
                   {timelySuggestions.map((s, i) => (
-                    <div key={i} className="min-w-full p-4 rounded-lg bg-[#111111] border border-gray-800">
+                    <div key={i} className="min-w-full p-3 sm:p-4 rounded-lg bg-[#111111] border border-gray-800">
                       <div className="flex items-start gap-3 sm:gap-4">
                         <div className="p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 text-white">
                           <s.icon size={18} />
@@ -408,7 +411,7 @@ const AdminHomepage = () => {
                             </div>
                           </div>
 
-                          <button className="text-[12px] sm:text-sm text-[#2563eb] hover:text-blue-400"> {s.action} → </button>
+                          <button className="text-[12px] sm:text-sm text-[#2563eb] hover:text-blue-400">{s.action} →</button>
                         </div>
                       </div>
                     </div>
@@ -438,8 +441,8 @@ const AdminHomepage = () => {
 
       {/* Brand strip */}
       <div className="bg-black/80 border-t border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8">
-          <div className="rounded-xl border border-gray-800 bg-[#0d0d0d] p-6 sm:p-8 text-center relative overflow-hidden">
+        <div className={`${shell} py-6 sm:py-8`}>
+          <div className="rounded-xl border border-gray-800 bg-[#0d0d0d] p-5 sm:p-8 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-transparent" />
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-3 mb-3">
@@ -459,8 +462,8 @@ const AdminHomepage = () => {
       </div>
 
       {/* Tools grid */}
-      <section className="bg-gradient-to-br from-[#0a0a0a] to-black py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+      <section className="bg-gradient-to-br from-[#0a0a0a] to-black py-10 sm:py-16">
+        <div className={`${shell}`}>
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-[11px] sm:text-xs text-blue-400 font-semibold tracking-wide uppercase mb-1.5">
               Your Admin Tools
@@ -499,16 +502,18 @@ const AdminHomepage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 text-center bg-[#000] border-t border-gray-800">
-        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 lg:mb-6">
-          Drive <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ff6600] via-white to-[#0066ff]">Success</span>
-        </h2>
-        <p className="max-w-2xl mx-auto text-sm sm:text-base lg:text-xl text-gray-300 mb-6 sm:mb-8">
-          Empower your team, lead with data.
-        </p>
-        <button className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-sm sm:text-base lg:text-lg font-medium shadow-lg hover:shadow-blue-500/40 transition">
-          <BarChart3 size={18} /> Access Analytics
-        </button>
+      <section className="py-12 sm:py-20 lg:py-24 bg-[#000] border-t border-gray-800">
+        <div className={`${shell} text-center`}>
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 lg:mb-6">
+            Drive <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ff6600] via-white to-[#0066ff]">Success</span>
+          </h2>
+          <p className="max-w-2xl mx-auto text-sm sm:text-base lg:text-xl text-gray-300 mb-6 sm:mb-8 px-2 sm:px-0">
+            Empower your team, lead with data.
+          </p>
+          <button className="inline-flex items-center gap-2 sm:gap-3 px-5 sm:px-8 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-sm sm:text-base lg:text-lg font-medium shadow-lg hover:shadow-blue-500/40 transition">
+            <BarChart3 size={18} /> Access Analytics
+          </button>
+        </div>
       </section>
     </div>
   );
