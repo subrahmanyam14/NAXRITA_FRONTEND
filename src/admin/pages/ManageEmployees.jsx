@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { FaEdit, FaRegEye, FaTimes, FaDownload, FaUpload, FaSave, FaUser, FaBriefcase, FaCog, FaFileUpload } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddEmp from '../components/AddEmp';
 import * as XLSX from 'xlsx';
@@ -365,12 +365,6 @@ const EmpManagement = () => {
           backgroundImage:
             'repeating-linear-gradient(0deg, rgba(255,255,255,0.3) 0px, rgba(255,255,255,0.3) 1px, transparent 1px, transparent 2px), repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 1px, transparent 1px, transparent 2px)'
         }}
-      />
-
-      <ToastContainer
-        position="top-right"
-        theme="dark"
-        toastClassName="bg-gray-900 text-white"
       />
 
       {/* Header */}

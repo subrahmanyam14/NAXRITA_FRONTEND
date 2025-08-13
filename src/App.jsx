@@ -1,5 +1,7 @@
 // src/App.jsx
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -60,6 +62,20 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          toastClassName="!bg-gray-900 !text-white !border !border-gray-700"
+          progressClassName="!bg-gradient-to-r !from-blue-500 !to-blue-400"
+        />
         <Routes>
           {/* 🔥 Root: Redirect to login or role-based public layout */}
           <Route path="/" element={<RedirectToLogin />} />
@@ -77,7 +93,7 @@ const App = () => {
               </ProtectedRoute>
             }
           >
-             <Route path="admin/home" element={<HomeAdmin />} />
+            <Route path="admin/home" element={<HomeAdmin />} />
             <Route path="admin/public" element={<PolicyLanding />} />
             <Route path="admin/public/policies" element={<PolicyLanding />} />
             <Route path="admin/public/policies/search" element={<PolicySearchResult />} />
@@ -94,7 +110,7 @@ const App = () => {
               </ProtectedRoute>
             }
           >
-            
+
             <Route path="employee/home" element={<HomeEmployee />} />
             <Route path="employee/public" element={<PolicyLanding />} />
             <Route path="employee/public/policies" element={<PolicyLanding />} />
@@ -114,13 +130,13 @@ const App = () => {
           >
             <Route path="admin/home" element={<HomeAdmin />} />
             <Route path="admin/summary" element={<AdminSummary />} />
-            
-            
-            
+
+
+
             <Route path="admin/compensation" element={<AdminCompensationPage />} />
             <Route path="admin/contact" element={<AdminContactPage />} />
-            
-            <Route path ="admin/birthdays" element ={<EmployeeBirthdays/>}/>
+
+            <Route path="admin/birthdays" element={<EmployeeBirthdays />} />
             <Route path="admin/career" element={<AdminCareerPage />} />
             <Route path="admin/overview" element={<PerformanceDashboard />} />
             <Route path="admin/employees" element={<ManageEmployees />} />
@@ -140,12 +156,12 @@ const App = () => {
             <Route path="employee/summary" element={<Summary />} />
             <Route path="employee/tasks" element={<MyTasks />} />
             <Route path="employee/profile" element={<EmployeeProfile />} />
-            
-            
-            <Route path="employee/contact" element={<EmployeeContactPage/>} />
-            
-            <Route path="employee/compensation" element={<EmployeeCompensationDashboard/>} />
-            <Route path="employee/career" element={<EmployeeCareerDashboard/>} />
+
+
+            <Route path="employee/contact" element={<EmployeeContactPage />} />
+
+            <Route path="employee/compensation" element={<EmployeeCompensationDashboard />} />
+            <Route path="employee/career" element={<EmployeeCareerDashboard />} />
             <Route path="employee/overview" element={<EmployeeDashboard />} />
             <Route path="employee/learning" element={<MyLearning />} />
           </Route>

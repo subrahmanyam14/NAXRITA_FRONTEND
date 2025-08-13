@@ -134,97 +134,143 @@ const AddEmployee = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (!employeeData.employee_id.trim()) {
-      toast.error('Employee ID is required');
-      return;
+    // Check if data objects exist
+    if (!employeeData || !jobDetailsData) {
+        toast.error('Form data is not properly initialized');
+        return;
     }
 
-    if (!employeeData.employee_name.trim()) {
-      toast.error('Employee name is required');
-      return;
+    // Validation
+    if (!employeeData.employee_id?.trim()) {
+        toast.error('Employee ID is required');
+        return;
+    }
+
+    if (!employeeData.employee_name?.trim()) {
+        toast.error('Employee name is required');
+        return;
     }
 
     if (!isValidEmail(employeeData.email)) {
-      toast.error('Please enter a valid email address');
-      return;
+        toast.error('Please enter a valid email address');
+        return;
     }
 
     if (!employeeData.joining_date || !employeeData.hire_date) {
-      toast.error('Joining date and hire date are required');
-      return;
+        toast.error('Joining date and hire date are required');
+        return;
     }
 
-    if (!employeeData.department_name.trim()) {
-      toast.error('Department name is required');
-      return;
+    // Validate dates are proper Date objects/strings
+    if (isNaN(new Date(employeeData.joining_date).getTime()) || 
+        isNaN(new Date(employeeData.hire_date).getTime())) {
+        toast.error('Invalid date format');
+        return;
     }
 
-    if (!employeeData.job_profile_progression_model_designation.trim()) {
-      toast.error('Designation is required');
-      return;
+    if (!employeeData.department_name?.trim()) {
+        toast.error('Department name is required');
+        return;
     }
 
-    if (!jobDetailsData.phone.trim()) {
-      toast.error('Phone number is required');
-      return;
+    if (!employeeData.job_profile_progression_model_designation?.trim()) {
+        toast.error('Designation is required');
+        return;
+    }
+
+    if (!jobDetailsData.phone?.trim()) {
+        toast.error('Phone number is required');
+        return;
+    }
+
+    // Optional: Add phone number validation
+    if (!isValidPhoneNumber(jobDetailsData.phone)) {
+        toast.error('Please enter a valid phone number');
+        return;
     }
 
     try {
-      // First API call - Create Employee
-      const employeeResponse = await axios.post(
-        `${process.env.REACT_APP_URL}/api/employees`,
-        employeeData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
+        // First API call - Create Employee
+        const employeeResponse = await axios.post(
+            `${process.env.REACT_APP_URL}/api/employees`,
+            employeeData,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                validateStatus: (status) => status < 500, // Don't throw for 4xx errors
+            }
+        );
+
+        if (employeeResponse.status >= 400) {
+            throw new Error(employeeResponse.data?.message || 'Failed to create employee');
         }
-      );
 
-      console.log('Employee created successfully:', employeeResponse.data);
+        console.log('Employee created successfully:', employeeResponse.data);
 
-      // Second API call - Create Job Details
-      const jobDetailsPayload = {
-        individual_data_id: employeeData.employee_id,
-        supervisory_organization: jobDetailsData.supervisory_organization,
-        job: jobDetailsData.job,
-        business_title: jobDetailsData.business_title,
-        job_profile: jobDetailsData.job_profile,
-        job_family: jobDetailsData.job_family,
-        management_level: jobDetailsData.management_level,
-        time_type: employeeData.time_type,
-        location: jobDetailsData.location,
-        phone: jobDetailsData.phone,
-        email: employeeData.email,
-        work_address: jobDetailsData.work_address,
-        skills: jobDetailsData.skills.filter(skill => skill.trim() !== '')
-      };
+        // Prepare job details payload
+        const jobDetailsPayload = {
+            individual_data_id: employeeData.employee_id,
+            supervisory_organization: jobDetailsData.supervisory_organization || '',
+            job: jobDetailsData.job || '',
+            business_title: jobDetailsData.business_title || '',
+            job_profile: jobDetailsData.job_profile || '',
+            job_family: jobDetailsData.job_family || '',
+            management_level: jobDetailsData.management_level || '',
+            time_type: employeeData.time_type || '',
+            location: jobDetailsData.location || '',
+            phone: jobDetailsData.phone,
+            email: employeeData.email,
+            work_address: jobDetailsData.work_address || '',
+            skills: (jobDetailsData.skills || []).filter(skill => skill?.trim() !== '')
+        };
 
-      const jobDetailsResponse = await axios.post(
-        `${process.env.REACT_APP_URL}/api/jobDetails`,
-        jobDetailsPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
+        // Second API call - Create Job Details
+        const jobDetailsResponse = await axios.post(
+            `${process.env.REACT_APP_URL}/api/jobDetails`,
+            jobDetailsPayload,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                validateStatus: (status) => status < 500,
+            }
+        );
+
+        if (jobDetailsResponse.status >= 400) {
+            throw new Error(jobDetailsResponse.data?.message || 'Failed to create job details');
         }
-      );
 
-      console.log('Job details created successfully:', jobDetailsResponse.data);
-      toast.success('Employee added successfully!');
-      closeForm();
+        console.log('Job details created successfully:', jobDetailsResponse.data);
+        toast.success('Employee added successfully!');
+        closeForm();
     } catch (error) {
-      console.error('Error adding employee:', error);
-      if (error.response?.status === 409) {
-        toast.error('Employee ID already exists. Please use a different ID.');
-      } else {
-        toast.error(error.response?.data?.message || 'Error adding employee. Please try again.');
-      }
+        console.error('Error adding employee:', error);
+        
+        // Clean up if employee was created but job details failed
+        if (error.message.includes('job details') && employeeResponse?.data?.id) {
+            // Consider adding cleanup API call to delete the employee
+            console.warn('Employee was created but job details failed. Consider cleanup.');
+        }
+
+        if (error.response?.status === 409) {
+            toast.error('Employee ID already exists. Please use a different ID.');
+        } else if (error.response?.data?.errors) {
+            // Handle validation errors from server
+            toast.error(error.response.data.errors.join(', '));
+        } else {
+            toast.error(error.message || 'Error adding employee. Please try again.');
+        }
     }
-  };
+};
+
+// Helper function for phone validation (example implementation)
+function isValidPhoneNumber(phone) {
+    const phoneRegex = /^[0-9]{10,15}$/; // Basic international phone validation
+    return phoneRegex.test(phone);
+}
 
   return (
     <>
@@ -681,12 +727,12 @@ const AddEmployee = () => {
           document.body
         )}
 
-        <ToastContainer 
+        {/* <ToastContainer 
           position="top-right"
           theme="dark"
           toastClassName="!bg-gray-900 !text-white !border !border-gray-700"
           progressClassName="!bg-gradient-to-r !from-blue-500 !to-blue-400"
-        />
+        /> */}
       </div>
     </>
   );
