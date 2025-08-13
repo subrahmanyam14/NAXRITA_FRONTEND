@@ -12,6 +12,8 @@ const AddEmployee = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [roles, setRoles] = useState([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [loadingDepartments, setLoadingDepartments] = useState(false);
 
   // Employee basic data
   const [employeeData, setEmployeeData] = useState({
@@ -47,6 +49,7 @@ const AddEmployee = () => {
 
   useEffect(() => {
     fetchRoles();
+    fetchDepartments();
   }, []);
 
   const fetchRoles = async () => {
@@ -62,6 +65,22 @@ const AddEmployee = () => {
       setRoles([]);
     } finally {
       setLoadingRoles(false);
+    }
+  };
+
+  const fetchDepartments = async () => {
+    setLoadingDepartments(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_URL}/api/role-department/departments`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setDepartments(response.data.departments || []);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      toast.error('Error fetching departments. Please try again.', { containerId: TOAST_ID });
+      setDepartments([]);
+    } finally {
+      setLoadingDepartments(false);
     }
   };
 
@@ -175,9 +194,8 @@ const AddEmployee = () => {
       return;
     }
 
-    let employeeResponse; // make available in catch
+    let employeeResponse;
     try {
-      // 1) Create Employee
       employeeResponse = await axios.post(
         `${process.env.REACT_APP_URL}/api/employees`,
         employeeData,
@@ -194,7 +212,6 @@ const AddEmployee = () => {
         throw new Error(employeeResponse.data?.message || 'Failed to create employee');
       }
 
-      // 2) Create Job Details
       const jobDetailsPayload = {
         individual_data_id: employeeData.employee_id,
         supervisory_organization: jobDetailsData.supervisory_organization || '',
@@ -248,7 +265,6 @@ const AddEmployee = () => {
 
   return (
     <>
-      {/* High-priority Toast container mounted to body, always above modal */}
       {createPortal(
         <ToastContainer
           containerId={TOAST_ID}
@@ -478,15 +494,21 @@ const AddEmployee = () => {
                           <div className="space-y-4">
                             <div>
                               <label className="block text-xs font-medium text-gray-400 mb-1">Department *</label>
-                              <input
-                                type="text"
+                              <select
                                 name="department_name"
                                 value={employeeData.department_name}
                                 onChange={handleEmployeeInputChange}
                                 required
-                                placeholder="Information Technology"
-                                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                              />
+                                disabled={loadingDepartments}
+                                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                              >
+                                <option value="">{loadingDepartments ? 'Loading departments...' : 'Select Department'}</option>
+                                {departments.map((dept) => (
+                                  <option key={dept.id} value={dept.name}>
+                                    {dept.name}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-gray-400 mb-1">Designation *</label>

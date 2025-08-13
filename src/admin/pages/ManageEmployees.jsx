@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { FaEdit, FaRegEye, FaTimes, FaDownload, FaUpload, FaSave, FaUser, FaBriefcase } from 'react-icons/fa';
+import { FaEdit, FaCheckCircle, FaExclamationTriangle, FaRegEye, FaTimes, FaDownload, FaUpload, FaSave, FaUser, FaBriefcase } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddEmp from '../components/AddEmp';
@@ -20,22 +20,33 @@ const EmpManagement = () => {
 
   // data
   const [employees, setEmployees] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [jobDetails, setJobDetails] = useState([]);
+  
+  // pagination info from backend
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalEmployees: 0,
+    hasNext: false,
+    hasPrev: false
+  });
 
   // ui / modal
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedJobDetails, setSelectedJobDetails] = useState(null);
-  const [activeTab, setActiveTab] = useState('personal'); // 'personal' | 'job'
+  const [activeTab, setActiveTab] = useState('personal');
   const [isEditable, setIsEditable] = useState(false);
   const [isJobEditable, setIsJobEditable] = useState(false);
 
-  // pagination
+  // Add these state variables to your component
+  const [uploadResults, setUploadResults] = useState(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+
+  // pagination constants
   const entriesPerPage = 10;
-  const [page, setPage] = useState(1);
 
   // dummy fallbacks
   const dummyEmployees = [
@@ -69,6 +80,11 @@ const EmpManagement = () => {
     fetchAll();
   }, []);
 
+  // Fetch employees whenever page or filters change
+  useEffect(() => {
+    fetchEmployeesCore();
+  }, [pagination.currentPage, searchQuery, departmentFilter, employmentTypeFilter, hireDateFilter]);
+
   const fetchAll = async () => {
     setLoading(true);
     try {
@@ -81,19 +97,46 @@ const EmpManagement = () => {
 
   const fetchEmployeesCore = async () => {
     try {
+      // Build query parameters for server-side filtering and pagination
+      const params = {
+        page: pagination.currentPage,
+        limit: entriesPerPage
+      };
+
+      // Add filters to params if they exist
+      if (searchQuery) params.search = searchQuery;
+      if (departmentFilter) params.department = departmentFilter;
+      if (employmentTypeFilter) params.employmentType = employmentTypeFilter;
+      if (hireDateFilter) params.hireDateFrom = hireDateFilter;
+
       const res = await axios.get(`${process.env.REACT_APP_URL}/api/employees`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params
       });
-      const list = res?.data?.data || res?.data || [];
-      setEmployees(Array.isArray(list) ? list : []);
-      setFilteredEmployees(Array.isArray(list) ? list : []);
-      setPage(1);
-      console.log('[Employees] count:', list?.length || 0);
+
+      const responseData = res?.data;
+      const employeeList = responseData?.data || responseData || [];
+      const paginationData = responseData?.pagination || {};
+
+      setEmployees(Array.isArray(employeeList) ? employeeList : []);
+      setPagination({
+        currentPage: paginationData.currentPage || 1,
+        totalPages: paginationData.totalPages || 1,
+        totalEmployees: paginationData.totalEmployees || employeeList.length,
+        hasNext: paginationData.hasNext || false,
+        hasPrev: paginationData.hasPrev || false
+      });
+
     } catch (e) {
       console.error('fetchEmployees error:', e);
       setEmployees(dummyEmployees);
-      setFilteredEmployees(dummyEmployees);
-      setPage(1);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalEmployees: dummyEmployees.length,
+        hasNext: false,
+        hasPrev: false
+      });
       toast.error('Failed to fetch employees. Using offline data.');
     }
   };
@@ -124,46 +167,50 @@ const EmpManagement = () => {
     }
   };
 
-  // filter + search
-  useEffect(() => {
-    const next = employees.filter((employee) => {
-      const name = (employee.employee_name || '').toLowerCase();
-      const empId = (employee.employee_id || '').toLowerCase();
-      const department = (employee.department_name || '').toLowerCase();
-      const employmentType = (employee.employee_type || '').toLowerCase();
-      const hireDate = employee.hire_date || '';
+  // Handle filter changes - reset to page 1 and refetch
+  const handleFilterChange = (filterType, value) => {
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+    
+    switch (filterType) {
+      case 'search':
+        setSearchQuery(value);
+        break;
+      case 'department':
+        setDepartmentFilter(value);
+        break;
+      case 'employmentType':
+        setEmploymentTypeFilter(value);
+        break;
+      case 'hireDate':
+        setHireDateFilter(value);
+        break;
+    }
+  };
 
-      const matchesSearch =
-        !searchQuery ||
-        name.includes(searchQuery.toLowerCase()) ||
-        empId.includes(searchQuery.toLowerCase());
-      const matchesDepartment = departmentFilter ? department === departmentFilter.toLowerCase() : true;
-      const matchesEmployment = employmentTypeFilter ? employmentType === employmentTypeFilter.toLowerCase() : true;
-      const matchesHireDate = hireDateFilter ? new Date(hireDate) >= new Date(hireDateFilter) : true;
+  // Pagination handlers
+  const goToPage = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, currentPage: newPage }));
+    }
+  };
 
-      return matchesSearch && matchesDepartment && matchesEmployment && matchesHireDate;
-    });
+  const nextPage = () => {
+    if (pagination.hasNext) {
+      goToPage(pagination.currentPage + 1);
+    }
+  };
 
-    setFilteredEmployees(next);
-    setPage(1); // reset pagination whenever filters/search change
-  }, [searchQuery, departmentFilter, employmentTypeFilter, hireDateFilter, employees]);
+  const prevPage = () => {
+    if (pagination.hasPrev) {
+      goToPage(pagination.currentPage - 1);
+    }
+  };
 
-  // pagination helpers
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil((filteredEmployees?.length || 0) / entriesPerPage)),
-    [filteredEmployees]
-  );
-  const startIndex = useMemo(() => (page - 1) * entriesPerPage, [page]);
-  const endIndex = useMemo(
-    () => Math.min(page * entriesPerPage, filteredEmployees.length),
-    [page, filteredEmployees]
-  );
-  const pageSlice = useMemo(
-    () => filteredEmployees.slice(startIndex, startIndex + entriesPerPage),
-    [filteredEmployees, startIndex]
-  );
+  // Calculate display indices for current page
+  const startIndex = (pagination.currentPage - 1) * entriesPerPage + 1;
+  const endIndex = Math.min(pagination.currentPage * entriesPerPage, pagination.totalEmployees);
 
-  // modal
+  // modal functions
   const openModal = async (employeeId) => {
     const empId = typeof employeeId === 'object' ? employeeId.id : employeeId;
     try {
@@ -217,8 +264,8 @@ const EmpManagement = () => {
       await axios.put(`${process.env.REACT_APP_URL}/api/employees/${selectedEmployee.id}`, selectedEmployee, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      const updated = employees.map((e) => (e.id === selectedEmployee.id ? selectedEmployee : e));
-      setEmployees(updated);
+      // Refresh current page data after update
+      await fetchEmployeesCore();
       toast.success('Employee updated successfully!');
       setIsEditable(false);
     } catch (e) {
@@ -246,10 +293,11 @@ const EmpManagement = () => {
   const handleBulkUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const formData = new FormData();
     formData.append('file', file);
-
     setLoading(true);
+
     try {
       const res = await axios.post(`${process.env.REACT_APP_URL}/api/employees/bulk-upload`, formData, {
         headers: {
@@ -257,39 +305,149 @@ const EmpManagement = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
-      toast.success(res?.data?.message || 'File uploaded successfully!');
+
+      const responseData = res?.data;
+      setUploadResults(responseData);
+
+      // Show appropriate toast based on results
+      if (responseData?.success) {
+        const { stats } = responseData;
+        if (stats?.failed > 0) {
+          toast.warning(
+            `Upload completed with issues: ${stats.success} succeeded, ${stats.failed} failed out of ${stats.total} total`,
+            {
+              autoClose: 6000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true
+            }
+          );
+        } else {
+          toast.success(
+            `🎉 Upload successful! All ${stats.success} employees processed successfully.`,
+            {
+              autoClose: 4000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true
+            }
+          );
+        }
+      } else {
+        toast.error('Upload failed. Please check the file format and try again.');
+      }
+
+      // Show detailed results modal
+      setShowResultsModal(true);
+
+      // Refresh employee data after upload
       await fetchEmployeesCore();
+
     } catch (err) {
       console.error('upload error:', err);
-      toast.error('Error uploading file!');
+      const errorMessage = err.response?.data?.message || 'Error uploading file!';
+      toast.error(errorMessage, { autoClose: 5000 });
+
+      // If there's error data, show it
+      if (err.response?.data) {
+        setUploadResults({
+          success: false,
+          message: errorMessage,
+          error: err.response.data
+        });
+        setShowResultsModal(true);
+      }
     } finally {
       setLoading(false);
       if (fileInp.current) fileInp.current.value = '';
     }
   };
 
-  const exportToExcel = () => {
-    const exportData = filteredEmployees.map((emp, index) => ({
-      'S.No': index + 1,
-      'Employee ID': emp.employee_id || '',
-      'Employee Name': emp.employee_name || '',
-      Email: emp.email || '',
-      'Employee Type': emp.employee_type || '',
-      'Time Type': emp.time_type || '',
-      'Weekly Hours': emp.scheduled_weekly_hours || '',
-      'Joining Date': formatDate(emp.joining_date),
-      'Hire Date': formatDate(emp.hire_date),
-      Department: emp.department_name || '',
-      'Job Title': emp.job_profile_progression_model_designation || '',
-      Status: emp.status || ''
+  // Add these helper functions for the results modal
+  const downloadErrorReport = () => {
+    if (!uploadResults?.errors?.length) return;
+
+    const errorData = uploadResults.errors.map(error => ({
+      'Row Number': error.row,
+      'Employee ID': error.employee_id,
+      'Status': error.status,
+      'Error Message': error.error
     }));
 
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    ws['!cols'] = Object.keys(exportData[0] || {}).map((k) => ({ wch: Math.max(18, k.length) }));
-    XLSX.utils.book_append_sheet(wb, ws, 'Employees');
-    XLSX.writeFile(wb, `employees_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('Employee data exported successfully!');
+    const csvContent = [
+      Object.keys(errorData[0]).join(','),
+      ...errorData.map(row => Object.values(row).map(val => `"${val}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bulk_upload_errors_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    toast.success('Error report downloaded successfully!');
+  };
+
+  const closeResultsModal = () => {
+    setShowResultsModal(false);
+    setUploadResults(null);
+  };
+
+  const exportToExcel = async () => {
+    try {
+      // Fetch all employees for export (without pagination)
+      const res = await axios.get(`${process.env.REACT_APP_URL}/api/employees`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params: {
+          // Include current filters but no pagination limits
+          search: searchQuery || undefined,
+          department: departmentFilter || undefined,
+          employmentType: employmentTypeFilter || undefined,
+          hireDateFrom: hireDateFilter || undefined,
+          exportAll: true // Signal to backend to return all matching records
+        }
+      });
+
+      const allEmployees = res?.data?.data || res?.data || employees;
+      
+      const exportData = allEmployees.map((emp, index) => ({
+        'S.No': index + 1,
+        'Employee ID': emp.employee_id || '',
+        'Employee Name': emp.employee_name || '',
+        Email: emp.email || '',
+        'Employee Type': emp.employee_type || '',
+        'Time Type': emp.time_type || '',
+        'Weekly Hours': emp.scheduled_weekly_hours || '',
+        'Joining Date': formatDate(emp.joining_date),
+        'Hire Date': formatDate(emp.hire_date),
+        Department: emp.department_name || '',
+        'Job Title': emp.job_profile_progression_model_designation || '',
+        Status: emp.status || ''
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      ws['!cols'] = Object.keys(exportData[0] || {}).map((k) => ({ wch: Math.max(18, k.length) }));
+      XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+      XLSX.writeFile(wb, `employees_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success('Employee data exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export data');
+    }
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setDepartmentFilter('');
+    setEmploymentTypeFilter('');
+    setHireDateFilter('');
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
   };
 
   // skeletons
@@ -348,7 +506,7 @@ const EmpManagement = () => {
             type="text"
             placeholder="Search by Name or ID..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
             className="w-full px-4 py-2.5 bg-[#0f0f10] border border-[#2a2a2a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600/60 focus:border-transparent text-sm"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -360,9 +518,10 @@ const EmpManagement = () => {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={fetchAll}
-            className="flex items-center gap-2 px-4 py-2 bg-[#0e1a2b] hover:bg-[#11223a] border border-[#223656] rounded-lg transition-all text-sm"
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0e1a2b] hover:bg-[#11223a] border border-[#223656] rounded-lg transition-all text-sm disabled:opacity-50"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">{loading ? 'Refreshing…' : 'Refresh'}</span>
           </button>
 
@@ -372,6 +531,10 @@ const EmpManagement = () => {
           >
             <ListFilter className="w-4 h-4" />
             <span className="hidden sm:inline">Filter</span>
+            {/* Show active filter indicator */}
+            {(departmentFilter || employmentTypeFilter || hireDateFilter) && (
+              <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+            )}
           </button>
 
           <AddEmp />
@@ -379,7 +542,7 @@ const EmpManagement = () => {
           <button
             onClick={() => fileInp.current?.click()}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-[#223656] rounded-lg transition-all text-sm bg-[#0e1a2b]"
+            className="flex items-center gap-2 px-4 py-2 border border-[#223656] rounded-lg transition-all text-sm bg-[#0e1a2b] disabled:opacity-50"
           >
             <FaUpload />
             <span className="hidden sm:inline">{loading ? 'Uploading…' : 'Import Excel'}</span>
@@ -397,64 +560,63 @@ const EmpManagement = () => {
         </div>
       </div>
 
-      {/* ===== Mobile: Card list view (kept) ===== */}
+      {/* ===== Mobile: Card list view ===== */}
       <div className="md:hidden space-y-3 px-1">
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} i={i} />)
-          : pageSlice.map((employee) => (
-              <div
-                key={employee.id}
-                className="rounded-xl border border-[#2a2a2a] bg-[#0f0f10]/90 p-3 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium text-white truncate">{employee.employee_name || ''}</div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">
-                      {employee.job_profile_progression_model_designation || '—'}
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-blue-900 text-blue-200 border border-blue-700">
-                        {employee.employee_type || 'Type'}
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] border ${
-                          employee.status === 'Active'
-                            ? 'bg-green-900 text-green-200 border-green-700'
-                            : 'bg-red-900 text-red-200 border-red-700'
-                        }`}
-                      >
-                        {employee.status || 'Status'}
-                      </span>
-                    </div>
+          : employees.map((employee, idx) => (
+            <div
+              key={employee.id}
+              className="rounded-xl border border-[#2a2a2a] bg-[#0f0f10]/90 p-3 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+            >
+              <div className="flex justify-between items-start">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-white truncate">{employee.employee_name || ''}</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">
+                    {employee.job_profile_progression_model_designation || '—'}
                   </div>
-
-                  <button
-                    onClick={() => openModal(employee.id)}
-                    className="p-2 rounded-lg bg-blue-700 hover:bg-blue-600 transition"
-                    title="View Employee"
-                  >
-                    <FaRegEye className="w-4 h-4" />
-                  </button>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-blue-900 text-blue-200 border border-blue-700">
+                      {employee.employee_type || 'Type'}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] border ${employee.status === 'Active'
+                        ? 'bg-green-900 text-green-200 border-green-700'
+                        : 'bg-red-900 text-red-200 border-red-700'
+                        }`}
+                    >
+                      {employee.status || 'Status'}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-300">
-                  <div className="flex flex-col">
-                    <span className="text-gray-500">ID</span>
-                    <span className="truncate text-white">{employee.employee_id || ''}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-gray-500">Dept</span>
-                    <span className="truncate">{employee.department_name || '—'}</span>
-                  </div>
-                  <div className="flex flex-col col-span-2">
-                    <span className="text-gray-500">Email</span>
-                    <span className="truncate">{employee.email || '—'}</span>
-                  </div>
+                <button
+                  onClick={() => openModal(employee.id)}
+                  className="p-2 rounded-lg bg-blue-700 hover:bg-blue-600 transition"
+                  title="View Employee"
+                >
+                  <FaRegEye className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-300">
+                <div className="flex flex-col">
+                  <span className="text-gray-500">ID</span>
+                  <span className="truncate text-white">{employee.employee_id || ''}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-500">Dept</span>
+                  <span className="truncate">{employee.department_name || '—'}</span>
+                </div>
+                <div className="flex flex-col col-span-2">
+                  <span className="text-gray-500">Email</span>
+                  <span className="truncate">{employee.email || '—'}</span>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
 
-        {!loading && pageSlice.length === 0 && (
+        {!loading && employees.length === 0 && (
           <div className="text-center text-gray-400 py-8">
             <div className="text-4xl mb-2">🌌</div>
             <p className="text-sm">No employees found</p>
@@ -469,7 +631,6 @@ const EmpManagement = () => {
             <table className="w-full text-sm table-fixed">
               <thead className="bg-[#0c0c0d] border-b border-[#2a2a2a] text-gray-200">
                 <tr>
-                  {/* Make only first two sticky to avoid overlap issues */}
                   <th className="sticky left-0 z-20 bg-[#0c0c0d] px-0 w-16 text-left">
                     <div className="px-4 py-3 font-semibold">S.No.</div>
                   </th>
@@ -488,49 +649,49 @@ const EmpManagement = () => {
               <tbody>
                 {loading
                   ? Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} i={i} />)
-                  : pageSlice.map((employee, idx) => (
-                      <tr key={employee.id} className="border-b border-[#1f1f22] hover:bg-[#121215] transition-colors">
-                        <td className="sticky left-0 z-10 bg-[#0f0f10] px-0">
-                          <div className="px-4 py-3">{startIndex + idx + 1}</div>
-                        </td>
-                        <td className="sticky left-16 z-10 bg-[#0f0f10] px-0">
-                          <div className="px-4 py-3 font-medium text-blue-400">{employee.employee_id || ''}</div>
-                        </td>
-                        <td className="px-4 py-3">{employee.employee_name || ''}</td>
-                        <td className="px-4 py-3 text-gray-300 truncate">{employee.email || ''}</td>
-                        <td className="px-4 py-3 text-gray-300">{employee.department_name || ''}</td>
-                        <td className="px-4 py-3 text-gray-300">
-                          {employee.job_profile_progression_model_designation || ''}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-900 text-blue-200 border border-blue-700">
-                            {employee.employee_type || ''}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              employee.status === 'Active'
-                                ? 'bg-green-900 text-green-200 border border-green-700'
-                                : 'bg-red-900 text-red-200 border border-red-700'
-                            }`}
-                          >
-                            {employee.status || ''}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => openModal(employee.id)}
-                            className="p-2 bg-blue-700 hover:bg-blue-600 rounded-lg transition-all hover:scale-105"
-                            title="View Employee"
-                          >
-                            <FaRegEye className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  : employees.map((employee, idx) => (
+                    <tr key={employee.id} className="border-b border-[#1f1f22] hover:bg-[#121215] transition-colors">
+                      <td className="sticky left-0 z-10 bg-[#0f0f10] px-0">
+                        <div className="px-4 py-3">{startIndex + idx}</div>
+                      </td>
+                      <td className="sticky left-16 z-10 bg-[#0f0f10] px-0">
+                        <div className="px-4 py-3 font-medium text-blue-400">{employee.employee_id || ''}</div>
+                      </td>
+                      <td className="px-4 py-3">{employee.employee_name || ''}</td>
+                      <td className="px-4 py-3 text-gray-300 truncate">{employee.email || ''}</td>
+                      <td className="px-4 py-3 text-gray-300">{employee.department_name || ''}</td>
+                      <td className="px-4 py-3 text-gray-300">
+                        {employee.job_profile_progression_model_designation || ''}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-900 text-blue-200 border border-blue-700">
+                          {employee.employee_type || ''}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            employee.status === 'Active'
+                              ? 'bg-green-900 text-green-200 border border-green-700'
+                              : 'bg-red-900 text-red-200 border border-red-700'
+                          }`}
+                        >
+                          {employee.status || ''}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => openModal(employee.id)}
+                          className="p-2 bg-blue-700 hover:bg-blue-600 rounded-lg transition-all hover:scale-105"
+                          title="View Employee"
+                        >
+                          <FaRegEye className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
 
-                {!loading && pageSlice.length === 0 && (
+                {!loading && employees.length === 0 && (
                   <tr>
                     <td colSpan={9} className="px-4 py-12 text-center text-gray-400">
                       <div className="text-4xl mb-2">🌌</div>
@@ -547,22 +708,22 @@ const EmpManagement = () => {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
         <div className="text-gray-400 text-sm">
-          Showing {filteredEmployees.length ? startIndex + 1 : 0} to {endIndex} of {filteredEmployees.length} entries
+          Showing {pagination.totalEmployees > 0 ? startIndex : 0} to {endIndex} of {pagination.totalEmployees} entries
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
+            onClick={prevPage}
+            disabled={!pagination.hasPrev || loading}
             className="px-4 py-2 bg-[#0e1a2b] hover:bg-[#11223a] disabled:opacity-50 disabled:cursor-not-allowed border border-[#223656] rounded-lg transition-all text-sm"
           >
             ← Previous
           </button>
           <span className="text-gray-400 text-sm px-2">
-            Page {page} / {totalPages}
+            Page {pagination.currentPage} / {pagination.totalPages}
           </span>
           <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
+            onClick={nextPage}
+            disabled={!pagination.hasNext || loading}
             className="px-4 py-2 bg-[#0e1a2b] hover:bg-[#11223a] disabled:opacity-50 disabled:cursor-not-allowed border border-[#223656] rounded-lg transition-all text-sm"
           >
             Next →
@@ -587,7 +748,7 @@ const EmpManagement = () => {
                 <label className="block text-sm font-medium text-gray-300 mb-2">Department:</label>
                 <select
                   value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
+                  onChange={(e) => handleFilterChange('department', e.target.value)}
                   className="w-full px-3 py-2 bg-[#121214] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600/60 text-sm"
                 >
                   <option value="">All Departments</option>
@@ -603,7 +764,7 @@ const EmpManagement = () => {
                 <label className="block text-sm font-medium text-gray-300 mb-2">Employee Type:</label>
                 <select
                   value={employmentTypeFilter}
-                  onChange={(e) => setEmploymentTypeFilter(e.target.value)}
+                  onChange={(e) => handleFilterChange('employmentType', e.target.value)}
                   className="w-full px-3 py-2 bg-[#121214] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600/60 text-sm"
                 >
                   <option value="">All Types</option>
@@ -618,7 +779,7 @@ const EmpManagement = () => {
                 <input
                   type="date"
                   value={hireDateFilter}
-                  onChange={(e) => setHireDateFilter(e.target.value)}
+                  onChange={(e) => handleFilterChange('hireDate', e.target.value)}
                   className="w-full px-3 py-2 bg-[#121214] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600/60 text-sm"
                 />
               </div>
@@ -635,10 +796,7 @@ const EmpManagement = () => {
               </button>
               <button
                 onClick={() => {
-                  setDepartmentFilter('');
-                  setEmploymentTypeFilter('');
-                  setHireDateFilter('');
-                  setFilteredEmployees(employees);
+                  clearAllFilters();
                   setIsFilterPopupOpen(false);
                   toast.info('Filters cleared!');
                 }}
@@ -680,22 +838,20 @@ const EmpManagement = () => {
               <div className="flex border-b border-[#2a2a2a] bg-[#0a0a0a]">
                 <button
                   onClick={() => setActiveTab('personal')}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm ${
-                    activeTab === 'personal'
-                      ? 'border-b-2 border-blue-500 text-blue-400 bg-blue-500/10'
-                      : 'text-gray-400 hover:text-white hover:bg-[#111214]'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm ${activeTab === 'personal'
+                    ? 'border-b-2 border-blue-500 text-blue-400 bg-blue-500/10'
+                    : 'text-gray-400 hover:text-white hover:bg-[#111214]'
+                    }`}
                 >
                   <FaUser className="w-4 h-4" />
-                  Personal
+                  Individual
                 </button>
                 <button
                   onClick={() => setActiveTab('job')}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm ${
-                    activeTab === 'job'
-                      ? 'border-b-2 border-green-500 text-green-400 bg-green-500/10'
-                      : 'text-gray-400 hover:text-white hover:bg-[#111214]'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm ${activeTab === 'job'
+                    ? 'border-b-2 border-green-500 text-green-400 bg-green-500/10'
+                    : 'text-gray-400 hover:text-white hover:bg-[#111214]'
+                    }`}
                 >
                   <FaBriefcase className="w-4 h-4" />
                   Job
@@ -732,9 +888,8 @@ const EmpManagement = () => {
                                 name={field.name}
                                 disabled={!isEditable || field.readOnly}
                                 onChange={handleEmployeeChange}
-                                className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${
-                                  !isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                                }`}
+                                className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${!isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                  }`}
                               >
                                 <option value="">Select {field.label}</option>
                                 {field.options.map((opt) => (
@@ -749,9 +904,8 @@ const EmpManagement = () => {
                                 name={field.name}
                                 disabled={!isEditable || field.readOnly}
                                 onChange={handleEmployeeChange}
-                                className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${
-                                  !isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                                }`}
+                                className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${!isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                  }`}
                               >
                                 <option value="">Select {field.label}</option>
                                 {(field.options || []).map((opt) => (
@@ -772,9 +926,8 @@ const EmpManagement = () => {
                               }
                               readOnly={!isEditable || field.readOnly}
                               onChange={handleEmployeeChange}
-                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${
-                                !isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                              }`}
+                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${!isEditable || field.readOnly ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                }`}
                             />
                           )}
                         </div>
@@ -810,9 +963,8 @@ const EmpManagement = () => {
                               name={field.name}
                               disabled={!isJobEditable}
                               onChange={handleJobChange}
-                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${
-                                !isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                              }`}
+                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${!isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                }`}
                             >
                               <option value="">Select {field.label}</option>
                               {field.options.map((opt) => (
@@ -828,9 +980,8 @@ const EmpManagement = () => {
                               name={field.name}
                               readOnly={!isJobEditable}
                               onChange={handleJobChange}
-                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs resize-none ${
-                                !isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                              }`}
+                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs resize-none ${!isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                }`}
                             />
                           ) : (
                             <input
@@ -839,13 +990,20 @@ const EmpManagement = () => {
                               name={field.name}
                               readOnly={!isJobEditable}
                               onChange={handleJobChange}
-                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${
-                                !isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
-                              }`}
+                              className={`w-full px-3 py-2 bg-[#111111] border rounded-lg text-white text-xs ${!isJobEditable ? 'border-[#2a2a2a] text-[#a3a3a3] cursor-not-allowed' : 'border-[#2a2a2a]'
+                                }`}
                             />
                           )}
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Show message when no job details available */}
+                  {activeTab === 'job' && !selectedJobDetails && (
+                    <div className="text-center text-gray-400 py-8">
+                      <div className="text-4xl mb-2">💼</div>
+                      <p className="text-sm">No job details available for this employee</p>
                     </div>
                   )}
                 </div>
@@ -915,6 +1073,189 @@ const EmpManagement = () => {
           </div>,
           document.body
         )}
+
+      {/* Bulk Upload Results Modal */}
+      {showResultsModal && uploadResults && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0f0f10] border border-[#2a2a2a] rounded-xl w-full max-w-4xl max-h-[70vh] overflow-hidden shadow-2xl flex flex-col">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b border-[#2a2a2a] bg-[#0a0a0a]">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${uploadResults.success ? 'bg-green-900/30' : 'bg-red-900/30'}`}>
+                  {uploadResults.success ? (
+                    <FaCheckCircle className="w-5 h-5 text-green-400" />
+                  ) : (
+                    <FaExclamationTriangle className="w-5 h-5 text-red-400" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Bulk Upload Results</h3>
+                  <p className="text-xs text-gray-400">
+                    {uploadResults.message || 'Upload process completed'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeResultsModal}
+                className="p-1.5 bg-red-700/20 hover:bg-red-700/40 rounded-lg border border-red-700/50"
+              >
+                <FaTimes className="w-4 h-4 text-red-400" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 overflow-y-auto flex-1">
+              {uploadResults.success && uploadResults.stats && (
+                <>
+                  {/* Stats Summary */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3 text-center">
+                      <div className="text-xl font-bold text-blue-400">
+                        {uploadResults.stats.total}
+                      </div>
+                      <div className="text-xs text-blue-300">Total Processed</div>
+                    </div>
+                    <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3 text-center">
+                      <div className="text-xl font-bold text-green-400">
+                        {uploadResults.stats.success}
+                      </div>
+                      <div className="text-xs text-green-300">Successfully Added</div>
+                    </div>
+                    <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-3 text-center">
+                      <div className="text-xl font-bold text-red-400">
+                        {uploadResults.stats.failed}
+                      </div>
+                      <div className="text-xs text-red-300">Failed</div>
+                    </div>
+                  </div>
+
+                  {/* Successful Uploads */}
+                  {uploadResults.results && uploadResults.results.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FaCheckCircle className="w-4 h-4 text-green-400" />
+                        <h4 className="text-base font-semibold text-green-400">
+                          Successfully Processed ({uploadResults.results.length})
+                        </h4>
+                      </div>
+                      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead className="bg-[#111111] border-b border-[#2a2a2a]">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-gray-300">Row</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Employee ID</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Password</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Joining Date</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Hire Date</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {uploadResults.results.map((result, index) => (
+                                <tr key={index} className="border-b border-[#1f1f22] hover:bg-[#121215]">
+                                  <td className="px-3 py-2 text-white">{result.row}</td>
+                                  <td className="px-3 py-2 text-blue-400 font-medium">{result.employee_id}</td>
+                                  <td className="px-3 py-2 text-gray-300 font-mono text-xs truncate max-w-[80px]">
+                                    {result.generatedPassword}
+                                  </td>
+                                  <td className="px-3 py-2 text-gray-300">
+                                    {result.processedDates?.joining_date || '—'}
+                                  </td>
+                                  <td className="px-3 py-2 text-gray-300">
+                                    {result.processedDates?.hire_date || '—'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Failed Uploads */}
+                  {uploadResults.errors && uploadResults.errors.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <FaExclamationTriangle className="w-4 h-4 text-red-400" />
+                          <h4 className="text-base font-semibold text-red-400">
+                            Failed to Process ({uploadResults.errors.length})
+                          </h4>
+                        </div>
+                        <button
+                          onClick={downloadErrorReport}
+                          className="flex items-center gap-1 px-2 py-1 bg-red-700/20 hover:bg-red-700/30 border border-red-700/50 rounded-lg text-xs text-red-300"
+                        >
+                          <FaDownload className="w-3 h-3" />
+                          Download
+                        </button>
+                      </div>
+                      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead className="bg-[#111111] border-b border-[#2a2a2a]">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-gray-300">Row</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Employee ID</th>
+                                <th className="px-3 py-2 text-left text-gray-300">Error Message</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {uploadResults.errors.map((error, index) => (
+                                <tr key={index} className="border-b border-[#1f1f22] hover:bg-[#121215]">
+                                  <td className="px-3 py-2 text-white">{error.row}</td>
+                                  <td className="px-3 py-2 text-red-400 font-medium">{error.employee_id}</td>
+                                  <td className="px-3 py-2 text-gray-300 text-xs truncate max-w-[180px]">
+                                    {error.error}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Error case - when upload completely failed */}
+              {!uploadResults.success && (
+                <div className="text-center py-6">
+                  <FaExclamationTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+                  <h4 className="text-lg font-semibold text-red-400 mb-1">Upload Failed</h4>
+                  <p className="text-gray-400 mb-3 text-sm">
+                    {uploadResults.message || 'The bulk upload process encountered an error.'}
+                  </p>
+                  <div className="text-xs text-gray-500">
+                    Please check your file format and data, then try again.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-2 p-3 border-t border-[#2a2a2a] bg-[#0a0a0a]">
+              {uploadResults.errors && uploadResults.errors.length > 0 && (
+                <button
+                  onClick={downloadErrorReport}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-orange-700/20 hover:bg-orange-700/30 border border-orange-700/50 rounded-lg text-xs text-orange-300"
+                >
+                  <FaDownload className="w-3 h-3" />
+                  Download Errors
+                </button>
+              )}
+              <button
+                onClick={closeResultsModal}
+                className="px-4 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
