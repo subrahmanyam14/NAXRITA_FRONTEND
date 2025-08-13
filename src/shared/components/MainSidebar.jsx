@@ -31,7 +31,7 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const sidebarRef = useRef(null);
   const [expandedSections, setExpandedSections] = useState({});
   const [activeTab, setActiveTab] = useState('Menu');
-
+const userRole = (user?.role || '').toLowerCase();
   const handleCloseSidebar = () => {
     if (typeof setSidebarOpen === 'function') {
       setSidebarOpen(false);
@@ -50,13 +50,13 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
     {
       name: 'Home',
       icon: FiHome,
-      href: user?.role === 'admin' ? '/admin/home' : '/employee/home',
+      href: userRole === 'admin' ? '/admin/home' : '/employee/home',
       roles: ['admin', 'employee'],
     },
     {
       name: 'Policies',
       icon: FiBookOpen,
-      href: user?.role === 'admin' ? '/admin/public' : '/employee/public',
+      href: userRole === 'admin' ? '/admin/public' : '/employee/public',
       roles: ['admin', 'employee'],
     },
     {
@@ -67,22 +67,22 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         {
           name: 'My Performance Dashboard',
-          href: user?.role === 'admin' ? '/admin/performance/dashboard' : '/employee/performance/dashboard',
+          href: userRole === 'admin' ? '/admin/performance/dashboard' : '/employee/performance/dashboard',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Learning',
-          href: user?.role === 'admin' ? '/admin/learning' : '/employee/learning',
+          href: userRole === 'admin' ? '/admin/learning' : '/employee/learning',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Careers Marketplace',
-          href: user?.role === 'admin' ? '/admin/careers' : '/employee/careers',
+          href: userRole === 'admin' ? '/admin/careers' : '/employee/careers',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Skills Engine',
-          href: user?.role === 'admin' ? '/admin/skills' : '/employee/skills',
+          href: userRole === 'admin' ? '/admin/skills' : '/employee/skills',
           roles: ['admin', 'employee'],
         },
       ],
@@ -95,22 +95,22 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         {
           name: 'People I Lead',
-          href: user?.role === 'admin' ? '/admin/team/people' : '/employee/team/people',
+          href: userRole === 'admin' ? '/admin/team/people' : '/employee/team/people',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Performance Dashboard',
-          href: user?.role === 'admin' ? '/admin/team/performance' : '/employee/team/performance',
+          href: userRole === 'admin' ? '/admin/team/performance' : '/employee/team/performance',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Assign People Lead',
-          href: user?.role === 'admin' ? '/admin/team/assign' : '/employee/team/assign',
+          href: userRole === 'admin' ? '/admin/team/assign' : '/employee/team/assign',
           roles: ['admin', 'employee'],
         },
         {
           name: 'Anniversaries',
-          href: user?.role === 'admin' ? '/admin/team/anniversaries' : '/employee/team/anniversaries',
+          href: userRole === 'admin' ? '/admin/team/anniversaries' : '/employee/team/anniversaries',
           roles: ['admin', 'employee'],
         },
       ],
@@ -141,7 +141,7 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   ];
 
   // Filter navigation based on user role
-  const filteredNav = navigation.filter((item) => item.roles.includes(user?.role.toLowerCase() || ''));
+ const filteredNav = navigation.filter((item) => item.roles.includes(userRole));
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -300,7 +300,7 @@ const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       }`}
                     >
                       <div className="ml-4 space-y-1 border-l-2 border-[#2a2a2a] pl-4 no-scrollbar">
-                        {item.subItems?.filter(subItem => subItem.roles.includes(user?.role || '')).map((subItem) => {
+                        {item.subItems?.filter(subItem => subItem.roles.includes(userRole)).map((subItem) => {
                           const isSubActive = location.pathname === subItem.href;
                           return (
                             <Link

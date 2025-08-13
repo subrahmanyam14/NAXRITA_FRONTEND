@@ -25,100 +25,6 @@ const navigation = [
   // { name: 'Compensation', href: '/employee/compensation', icon: DollarSign },
 ];
 
-// Cosmic Background Component
-const CosmicBackground = ({ intensity = 'full' }) => {
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
-  if (reduceMotion) return null;
-
-  const getParticleCount = () => {
-    switch (intensity) {
-      case 'subtle': return { stars: 50, sparkles: 10, dots: 30 };
-      case 'moderate': return { stars: 100, sparkles: 15, dots: 50 };
-      case 'full': return { stars: 150, sparkles: 25, dots: 80 };
-      default: return { stars: 150, sparkles: 25, dots: 80 };
-    }
-  };
-
-  const counts = getParticleCount();
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {/* Starfield */}
-      {/* <div className="absolute inset-0">
-        {Array.from({ length: counts.stars }).map((_, i) => (
-          <div
-            key={`star-${i}`}
-            className="absolute rounded-full bg-white opacity-20 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${Math.random() * 2 + 2}s`,
-            }}
-          />
-        ))}
-      </div> */}
-
-      {/* Floating Sparkles */}
-      {/* <div className="absolute inset-0">
-        {Array.from({ length: counts.sparkles }).map((_, i) => (
-          <div
-            key={`sparkle-${i}`}
-            className="absolute rounded-full bg-blue-500 opacity-30 animate-bounce"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              animationDelay: `${Math.random() * 8}s`,
-              animationDuration: `${Math.random() * 4 + 6}s`,
-            }}
-          />
-        ))}
-      </div> */}
-
-      {/* Animated Dots */}
-      {/* <div className="absolute inset-0">
-        {Array.from({ length: counts.dots }).map((_, i) => (
-          <div
-            key={`dot-${i}`}
-            className="absolute rounded-full bg-blue-400 opacity-10 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              animationDelay: `${Math.random() * 4}s`,
-              animationDuration: `${Math.random() * 3 + 3}s`,
-            }}
-          />
-        ))}
-      </div> */}
-
-      {/* Nebula Clouds */}
-      {/* <div className="absolute inset-0">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={`nebula-${i}`}
-            className="absolute rounded-full blur-3xl opacity-5 animate-pulse"
-            style={{
-              left: `${Math.random() * 80}%`,
-              top: `${Math.random() * 80}%`,
-              width: `${Math.random() * 200 + 100}px`,
-              height: `${Math.random() * 200 + 100}px`,
-              background: i % 2 === 0 ? '#2563eb' : '#6b7280',
-              animationDelay: `${Math.random() * 20}s`,
-              animationDuration: `${Math.random() * 10 + 20}s`,
-            }}
-          />
-        ))}
-      </div> */}
-    </div>
-  );
-};
 
 const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -169,42 +75,41 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
     { name: 'Settings', icon: Settings, action: () => console.log('Settings') },
   ];
 
-  const handleNavClick = (href) => {
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
-  };
+  // const handleNavClick = (href) => {
+  //   if (window.innerWidth < 1024) {
+  //     setSidebarOpen(false);
+  //   }
+  // };
+const handleNavClick = () => {
+  // close only on mobile (<768), keep it open on md+
+   if (window.innerWidth < 768) {
+     setSidebarOpen(false);
+   }
+ };
 
   return (
     <Fragment>
       {/* Backdrop (only visible on mobile when sidebar is open) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 transition-opacity lg:hidden"
+          className="fixed inset-0 z-20 bg-black bg-opacity-50 transition-opacity md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-30 flex flex-col w-64 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 relative overflow-hidden`}
+        className={`fixed md:static h-screen pb-16 inset-y-0 left-0 z-30 flex flex-col w-72 transform transition-all duration-300 ease-in-out bg-[#0a0a0a] text-white border-r border-gray-700 backdrop-blur-md ${
+     sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+   } md:translate-x-0 relative overflow-hidden`}
         style={{
-          // background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #161616 100%)',
-          background:'#0a0a0a',
+                background:'#0a0a0a',
           borderRight: '1px solid #2a2a2a',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.8)',
         }}
       >
-        {/* Animated Background Effects */}
-        {/* <CosmicBackground intensity="moderate" /> */}
-        {/* <SparklesOverlay /> */}
         
-        {/* Cosmic overlay */}
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/5 to-transparent pointer-events-none" /> */}
-
-        <div className="flex-1 flex flex-col h-full relative z-10 no-scrollbar">
+        <div className="flex-1 flex flex-col h-full  relative z-10 no-scrollbar">
           {/* Header with Company Branding */}
           <div className="flex-1 flex flex-col pt-1 pb-1 overflow-y-auto no-scrollbar">
             <div className="px-6 mb-2">
@@ -346,7 +251,7 @@ const EmployeeSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
       )}
 
       {/* Custom styles */}
-      <style jsx>{`
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         
         @keyframes twinkle {

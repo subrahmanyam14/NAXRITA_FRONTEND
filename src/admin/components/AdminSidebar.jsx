@@ -1,20 +1,19 @@
-import React, { Fragment, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import {
-  Home,
-  User,
-  Briefcase,
   BarChart3,
-  FileText,
+  Briefcase,
+  Cake,
+  ChevronDown,
+  ChevronUp,
   Clock,
-  Calendar,
-  Book,
   DollarSign,
-  Settings,
   Download,
-  ChevronDown,Cake ,
-  ChevronUp
+  FileText,
+  Home,
+  Settings,
+  User
 } from 'lucide-react';
+import { Fragment, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const navigation = [
   { name: 'Summary', href: '/admin/summary', icon: Home },
@@ -170,7 +169,7 @@ const AdminSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
         {/* Cosmic Background for Sidebar */}
         {/* <CosmicBackground intensity="moderate" /> */}
         
-        <div className="flex-1 flex flex-col h-full relative z-10 no-scrollbar">
+        <div className="flex-1 flex flex-col h-full  relative z-10 no-scrollbar">
           {/* Header with Company Branding */}
           <div className="flex-1 flex flex-col pt-1 pb-1 overflow-y-auto no-scrollbar">
             <div className="px-6 mb-0">
@@ -178,7 +177,7 @@ const AdminSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
              
               
               {/* User Info with Enhanced Styling */}
-              <div className="text-center mb-6 no-scrollbar">
+              <div className="text-center mb-2 no-scrollbar">
                 <h1 
                   className="text-xl font-semibold text-white mb-1 tracking-wide"
                   style={{ 
@@ -241,7 +240,7 @@ const AdminSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
             </div>
 
             {/* Enhanced Navigation */}
-            <nav className="flex-1 px-4 space-y-2">
+            <nav className="flex-1 px-4 space-y-2 h-screen overflow-y-auto no-scrollbar">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -280,7 +279,7 @@ const AdminSidebar = ({ sidebarOpen = true, setSidebarOpen = () => {} }) => {
 
           {/* Enhanced Footer */}
           <div 
-            className="flex-shrink-0 p-2 border-t border-gray-700 relative mt-2"
+            className="flex-shrink-0 p-2 border-t border-gray-700 relative -mt-5"
             style={{
               background: 'linear-gradient(135deg, #0a0a0a 0%, #161616 100%)',
               backdropFilter: 'blur(20px)',

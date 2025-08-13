@@ -1,66 +1,132 @@
 // src/layouts/EmployeeLayout.jsx
 import { Outlet, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import EmployeeSidebar from '../employee/components/EmployeeSidebar';
 import Header from '../shared/components/Header';
 import MainSidebar from '../shared/components/MainSidebar';
 import { useAuth } from '../contexts/AuthContext';
-import { HiMenu } from 'react-icons/hi';
+import { HiMenu, HiChevronRight, HiChevronLeft } from 'react-icons/hi';
+
+const SIDEBAR_WIDTH = 280; // px, keep in sync with your EmployeeSidebar width
+const DRAG_THRESHOLD = 80; // px needed to open/close on drag
 
 const EmployeeLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const [mainSidebarOpen, setMainSidebarOpen] = useState(false);
-  const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(true);
+const getIsMobile = () =>
+   typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+ const [mainSidebarOpen, setMainSidebarOpen] = useState(false);
+ const [isMobile, setIsMobile] = useState(getIsMobile);
+ const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(() => !getIsMobile());
 
-  // Close MainSidebar when route changes (optional UX)
+  // drag state (mobile)
+  const dragStartX = useRef(null);
+  const [dragDelta, setDragDelta] = useState(0); // visual translate while dragging
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Close MainSidebar when route changes
   useEffect(() => {
     setMainSidebarOpen(false);
   }, [location]);
 
-  // Sync dashboardSidebarOpen with screen size
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setDashboardSidebarOpen(false);
-      } else {
-        setDashboardSidebarOpen(true);
-      }
-    };
+  // Sync mobile/desktop + default dashboard open state
+ useEffect(() => {
+   const handleResize = () => {
+     const mobile = window.innerWidth < 768;
+     setIsMobile(prev => {
+       if (prev !== mobile) {
+         // only when crossing breakpoint:
+         setDashboardSidebarOpen(!mobile); // open on desktop, closed on mobile
+        }
+       return mobile;
+     });
+   };
+   window.addEventListener('resize', handleResize);
+   return () => window.removeEventListener('resize', handleResize);
+ }, []);
 
-    handleResize(); // Set initial state
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Toggle functions
   const toggleDashboardSidebar = () => {
     setDashboardSidebarOpen((prev) => !prev);
   };
 
-  if (!user) {
-    return null; // Assume ProtectedRoute handles auth
-  }
+  // ---- Drag handlers (mobile only) ----
+  const onDragStart = (clientX) => {
+    if (!isMobile) return;
+    setIsDragging(true);
+    dragStartX.current = clientX;
+    setDragDelta(0);
+  };
+
+  const onDragMove = (clientX) => {
+    if (!isMobile || dragStartX.current === null) return;
+    const delta = clientX - dragStartX.current;
+
+    // If closed, we only care about rightward drag (positive)
+    // If open, we only care about leftward drag (negative)
+    if (!dashboardSidebarOpen) {
+      setDragDelta(Math.max(0, Math.min(SIDEBAR_WIDTH, delta)));
+    } else {
+      setDragDelta(Math.min(0, Math.max(-SIDEBAR_WIDTH, delta)));
+    }
+  };
+
+  const onDragEnd = () => {
+    if (!isMobile) return;
+    // Decide to open/close based on delta
+    if (!dashboardSidebarOpen && dragDelta > DRAG_THRESHOLD) {
+      setDashboardSidebarOpen(true);
+    } else if (dashboardSidebarOpen && dragDelta < -DRAG_THRESHOLD) {
+      setDashboardSidebarOpen(false);
+    }
+    // reset drag
+    setIsDragging(false);
+    dragStartX.current = null;
+    setDragDelta(0);
+  };
+
+  // Pointer helpers for both mouse & touch
+  const handleHandleMouseDown = (e) => onDragStart(e.clientX);
+  const handleHandleMouseMove = (e) => {
+    if (isDragging) onDragMove(e.clientX);
+  };
+  const handleHandleMouseUp = onDragEnd;
+
+  const handleHandleTouchStart = (e) => onDragStart(e.touches[0].clientX);
+  const handleHandleTouchMove = (e) => onDragMove(e.touches[0].clientX);
+  const handleHandleTouchEnd = onDragEnd;
+
+  if (!user) return null; // ProtectedRoute handles redirect
+
+  // Compute sidebar translate for mobile
+  const baseTranslate = dashboardSidebarOpen ? 0 : -SIDEBAR_WIDTH;
+  const dragTranslate = isDragging ? dragDelta : 0;
+  const currentTranslate = isMobile
+    ? `translateX(${baseTranslate + dragTranslate}px)`
+    : 'translateX(0)';
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-      {/* Header (Fixed at Top) */}
+      {/* Header */}
       <Header
         isPublic={false}
-        setMainSidebarOpen={setMainSidebarOpen} // Triggers MainSidebar
+        setMainSidebarOpen={setMainSidebarOpen}
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Employee Dashboard Sidebar (Persistent on desktop) */}
-        <EmployeeSidebar
-          sidebarOpen={dashboardSidebarOpen}
-          setSidebarOpen={setDashboardSidebarOpen}
-        />
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Desktop / Tablet persistent sidebar */}
+     {/* Desktop / Tablet persistent sidebar */}
+<div className="hidden md:block h-screen" >
+  <EmployeeSidebar
+    sidebarOpen={true}                 // ✅ always open on md+
+    setSidebarOpen={() => {}}          // noop so nothing can close it
+    className="h-full"
+  />
+</div>
+
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Page Content */}
+        <div className="flex-1 flex flex-col min-w-0 relative">
           <main className="flex-1 relative z-0 overflow-y-auto bg-white">
             <div className="py-0">
               <div className="max-w-7xl mx-auto px-0 sm:px-6 md:px-0">
@@ -69,8 +135,8 @@ const EmployeeLayout = () => {
             </div>
           </main>
 
-          {/* Mobile Dashboard Toggle Button */}
-          <div className="md:hidden fixed bottom-4 left-4 z-20">
+          {/* Mobile Dashboard Toggle FAB (you can keep it or remove since we add a hanger) */}
+          {/* <div className="md:hidden fixed bottom-4 left-4 z-20">
             <button
               type="button"
               className="inline-flex items-center justify-center p-3 rounded-full shadow-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -79,19 +145,79 @@ const EmployeeLayout = () => {
             >
               <HiMenu className="h-6 w-6" />
             </button>
-          </div>
+          </div> */}
         </div>
+
+        {/* ===== Mobile Overlay Sidebar (slides over Outlet) ===== */}
+        {isMobile && (
+          <>
+            {/* Backdrop when open */}
+            {dashboardSidebarOpen && (
+              <div
+                className="md:hidden fixed inset-0 z-30 bg-black/40"
+                onClick={() => setDashboardSidebarOpen(false)}
+              />
+            )}
+
+            {/* Sliding container (fixed) */}
+            <div
+              className="md:hidden fixed inset-y-0 left-0 z-40"
+              style={{
+                width: SIDEBAR_WIDTH,
+                transform: currentTranslate,
+                transition: isDragging ? 'none' : 'transform 200ms ease',
+              }}
+              // Mouse
+              onMouseMove={handleHandleMouseMove}
+              onMouseUp={handleHandleMouseUp}
+              onMouseLeave={isDragging ? handleHandleMouseUp : undefined}
+              // Touch
+              onTouchMove={handleHandleTouchMove}
+              onTouchEnd={handleHandleTouchEnd}
+            >
+              {/* Sidebar content */}
+              <div className="h-full bg-white shadow-xl border-r border-gray-200">
+                <EmployeeSidebar
+                  sidebarOpen={true}
+                  setSidebarOpen={setDashboardSidebarOpen}
+                  className="h-full"
+                />
+              </div>
+
+              {/* Hanger / Handle */}
+              <div
+                className="absolute top-1/2 -right-7 -translate-y-1/2"
+                // Make the handle easy to grab
+                onMouseDown={handleHandleMouseDown}
+                onTouchStart={handleHandleTouchStart}
+              >
+                <button
+                  type="button"
+                  aria-label="Drag or tap to toggle employee menu"
+                  onClick={() => setDashboardSidebarOpen((p) => !p)}
+                  className="h-12 w-6 rounded-r-full bg-white shadow-lg border border-gray-200 flex items-center justify-center"
+                >
+                  {dashboardSidebarOpen ? (
+                    <HiChevronLeft className="h-6 w-8 text-gray-700" />
+                  ) : (
+                    <HiChevronRight className="h-6 w-8 text-gray-700" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+           
+          </>
+        )}
       </div>
 
-      {/* MainSidebar (Global Menu) - Modal Overlay */}
+      {/* MainSidebar (Global Menu) */}
       {mainSidebarOpen && (
         <>
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity"
+            className="fixed inset-0 z-40 bg-black/50 transition-opacity"
             onClick={() => setMainSidebarOpen(false)}
           />
-          {/* Sidebar */}
           <MainSidebar sidebarOpen={mainSidebarOpen} setSidebarOpen={setMainSidebarOpen} />
         </>
       )}
