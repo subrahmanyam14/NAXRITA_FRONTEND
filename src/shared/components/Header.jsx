@@ -6,7 +6,7 @@ import { FiSearch, FiMenu, FiX, FiUser, FiSettings, FiLogOut } from 'react-icons
 import MainSidebar from './MainSidebar';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function Header({ isPublic = false }) {
+export default function Header() {
   const { user: contextUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function Header({ isPublic = false }) {
   const toggleMobileSearch = () => setMobileSearchOpen((s) => !s);
 
   const profileNavigation = [
-    { name: 'View Profile', icon: FiUser, href: `/${user?.role}/profile` },
+    { name: 'View Profile', icon: FiUser, href: `/${user?.role === 'admin'? 'Admin': 'Employee'}/profile` },
     { name: 'Settings', icon: FiSettings, href: '/settings' },
     { name: 'Sign out', icon: FiLogOut, onClick: logout },
   ];

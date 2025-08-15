@@ -2,6 +2,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRoles } from '../../contexts/RolesContext';
 
 // Icons
 import { IoClose } from 'react-icons/io5';
@@ -27,11 +28,17 @@ import {
 
 const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const { user } = useAuth();
+  const { roles } = useRoles();
   const location = useLocation();
   const sidebarRef = useRef(null);
   const [expandedSections, setExpandedSections] = useState({});
   const [activeTab, setActiveTab] = useState('Menu');
-const userRole = (user?.role || '').toLowerCase();
+
+  // Helper functions to determine user permissions
+  const isAdmin = () => user?.role === 'Admin';
+  const isEmployee = () => !isAdmin() && roles.includes(user?.role);
+  const getBasePath = () => isAdmin() ? '/admin' : '/employee';
+
   const handleCloseSidebar = () => {
     if (typeof setSidebarOpen === 'function') {
       setSidebarOpen(false);
@@ -45,18 +52,18 @@ const userRole = (user?.role || '').toLowerCase();
     }));
   };
 
-  // Navigation structure with sub-items
-  const navigation = [
+  // Dynamic navigation structure based on user context
+  const getNavigation = () => [
     {
       name: 'Home',
       icon: FiHome,
-      href: userRole === 'admin' ? '/admin/home' : '/employee/home',
+      href: `${getBasePath()}/home`,
       roles: ['admin', 'employee'],
     },
     {
       name: 'Policies',
       icon: FiBookOpen,
-      href: userRole === 'admin' ? '/admin/public' : '/employee/public',
+      href: `${getBasePath()}/public`,
       roles: ['admin', 'employee'],
     },
     {
@@ -67,22 +74,22 @@ const userRole = (user?.role || '').toLowerCase();
       subItems: [
         {
           name: 'My Performance Dashboard',
-          href: userRole === 'admin' ? '/admin/performance/dashboard' : '/employee/performance/dashboard',
+          href: `${getBasePath()}/performance/dashboard`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Learning',
-          href: userRole === 'admin' ? '/admin/learning' : '/employee/learning',
+          href: `${getBasePath()}/learning`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Careers Marketplace',
-          href: userRole === 'admin' ? '/admin/careers' : '/employee/careers',
+          href: `${getBasePath()}/careers`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Skills Engine',
-          href: userRole === 'admin' ? '/admin/skills' : '/employee/skills',
+          href: `${getBasePath()}/skills`,
           roles: ['admin', 'employee'],
         },
       ],
@@ -95,22 +102,22 @@ const userRole = (user?.role || '').toLowerCase();
       subItems: [
         {
           name: 'People I Lead',
-          href: userRole === 'admin' ? '/admin/team/people' : '/employee/team/people',
+          href: `${getBasePath()}/team/people`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Performance Dashboard',
-          href: userRole === 'admin' ? '/admin/team/performance' : '/employee/team/performance',
+          href: `${getBasePath()}/team/performance`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Assign People Lead',
-          href: userRole === 'admin' ? '/admin/team/assign' : '/employee/team/assign',
+          href: `${getBasePath()}/team/assign`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Anniversaries',
-          href: userRole === 'admin' ? '/admin/team/anniversaries' : '/employee/team/anniversaries',
+          href: `${getBasePath()}/team/anniversaries`,
           roles: ['admin', 'employee'],
         },
       ],
@@ -123,25 +130,135 @@ const userRole = (user?.role || '').toLowerCase();
       subItems: [
         {
           name: 'Calendar',
-          href: user?.role.toLowerCase() === 'admin' ? '/admin/calendar' : '/employee/calendar',
+          href: `${getBasePath()}/calendar`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Policies',
-          href: user?.role.toLowerCase() === 'admin' ? '/admin/policies' : '/employee/policies',
+          href: `${getBasePath()}/policies`,
           roles: ['admin', 'employee'],
         },
         {
           name: 'Settings',
-          href: user?.role.toLowerCase() === 'admin' ? '/admin/settings' : '/employee/settings',
+          href: `${getBasePath()}/settings`,
           roles: ['admin', 'employee'],
         },
       ],
     },
+    // Admin-only sections
+    ...(isAdmin() ? [
+      {
+        name: 'Management',
+        icon: FiUsers,
+        roles: ['admin'],
+        expandable: true,
+        subItems: [
+          {
+            name: 'Manage Employees',
+            href: '/admin/employees',
+            roles: ['admin'],
+          },
+          {
+            name: 'Employee Performance',
+            href: '/admin/performance',
+            roles: ['admin'],
+          },
+          {
+            name: 'Employee Birthdays',
+            href: '/admin/birthdays',
+            roles: ['admin'],
+          },
+          {
+            name: 'Admin Summary',
+            href: '/admin/summary',
+            roles: ['admin'],
+          },
+        ],
+      },
+      {
+        name: 'Administration',
+        icon: FiSettings,
+        roles: ['admin'],
+        expandable: true,
+        subItems: [
+          {
+            name: 'Compensation',
+            href: '/admin/compensation',
+            roles: ['admin'],
+          },
+          {
+            name: 'Career Management',
+            href: '/admin/career',
+            roles: ['admin'],
+          },
+          {
+            name: 'Contact Management',
+            href: '/admin/contact',
+            roles: ['admin'],
+          },
+          {
+            name: 'Performance Overview',
+            href: '/admin/overview',
+            roles: ['admin'],
+          },
+        ],
+      }
+    ] : []),
+    // Employee-only sections (visible to all employee roles)
+    ...(isEmployee() ? [
+      {
+        name: 'My Workspace',
+        icon: FiBriefcase,
+        roles: ['employee'],
+        expandable: true,
+        subItems: [
+          {
+            name: 'My Tasks',
+            href: '/employee/tasks',
+            roles: ['employee'],
+          },
+          {
+            name: 'My Summary',
+            href: '/employee/summary',
+            roles: ['employee'],
+          },
+          {
+            name: 'My Compensation',
+            href: '/employee/compensation',
+            roles: ['employee'],
+          },
+          {
+            name: 'Career Dashboard',
+            href: '/employee/career',
+            roles: ['employee'],
+          },
+          {
+            name: 'Overview Dashboard',
+            href: '/employee/overview',
+            roles: ['employee'],
+          },
+        ],
+      }
+    ] : []),
   ];
 
-  // Filter navigation based on user role
- const filteredNav = navigation.filter((item) => item.roles.includes(userRole));
+  // Filter navigation based on user permissions
+  const getFilteredNavigation = () => {
+    const navigation = getNavigation();
+    
+    return navigation.filter((item) => {
+      if (item.roles.includes('admin') && isAdmin()) return true;
+      if (item.roles.includes('employee') && isEmployee()) return true;
+      return false;
+    }).map(item => ({
+      ...item,
+      subItems: item.subItems?.filter(subItem => {
+        if (subItem.roles.includes('admin') && isAdmin()) return true;
+        if (subItem.roles.includes('employee') && isEmployee()) return true;
+        return false;
+      })
+    }));
+  };
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -182,6 +299,9 @@ const userRole = (user?.role || '').toLowerCase();
     };
   }, [sidebarOpen]);
 
+  // Get filtered navigation items
+  const filteredNav = getFilteredNavigation();
+
   return (
     <Fragment>
       {/* Black Background Overlay */}
@@ -212,7 +332,6 @@ const userRole = (user?.role || '').toLowerCase();
                   e.target.style.display = 'none';
                 }}
               />
-              {/* <h1 className="text-xl font-bold text-white tracking-tight">naxrita</h1> */}
             </div>
             <button
               type="button"
@@ -243,7 +362,7 @@ const userRole = (user?.role || '').toLowerCase();
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 px-4 py-4 overflow-y-auto   no-scrollbar">
+        <nav className="flex-1 px-4 py-4 overflow-y-auto no-scrollbar">
           <div className="space-y-1 no-scrollbar">
             {filteredNav.map((item) => {
               const isExpanded = expandedSections[item.name];
@@ -300,7 +419,7 @@ const userRole = (user?.role || '').toLowerCase();
                       }`}
                     >
                       <div className="ml-4 space-y-1 border-l-2 border-[#2a2a2a] pl-4 no-scrollbar">
-                        {item.subItems?.filter(subItem => subItem.roles.includes(userRole)).map((subItem) => {
+                        {item.subItems?.map((subItem) => {
                           const isSubActive = location.pathname === subItem.href;
                           return (
                             <Link
@@ -333,17 +452,6 @@ const userRole = (user?.role || '').toLowerCase();
 
         {/* Bottom Action Buttons */}
         <div className="p-6 border-t border-[#2a2a2a] bg-[#0a0a0a]">
-          {/* <div className="flex space-x-3">
-            <button className="flex-1 flex items-center justify-center px-4 py-3 border border-[#404040] rounded-xl text-sm font-medium text-[#a3a3a3] bg-[#161616] hover:text-white hover:bg-[#1e1e1e] hover:border-[#2563eb] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
-              <FiPlus className="h-4 w-4 mr-2" />
-              Add
-            </button>
-            <button className="flex-1 flex items-center justify-center px-4 py-3 border border-[#404040] rounded-xl text-sm font-medium text-[#a3a3a3] bg-[#161616] hover:text-white hover:bg-[#1e1e1e] hover:border-[#2563eb] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
-              <FiEdit3 className="h-4 w-4 mr-2" />
-              Edit
-            </button>
-          </div> */}
-          
           {/* User Info */}
           {user && (
             <div className="mt-4 p-4 bg-[#161616] rounded-xl border border-[#2a2a2a]">
@@ -353,7 +461,12 @@ const userRole = (user?.role || '').toLowerCase();
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-white truncate">{user.name || 'User'}</div>
-                  <div className="text-xs text-[#6b7280] capitalize">{user.role || 'Employee'}</div>
+                  <div className="text-xs text-[#6b7280] capitalize">
+                    {isAdmin() ? 'Administrator' : user.role || 'Employee'}
+                  </div>
+                  <div className="text-xs text-[#4b5563] mt-1">
+                    {isAdmin() ? 'Admin Access' : 'Employee Access'}
+                  </div>
                 </div>
               </div>
             </div>

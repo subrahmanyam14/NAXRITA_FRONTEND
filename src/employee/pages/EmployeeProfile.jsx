@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import {
   AlertCircle,
   Award,
@@ -9,18 +10,18 @@ import {
   Calendar,
   Camera,
   CheckCircle,
-  ChevronLeft, 
+  ChevronLeft,
   ChevronRight,
   Clock,
   Edit3,
   Eye,
   EyeOff,
   Mail,
-  MapPin, 
+  MapPin,
   Phone,
   Plus,
   Save,
-  Star, 
+  Star,
   Target,
   User,
   X,
@@ -176,38 +177,66 @@ const PasswordUpdateModal = ({ isOpen, onClose, onUpdate }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match');
-      return;
-    }
-    
-    setLoading(true);
-    try {
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // Validate password match
+  if (passwordData.newPassword !== passwordData.confirmPassword) {
+    toast.error('New passwords do not match');
+    return;
+  }
+
+  setLoading(true);
+  
+  try {
+    // First call the onUpdate callback if it exists
+    if (onUpdate) {
       await onUpdate(passwordData);
-      const res = await axios.post(
-        `${process.env.REACT_APP_URL}/api/auth/update-password`,
-        passwordData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      if (res.status === 200) {
-        alert(res.data.message);
-      }
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      onClose();
-    } catch (error) {
-      alert(error?.response?.data?.message || 'Password update failed');
-      console.error('Password update failed:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    // Then make the API call
+    const res = await axios.post(
+      `${process.env.REACT_APP_URL}/api/auth/update-password`,
+      passwordData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // Check for successful response
+    if (res.status === 200) {
+      toast.success('🎉 You have successfully updated your password.', {
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true
+      });
+      // Reset form and close modal
+      setPasswordData({ 
+        currentPassword: '', 
+        newPassword: '', 
+        confirmPassword: '' 
+      });
+      onClose();
+    }
+  } catch (error) {
+    console.error('Password update failed:', error);
+    
+    // Show appropriate error message
+    const errorMessage = error?.response?.data?.message || 'Password update failed';
+    toast.error(errorMessage, {
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!isOpen) return null;
 
@@ -389,11 +418,11 @@ const CosmicProfileDashboard = () => {
         api.getPersonalDetails(),
         api.getJobDetails()
       ]);
-      
+
       setEmployeeData(employee);
       setPersonalData(personal);
       setJobData(job);
-      
+
       if (personal) {
         setEditPersonalData(personal);
       }
@@ -408,7 +437,7 @@ const CosmicProfileDashboard = () => {
     try {
       setSaving(true);
       let result;
-      
+
       if (personalData && personalData.id) {
         result = await api.updatePersonalDetails(personalData.id, editPersonalData);
       } else {
@@ -417,7 +446,7 @@ const CosmicProfileDashboard = () => {
           individual_data_id: employeeData.id
         });
       }
-      
+
       if (result.success) {
         setPersonalData(editPersonalData);
         setEditMode(false);
@@ -537,11 +566,10 @@ const CosmicProfileDashboard = () => {
 
       {/* Notification Toast */}
       {notification.show && (
-        <div className={`fixed top-4 right-4 md:top-6 md:right-6 z-50 p-3 md:p-4 rounded-lg shadow-lg flex items-center space-x-2 md:space-x-3 backdrop-blur-lg border ${
-          notification.type === 'success' 
-            ? 'bg-[#22c55e]/90 text-white border-[#22c55e]/20' 
+        <div className={`fixed top-4 right-4 md:top-6 md:right-6 z-50 p-3 md:p-4 rounded-lg shadow-lg flex items-center space-x-2 md:space-x-3 backdrop-blur-lg border ${notification.type === 'success'
+            ? 'bg-[#22c55e]/90 text-white border-[#22c55e]/20'
             : 'bg-[#ef4444]/90 text-white border-[#ef4444]/20'
-        }`}>
+          }`}>
           {notification.type === 'success' ? <CheckCircle className="h-4 w-4 md:h-5 md:w-5" /> : <AlertCircle className="h-4 w-4 md:h-5 md:w-5" />}
           <span className="font-light text-xs md:text-sm">{notification.message}</span>
         </div>
@@ -555,14 +583,14 @@ const CosmicProfileDashboard = () => {
       />
 
       {/* Confirmation Modal */}
-      <ConfirmationModal
+      {/* <ConfirmationModal
         isOpen={showConfirmationModal}
         onClose={() => setShowConfirmationModal(false)}
         onConfirm={confirmationData.onConfirm}
         title={confirmationData.title}
         message={confirmationData.message}
         type={confirmationData.type}
-      />
+      /> */}
 
       {/* Main Content */}
       <div className="transition-all duration-300">
@@ -574,7 +602,7 @@ const CosmicProfileDashboard = () => {
                 <h1 className="text-lg md:text-2xl font-light text-[#ffffff]">Profile Dashboard</h1>
                 <p className="text-xs md:text-sm font-light text-[#6b7280] mt-0.5 md:mt-1">Manage your stellar information</p>
               </div>
-              
+
               <div className="flex items-center space-x-2 md:space-x-3">
                 {editMode ? (
                   <>
@@ -619,7 +647,7 @@ const CosmicProfileDashboard = () => {
 
         <div className="p-4 md:p-8 space-y-4 md:space-y-6 relative z-10">
           {/* Profile Header Card */}
-         <div
+          <div
             className="rounded-2xl md:rounded-2xl p-4 md:p-8 mb-6 md:mb-8 border border-gray-800 relative overflow-hidden"
             style={{
               background: 'linear-gradient(180deg, #161616 0%, #1a1a1a 100%)',
@@ -651,7 +679,7 @@ const CosmicProfileDashboard = () => {
                     <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0">
@@ -676,7 +704,7 @@ const CosmicProfileDashboard = () => {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-1.5 md:space-x-3 ml-2">
                       <span className="px-2 md:px-3 py-0.5 md:py-1 bg-[#22c55e]/20 text-[#22c55e] text-xs md:text-sm font-light rounded-full border border-[#22c55e]/30 cosmic-glow">
                         {employeeData?.status || 'Active'}
@@ -702,11 +730,10 @@ const CosmicProfileDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveSection(tab.id)}
-                  className={`flex-none md:flex-1 min-w-[9rem] md:min-w-0 flex items-center justify-center space-x-2 py-2.5 md:py-3 px-3 md:px-4 text-xs md:text-sm font-light rounded-lg transition-all backdrop-blur-lg ${
-                    activeSection === tab.id
+                  className={`flex-none md:flex-1 min-w-[9rem] md:min-w-0 flex items-center justify-center space-x-2 py-2.5 md:py-3 px-3 md:px-4 text-xs md:text-sm font-light rounded-lg transition-all backdrop-blur-lg ${activeSection === tab.id
                       ? 'bg-[#2563eb] text-[#ffffff] shadow-[0_0_20px_rgba(37,99,235,0.4)]'
                       : 'text-[#a3a3a3] hover:bg-[#111111] hover:text-[#ffffff]'
-                  }`}
+                    }`}
                 >
                   <tab.icon className="h-4 w-4" />
                   <span>{tab.label}</span>
@@ -727,7 +754,7 @@ const CosmicProfileDashboard = () => {
                       <User className="h-5 w-5 text-[#2563eb]" />
                       <span>Personal Information</span>
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Gender</label>
@@ -748,7 +775,7 @@ const CosmicProfileDashboard = () => {
                           </p>
                         )}
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Date of Birth</label>
                         {editMode ? (
@@ -764,7 +791,7 @@ const CosmicProfileDashboard = () => {
                           </p>
                         )}
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Email Address</label>
                         {editMode ? (
@@ -783,7 +810,7 @@ const CosmicProfileDashboard = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Phone Number</label>
                         {editMode ? (
@@ -857,7 +884,7 @@ const CosmicProfileDashboard = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Citizenship Status</label>
                         {editMode ? (
@@ -877,7 +904,7 @@ const CosmicProfileDashboard = () => {
                         )}
                       </div>
 
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Address</label>
                         {editMode ? (
@@ -971,7 +998,7 @@ const CosmicProfileDashboard = () => {
                       <Briefcase className="h-5 w-5 text-[#2563eb]" />
                       <span>Job Information</span>
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Position</label>
@@ -979,21 +1006,21 @@ const CosmicProfileDashboard = () => {
                           {jobData?.job || employeeData?.job_profile_progression_model_designation || 'Not specified'}
                         </p>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Business Title</label>
                         <p className="text-sm md:text-lg font-light text-[#ffffff] bg-[#111111] px-3 md:px-4 py-2.5 md:py-3 rounded-lg border border-[#2a2a2a]">
                           {jobData?.business_title || 'Not specified'}
                         </p>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Department</label>
                         <p className="text-sm md:text-lg font-light text-[#ffffff] bg-[#111111] px-3 md:px-4 py-2.5 md:py-3 rounded-lg border border-[#2a2a2a]">
                           {employeeData?.department_name || 'Not specified'}
                         </p>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Employee Type</label>
                         <p className="text-sm md:text-lg font-light text-[#ffffff] bg-[#111111] px-3 md:px-4 py-2.5 md:py-3 rounded-lg border border-[#2a2a2a]">
@@ -1009,7 +1036,7 @@ const CosmicProfileDashboard = () => {
                           </span>
                         </div>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Location</label>
                         <div className="flex items-center space-x-2.5 md:space-x-3 bg-[#111111] px-3 md:px-4 py-2.5 md:py-3 rounded-lg border border-[#2a2a2a]">
@@ -1033,7 +1060,7 @@ const CosmicProfileDashboard = () => {
                           {jobData?.management_level || 'Not specified'}
                         </p>
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-xs md:text-sm font-light text-[#a3a3a3] mb-1.5 md:mb-2">Work Address</label>
                         <p className="text-xs md:text-sm font-light text-[#a3a3a3] bg-[#111111] px-3 md:px-4 py-2.5 md:py-3 rounded-lg border border-[#2a2a2a] leading-relaxed">
@@ -1053,7 +1080,7 @@ const CosmicProfileDashboard = () => {
                       <Shield className="h-5 w-5 text-[#2563eb]" />
                       <span>Security Settings</span>
                     </h3>
-                    
+
                     <div className="space-y-4 md:space-y-6">
                       <div className="p-4 md:p-6 bg-[#111111] rounded-lg border border-[#2a2a2a]">
                         <div className="flex items-center justify-between gap-3">
@@ -1103,7 +1130,7 @@ const CosmicProfileDashboard = () => {
                     <Star className="h-4 w-4 text-[#f59e0b]" />
                     <span>Profile Stats</span>
                   </h4>
-                  
+
                   <div className="space-y-2.5 md:space-y-3">
                     <div className="flex justify-between items-center p-2 bg-[#111111] rounded border border-[#2a2a2a]">
                       <span className="text-xs md:text-sm font-light text-[#a3a3a3]">Employee ID</span>
@@ -1136,7 +1163,7 @@ const CosmicProfileDashboard = () => {
                       <Phone className="h-4 w-4 text-[#ef4444]" />
                       <span>Emergency Contact</span>
                     </h4>
-                    
+
                     <div className="space-y-1.5 p-3 bg-[#111111] rounded-lg border border-[#2a2a2a]">
                       <p className="text-sm font-light text-[#ffffff] truncate">{personalData.emergency_contact_name}</p>
                       <p className="text-xs md:text-sm font-light text-[#a3a3a3] flex items-center space-x-2">

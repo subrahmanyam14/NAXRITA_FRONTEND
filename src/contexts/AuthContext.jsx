@@ -5,8 +5,8 @@ import ConfirmationModal from '../components/ConfirmationModal';
 const AuthContext = createContext();
 
 // Timeout constants
-const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 20 minutes
-const SESSION_EXPIRATION = 2 * 60 * 1000; // 12 hours
+const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const SESSION_EXPIRATION = 12 * 60 * 60 * 1000; // 12 hours
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
