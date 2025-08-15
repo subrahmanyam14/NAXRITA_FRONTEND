@@ -26,7 +26,7 @@ export default function Header() {
   const toggleMobileSearch = () => setMobileSearchOpen((s) => !s);
 
   const profileNavigation = [
-    { name: 'View Profile', icon: FiUser, href: `/${user?.role === 'admin'? 'Admin': 'Employee'}/profile` },
+    { name: 'View Profile', icon: FiUser, href: `/${['Super Admin', 'Admin'].includes(user?.role)? 'Admin': 'Employee'}/profile` },
     { name: 'Settings', icon: FiSettings, href: '/settings' },
     { name: 'Sign out', icon: FiLogOut, onClick: logout },
   ];

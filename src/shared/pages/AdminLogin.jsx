@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, CheckCircle, X, Loader, Lock, Shield, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle, X, Loader, Mail, Lock, Users, Calendar, Star, Building, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth hook
 
 export default function AdminLogin() {
   // Form states
-  const [adminId, setAdminId] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -14,7 +14,7 @@ export default function AdminLogin() {
   const [errors, setErrors] = useState({});
   
   const navigate = useNavigate();
-  const { loginAsAdmin } = useAuth(); // Use the new admin-specific login function
+  const { login } = useAuth(); // Use the regular login function from AuthContext
 
   // Starfield animation state
   const [stars, setStars] = useState([]);
@@ -55,14 +55,14 @@ export default function AdminLogin() {
     generateSparkles();
   }, []);
 
-  const handleAdminLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({});
     
     // Validate form
     const newErrors = {};
-    if (!adminId) newErrors.adminId = 'Admin ID is required';
+    if (!employeeId) newErrors.employeeId = 'Employee ID is required';
     if (!password) newErrors.password = 'Password is required';
     
     if (Object.keys(newErrors).length > 0) {
@@ -72,88 +72,108 @@ export default function AdminLogin() {
     }
     
     try {
-      console.log('Attempting admin authentication...');
+      console.log('Attempting employee authentication...');
       
-      const response = await fetch(`${process.env.REACT_APP_URL}/api/auth/admin-login`, {
+      const response = await fetch(`${process.env.REACT_APP_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          adminId,
+          employeeId,
           password
         })
       });
 
       const data = await response.json();
       
-      if (response.ok && data.user.role === 'Admin') {
-        console.log('Admin authentication successful');
+      if (response.ok && ["Super Admin", "Admin"].includes(data.user.role)) {
+        console.log('Employee authentication successful');
         setIsSuccess(true);
         
-        // Use the admin-specific login function
-        loginAsAdmin(data.user, data.token);
+        // Use the login function from AuthContext - always redirect to employee dashboard
+        login(data.user, data.token);
         
         setTimeout(() => {
           navigate('/admin/home');
         }, 1500);
         
       } else {
-        setErrors({ auth: data.message || 'Invalid admin credentials' });
+        // Handle error response
+        setErrors({ auth: data.message || 'Invalid credentials' });
       }
       
     } catch (error) {
-      console.error('Admin authentication error:', error);
+      console.error('Authentication error:', error);
       
-      // Fallback to dummy admin authentication if backend is unavailable
-      console.log('Backend unavailable, attempting admin dummy fallback...');
+      // Fallback to dummy authentication if backend is unavailable
+      console.log('Backend unavailable, attempting dummy fallback...');
       
       try {
-        const dummyResult = await authenticateAdminWithDummy(adminId, password);
+        const dummyResult = await authenticateWithDummy(employeeId, password);
         
         if (dummyResult.success) {
-          console.log('Dummy admin authentication successful');
+          console.log('Dummy authentication successful');
           setIsSuccess(true);
           
-          // Use the admin-specific login function
-          loginAsAdmin(dummyResult.user, dummyResult.token);
+          // Use the login function from AuthContext - always redirect to employee dashboard
+          login(dummyResult.user, dummyResult.token);
           
           setTimeout(() => {
-            navigate('/admin/home');
+            navigate('/employee/home');
           }, 1500);
           
         } else {
           setErrors({ auth: dummyResult.message });
         }
       } catch (dummyError) {
-        setErrors({ auth: 'Admin authentication system unavailable. Please try again later.' });
+        setErrors({ auth: 'Authentication system unavailable. Please try again later.' });
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Dummy admin authentication function as fallback
-  const authenticateAdminWithDummy = async (adminId, password) => {
+  // Dummy authentication function as fallback - only for employees
+  const authenticateWithDummy = async (employeeId, password) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         let dummyUser = null;
         
-        // Admin credentials - only admin can login through this route
-        if (adminId === 'ADM001' && password === 'ADM001@2023-01-01') {
+        // Employee credentials only - admins cannot login through this route
+        if (employeeId === 'EMP001' && password === 'EMP001@2023-03-20') {
           dummyUser = {
-            id: 1,
-            individual_data_id: 1,
-            email: 'admin@company.com',
-            employeeId: 'ADM001',
-            name: 'Admin User',
-            role: 'Admin',
-            avatar: 'A',
-            jobTitle: 'HR Administrator',
-            department: 'Human Resources',
-            joinDate: '2023-01-01',
-            permissions: ['all', 'user_management', 'system_config', 'audit_logs'],
-            loginType: 'admin' // Mark as admin login
+            id: 2,
+            individual_data_id: 2,
+            email: 'employee@company.com',
+            employeeId: 'EMP001',
+            name: 'Employee User',
+            role: 'Employee',
+            avatar: 'E',
+            jobTitle: 'Software Developer',
+            department: 'Engineering',
+            joinDate: '2023-03-20',
+            manager: 'John Smith',
+            permissions: ['profile_view', 'attendance_view', 'payslip_view'],
+            loginType: 'employee' // Mark as employee login
+          };
+        }
+        // Add more employee dummy accounts here if needed
+        else if (employeeId === 'EMP002' && password === 'EMP002@2023-04-15') {
+          dummyUser = {
+            id: 3,
+            individual_data_id: 3,
+            email: 'employee2@company.com',
+            employeeId: 'EMP002',
+            name: 'Jane Smith',
+            role: 'Employee',
+            avatar: 'J',
+            jobTitle: 'Marketing Specialist',
+            department: 'Marketing',
+            joinDate: '2023-04-15',
+            manager: 'Sarah Johnson',
+            permissions: ['profile_view', 'attendance_view', 'payslip_view'],
+            loginType: 'employee'
           };
         }
         
@@ -161,13 +181,13 @@ export default function AdminLogin() {
           resolve({
             success: true,
             user: dummyUser,
-            token: 'admin_token_' + Date.now(),
-            message: 'Admin Login successful (Demo Mode)'
+            token: 'employee_token_' + Date.now(),
+            message: 'Employee Login successful (Demo Mode)'
           });
         } else {
           resolve({
             success: false,
-            message: 'Invalid admin credentials'
+            message: 'Invalid employee ID or password'
           });
         }
       }, 1000);
@@ -183,17 +203,17 @@ export default function AdminLogin() {
             <div className="w-20 h-20 rounded-full bg-[#22c55e] bg-opacity-30 flex items-center justify-center mb-4 border border-[#22c55e] shadow-glow-success">
               <CheckCircle className="text-[#22c55e] w-12 h-12" />
             </div>
-            <h3 className="text-2xl font-bold text-[#ffffff] font-['Plus_Jakarta_Sans']">Admin Access Granted!</h3>
+            <h3 className="text-2xl font-bold text-[#ffffff] font-['Plus_Jakarta_Sans']">Welcome!</h3>
             <p className="text-[#a3a3a3] mt-2">Login successful</p>
-            <p className="text-[#6b7280] mt-1 text-sm">Redirecting to admin dashboard...</p>
+            <p className="text-[#6b7280] mt-1 text-sm">Redirecting to your dashboard...</p>
           </div>
         </div>
       )}
       
       <div className="relative z-10 h-[90vh] w-full max-w-6xl flex flex-col md:flex-row shadow-large rounded-3xl overflow-hidden bg-[#0a0a0a] backdrop-blur-xl border border-[#2a2a2a]">
         
-        {/* Left section - Admin Branding */}
-        <div className="w-full md:w-3/5 bg-gradient-to-br from-[#000000] via-[#1a1a1a] to-[#dc2626] px-12 py-12 flex flex-col justify-center text-white relative overflow-hidden">
+        {/* Left section - naxrita Branding */}
+        <div className="w-full md:w-3/5 bg-gradient-to-br from-[#000000] via-[#111111] to-[#2563eb] px-12 py-12 flex flex-col justify-center text-white relative overflow-hidden">
           <div className="absolute inset-0">
             {stars.slice(0, 50).map(star => (
               <div
@@ -213,40 +233,33 @@ export default function AdminLogin() {
 
           <div className="relative z-10 text-center">
             <div className="flex flex-col items-center mb-8">
-              <div className="relative group mb-6">
-                <div className="w-32 h-32 bg-gradient-to-br from-[#dc2626] to-[#7c2d12] rounded-full flex items-center justify-center transform transition-all duration-500 group-hover:scale-110 shadow-2xl">
-                  <Shield className="w-16 h-16 text-white" />
-                </div>
+              <div className="relative group">
+                <img 
+                  src="https://naxrita.com/wp-content/uploads/2024/10/logo-t.png" 
+                  alt="naxrita Logo"
+                  className="h-40 w-auto mb-4 transform transition-all duration-500 group-hover:scale-110 filter drop-shadow-2xl"
+                  style={{
+                    filter: 'drop-shadow(0 0 20px rgba(37, 99, 235, 0.6))',
+                    animation: 'glow-pulse 3s ease-in-out infinite alternate'
+                  }}
+                />
               </div>
-              <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#ffffff] via-[#dc2626] to-[#ffffff] bg-clip-text text-transparent">
-                ADMIN
-              </h1>
-              <h2 className="text-3xl font-light mb-6 text-[#e5e5e5]">
-                Control Panel
-              </h2>
-              <p className="text-[#c1c1c1] text-lg max-w-md leading-relaxed">
-                Secure administrative access to naxrita HR Solutions. 
-                Manage systems, users, and organizational data with enhanced privileges.
-              </p>
             </div>
           </div>
         </div>
         
-        {/* Right section - Admin Login Form */}
+        {/* Right section - Login Form */}
         <div className="w-full md:w-2/5 p-10 flex flex-col justify-center relative bg-[#000000]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#000000] to-[#1a1a1a] opacity-95" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#000000] to-[#111111] opacity-95" />
           
           <div className="relative z-10">
             {/* Form Header */}
             <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <Shield className="text-[#dc2626] w-8 h-8 mr-3" />
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#ffffff] via-[#dc2626] to-[#ffffff] bg-clip-text text-transparent font-['Plus_Jakarta_Sans']">
-                  Admin Sign In
-                </h2>
-              </div>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#ffffff] via-[#2563eb] to-[#ffffff] bg-clip-text text-transparent font-['Plus_Jakarta_Sans']">
+                Sign In
+              </h2>
               <p className="text-[#a3a3a3] text-base font-['Plus_Jakarta_Sans']">
-                Enter your administrative credentials
+                Enter your credentials to continue
               </p>
             </div>
             
@@ -257,30 +270,30 @@ export default function AdminLogin() {
               </div>
             )}
             
-            <form onSubmit={handleAdminLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-6">
               <div className="relative">
-                <label className="block text-sm font-medium text-[#ffffff] mb-2 font-['Plus_Jakarta_Sans']">Admin ID</label>
+                <label className="block text-sm font-medium text-[#ffffff] mb-2 font-['Plus_Jakarta_Sans']">Employee ID</label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-[#dc2626] z-10">
-                    <Shield size={20} />
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-[#2563eb] z-10">
+                    <Users size={20} />
                   </span>
                   <input
                     type="text"
-                    value={adminId}
-                    onChange={(e) => setAdminId(e.target.value)}
-                    placeholder="ADM001"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                    placeholder="ADM001 or EMP001"
                     className={`w-full pl-12 pr-4 py-3 rounded-lg border ${
-                      errors.adminId ? 'border-[#ef4444]' : 'border-[#2a2a2a]'
-                    } bg-[#161616] backdrop-blur-sm text-[#ffffff] placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#dc2626] focus:border-transparent transition-all duration-300 font-['Plus_Jakarta_Sans']`}
+                      errors.employeeId ? 'border-[#ef4444]' : 'border-[#2a2a2a]'
+                    } bg-[#161616] backdrop-blur-sm text-[#ffffff] placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent transition-all duration-300 font-['Plus_Jakarta_Sans']`}
                   />
                 </div>
-                {errors.adminId && <p className="text-[#ef4444] text-xs mt-2 font-['Plus_Jakarta_Sans']">{errors.adminId}</p>}
+                {errors.employeeId && <p className="text-[#ef4444] text-xs mt-2 font-['Plus_Jakarta_Sans']">{errors.employeeId}</p>}
               </div>
               
               <div className="relative">
                 <label className="block text-sm font-medium text-[#ffffff] mb-2 font-['Plus_Jakarta_Sans']">Password</label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-[#dc2626] z-10">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-[#2563eb] z-10">
                     <Lock size={20} />
                   </span>
                   <input
@@ -290,7 +303,7 @@ export default function AdminLogin() {
                     placeholder="••••••••"
                     className={`w-full pl-12 pr-12 py-3 rounded-lg border ${
                       errors.password ? 'border-[#ef4444]' : 'border-[#2a2a2a]'
-                    } bg-[#161616] backdrop-blur-sm text-[#ffffff] placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#dc2626] focus:border-transparent transition-all duration-300 font-['Plus_Jakarta_Sans']`}
+                    } bg-[#161616] backdrop-blur-sm text-[#ffffff] placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent transition-all duration-300 font-['Plus_Jakarta_Sans']`}
                   />
                   <button
                     type="button"
@@ -310,14 +323,14 @@ export default function AdminLogin() {
                     id="remember-me"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 text-[#dc2626] focus:ring-[#dc2626] border-[#2a2a2a] rounded bg-[#161616]"
+                    className="h-4 w-4 text-[#2563eb] focus:ring-[#2563eb] border-[#2a2a2a] rounded bg-[#161616]"
                   />
                   <label htmlFor="remember-me" className="ml-3 block text-sm text-[#a3a3a3] font-['Plus_Jakarta_Sans']">
                     Remember me
                   </label>
                 </div>
                 
-                <a href="/admin/forgot-password" className="text-sm font-medium text-[#dc2626] hover:text-[#b91c1c] transition-colors font-['Plus_Jakarta_Sans']">
+                <a href="/forgot-password" className="text-sm font-medium text-[#2563eb] hover:text-[#1d4ed8] transition-colors font-['Plus_Jakarta_Sans']">
                   Forgot password?
                 </a>
               </div>
@@ -325,7 +338,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 px-4 text-white bg-gradient-to-r from-[#dc2626] to-[#7c2d12] font-semibold rounded-lg shadow-glow-red focus:outline-none focus:ring-2 focus:ring-[#dc2626] focus:ring-offset-2 focus:ring-offset-[#000000] transition-all duration-300 transform hover:scale-105 hover:shadow-glow-red-large flex items-center justify-center font-['Plus_Jakarta_Sans']"
+                className="w-full py-3 px-4 text-transparent bg-gradient-to-r from-[#ff6600] to-[#0066ff] inline-block bg-clip-text font-semibold rounded-full shadow-glow focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-[#000000] transition-all duration-300 transform hover:scale-105 hover:shadow-glow-large flex items-center justify-center border border-[#2563eb] border-opacity-30 font-['Plus_Jakarta_Sans']"
               >
                 {isSubmitting ? (
                   <>
@@ -333,28 +346,16 @@ export default function AdminLogin() {
                     Authenticating...
                   </>
                 ) : (
-                  <>
-                    <Shield className="w-5 h-5 mr-2" />
-                    Access Admin Panel
-                  </>
+                  'Sign In to Portal'
                 )}
               </button>
             </form>
 
             {/* Demo Credentials Info */}
-            <div className="mt-6 p-4 bg-[#dc2626] bg-opacity-10 border border-[#dc2626] border-opacity-30 rounded-lg">
-              <p className="text-xs text-[#a3a3a3] font-['Plus_Jakarta_Sans'] mb-2">Demo Admin Credentials:</p>
+            <div className="mt-6 p-4 bg-[#2563eb] bg-opacity-10 border border-[#2563eb] border-opacity-30 rounded-lg">
+              <p className="text-xs text-[#a3a3a3] font-['Plus_Jakarta_Sans'] mb-2">Demo Credentials:</p>
               <p className="text-xs text-[#6b7280] font-['Plus_Jakarta_Sans']">Admin: ADM001 / ADM001@2023-01-01</p>
-            </div>
-
-            {/* Employee Login Link */}
-            <div className="text-center mt-6">
-              <p className="text-sm text-[#6b7280] font-['Plus_Jakarta_Sans']">
-                Not an admin?{' '}
-                <a href="/login" className="text-[#dc2626] hover:text-[#b91c1c] transition-colors font-medium">
-                  Employee Login
-                </a>
-              </p>
+              <p className="text-xs text-[#6b7280] font-['Plus_Jakarta_Sans']">Employee: EMP001 / EMP001@2023-03-20</p>
             </div>
 
             {/* Footer */}
@@ -377,20 +378,20 @@ export default function AdminLogin() {
         }
         
         @keyframes glow-pulse {
-          0% { filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.6)); }
-          100% { filter: drop-shadow(0 0 30px rgba(220, 38, 38, 1)); }
+          0% { filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.6)); }
+          100% { filter: drop-shadow(0 0 30px rgba(37, 99, 235, 1)); }
         }
         
         .animate-success-modal {
           animation: success-modal 0.3s ease-out forwards;
         }
         
-        .shadow-glow-red {
-          box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+        .shadow-glow {
+          box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
         }
         
-        .shadow-glow-red-large {
-          box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+        .shadow-glow-large {
+          box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
         }
         
         .shadow-glow-success {

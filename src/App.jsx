@@ -17,6 +17,7 @@ import PublicEmployeeLayout from './layouts/PubliclayoutEmp';
 import HomeAdmin from './shared/pages/HomeAdmin';
 import HomeEmployee from './shared/pages/HomeEmp';
 import Login from './shared/pages/Login';
+import AdminLogin from './shared/pages/AdminLogin.jsx';
 import MyLearning from './shared/pages/MyLearning';
 import PolicyDetail from './shared/pages/PolicyDetail';
 import PolicyLanding from './shared/pages/PolicyLanding';
@@ -43,56 +44,28 @@ import EmployeeProfile from './employee/pages/EmployeeProfile';
 import Summary from './employee/pages/EmployeeSummary';
 import MyTasks from './employee/pages/MyTasks';
 
-// Define all possible roles
-const ALL_ROLES = {
-  ADMIN: 'Admin',
-  MANAGER: 'Manager',
-  TEAM_LEAD: 'Team Lead',
-  EMPLOYEE: 'Employee',
-  HR_VIEWER: 'HR Viewer',
-  CONTRACTOR: 'Contractor',
-  NO_ROLE: 'Nothing'
-};
-
-// Redirect component with complete role handling
+// Redirect component that uses the RolesContext
 const RedirectToLogin = () => {
   const { user } = useAuth();
   const { roles, loading } = useRoles();
 
-  if (loading) {
-    return <div>Loading roles...</div>;
-  }
+  // Show loading while roles are being fetched
+  // if (loading) {
+  //   return <div>Loading roles...</div>;
+  // }
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user?.role === ALL_ROLES.ADMIN) return <Navigate to="/admin/home" replace />;
-  
-  // Check if user's role exists in the roles array from context
+  // Check role names from the RolesContext
+  if ( ["Super Admin", "Admin"].includes(user?.role) ) return <Navigate to="/admin/home" replace />;
   if (roles.includes(user?.role)) {
     return <Navigate to="/employee/home" replace />;
   }
-
-  return <Navigate to="/unauthorized" replace />;
+  return <Navigate to="/login" replace />;
 };
 
-// Main App Routes with complete role handling
+// Main App Routes component that uses contexts
 const AppRoutes = () => {
-  const { roles, loading } = useRoles();
-
-  if (loading) {
-    return <div>Loading application...</div>;
-  }
-
-  // Combine context roles with default roles as fallback
-  const employeeRoles = roles?.length ? roles : [
-    ALL_ROLES.MANAGER,
-    ALL_ROLES.TEAM_LEAD,
-    ALL_ROLES.EMPLOYEE,
-    ALL_ROLES.HR_VIEWER,
-    ALL_ROLES.CONTRACTOR,
-    ALL_ROLES.NO_ROLE
-  ];
-
   return (
     <Routes>
       {/* Root: Redirect to login or role-based public layout */}
@@ -104,13 +77,13 @@ const AppRoutes = () => {
       </Route>
 
       <Route path="/naxrita-admin/login" element={<BlankLayout />}>
-        <Route index element={<Login />} />
+        <Route index element={<AdminLogin />} />
       </Route>
 
       {/* Admin Public Layout */}
       <Route
         element={
-          <ProtectedRoute allowedRoles={[ALL_ROLES.ADMIN]}>
+          <ProtectedRoute allowedRoles={['Admin', 'Super Admin']}>
             <PublicAdminLayout />
           </ProtectedRoute>
         }
@@ -126,7 +99,7 @@ const AppRoutes = () => {
       {/* Employee Public Layout */}
       <Route
         element={
-          <ProtectedRoute allowedRoles={employeeRoles}>
+          <ProtectedRoute allowedRoles={['Manager', 'Team Lead', 'Employee', 'HR Viewer', 'Contractor', 'Nothing']}>
             <PublicEmployeeLayout />
           </ProtectedRoute>
         }
@@ -142,7 +115,7 @@ const AppRoutes = () => {
       {/* Admin Dashboard Layout */}
       <Route
         element={
-          <ProtectedRoute allowedRoles={[ALL_ROLES.ADMIN]}>
+          <ProtectedRoute allowedRoles={['Admin', 'Super Admin']}>
             <AdminLayout />
           </ProtectedRoute>
         }
@@ -162,7 +135,7 @@ const AppRoutes = () => {
       {/* Employee Dashboard Layout */}
       <Route
         element={
-          <ProtectedRoute allowedRoles={employeeRoles}>
+          <ProtectedRoute allowedRoles={['Manager', 'Team Lead', 'Employee', 'HR Viewer', 'Contractor', 'Nothing']}>
             <EmployeeLayout />
           </ProtectedRoute>
         }

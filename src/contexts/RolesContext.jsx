@@ -10,7 +10,7 @@ export const RolesProvider = ({ children }) => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/role-department/roles');
+        const response = await fetch(`${process.env.REACT_APP_URL}/api/role-department/roles`);
         const data = await response.json();
         const roleNames = data.roles.map(role => role.name);
         setRoles(roleNames);
